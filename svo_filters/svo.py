@@ -8,6 +8,7 @@ from astropy.utils.exceptions import AstropyWarning
 from glob import glob
 import astropy.table as at
 import astropy.io.votable as vo
+import astropy.units as q
 import matplotlib.pyplot as plt
 import warnings
 import pkg_resources
@@ -16,6 +17,9 @@ import urllib
 import os
 
 warnings.simplefilter('ignore', category=AstropyWarning)
+WL_KEYS = ['FWHM', 'WavelengthCen', 'WavelengthEff', 'WavelengthMax',
+           'WavelengthMean', 'WavelengthMin', 'WavelengthPeak', 
+           'WavelengthPhot', 'WavelengthPivot', 'WidthEff']
 
 class Filter(object):
     """
@@ -82,7 +86,8 @@ class Filter(object):
         The SVO filter ID
     
     """
-    def __init__(self, band, filter_directory=pkg_resources.resource_filename('svo_filters', 'filters/'), **kwargs):
+    def __init__(self, band, filter_directory=pkg_resources.resource_filename('svo_filters', 'filters/'), 
+                 wl_units=q.um, **kwargs):
         """
         Loads the bandpass data into the Filter object
         
@@ -92,6 +97,8 @@ class Filter(object):
             The bandpass filename (e.g. 2MASS.J)
         filter_directory: str
             The directory containing the filter files
+        wl_units: str, astropy.units.core.PrefixUnit, astropy.units.core.CompositeUnit (optional)
+            The wavelength units
         """
         # Get list of filters
         filters = filter_list(filter_directory)
@@ -130,9 +137,6 @@ class Filter(object):
             vot = vo.parse_single_table(filepath)
             self.rsr = np.array([list(i) for i in vot.array]).T
             
-            # Convert to microns
-            self.rsr *= np.array([[0.0001],[1.]])
-            
             # Parse the filter metadata
             for p in [str(p).split() for p in vot.params]:
                 
@@ -155,6 +159,11 @@ class Filter(object):
                 if key!='Description':
                     setattr(self, key, val)
                     
+            # Set wavelength units
+            self.WavelengthUnit = q.Unit(self.WavelengthUnit)
+            for key in WL_KEYS:
+                setattr(self, key, getattr(self, key)*self.WavelengthUnit)
+                
             # Create some attributes
             self.path = filepath
             self.n_channels = len(self.rsr[0])
@@ -174,6 +183,10 @@ class Filter(object):
             # Bin from the get-go
             if kwargs:
                 self.bin(**kwargs)
+                
+            # Set the wavelength units
+            if wl_units:
+                self.set_units(wl_units)
             
         # If empty, delete XML file
         except TypeError:
@@ -307,7 +320,7 @@ class Filter(object):
         except:
             plt.plot(*self.rsr)
             
-        plt.xlabel('Wavelength [um]')
+        plt.xlabel('Wavelength [{}]'.format(str(self.WavelengthUnit)))
         plt.ylabel('Throughput')
         
     def info(self):
@@ -327,6 +340,24 @@ class Filter(object):
         # Sort and print
         table.sort('Attributes')
         table.pprint(max_width=-1, align=['>','<'])
+        
+    def set_units(self, wl_units=q.um):
+        """
+        Set the wavelength and flux units
+        
+        Parameters
+        ----------
+        wl_units: str, astropy.units.core.PrefixUnit, astropy.units.core.CompositeUnit
+            The wavelength units
+        """
+        # Set wavelength units
+        old_unit = self.WavelengthUnit
+        self.WavelengthUnit = q.Unit(wl_units)
+        for key in WL_KEYS:
+            setattr(self, key, getattr(self, key).to(self.WavelengthUnit))
+            
+        # Update the rsr curve
+        self.raw[0] *= (old_unit/self.WavelengthUnit).decompose()._scale 
         
 def filter_list(filter_directory=pkg_resources.resource_filename('svo_filters', 'filters/')):
     """
