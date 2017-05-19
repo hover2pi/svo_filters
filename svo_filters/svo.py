@@ -1,17 +1,21 @@
 #!/usr/bin/python
 # -*- coding: latin-1 -*-
 """
-A module for classes and functions used across all ExoCTK subpackages
+A Python wrapper for the SVO Filter Profile Service
 """
 from __future__ import print_function
-
+from astropy.utils.exceptions import AstropyWarning
 from glob import glob
 import astropy.table as at
+import astropy.io.votable as vo
 import matplotlib.pyplot as plt
+import warnings
 import pkg_resources
 import numpy as np
 import urllib
 import os
+
+warnings.simplefilter('ignore', category=AstropyWarning)
 
 class Filter(object):
     """
@@ -78,7 +82,7 @@ class Filter(object):
         The SVO filter ID
     
     """
-    def __init__(self, band, filter_directory='', **kwargs):
+    def __init__(self, band, filter_directory=pkg_resources.resource_filename('svo_filters', 'filters/'), **kwargs):
         """
         Loads the bandpass data into the Filter object
         
@@ -90,7 +94,7 @@ class Filter(object):
             The directory containing the filter files
         """
         # Get list of filters
-        filters = filter_list(filter_directory) if filter_directory else filter_list()
+        filters = filter_list(filter_directory)
         filepath = filters['path']+band
         
         # If the filter is missing, ask what to do
@@ -172,7 +176,7 @@ class Filter(object):
                 self.bin(**kwargs)
             
         # If empty, delete XML file
-        except:
+        except TypeError:
             
             print('No filter named',band)
             if os.path.isfile(filepath):
@@ -228,7 +232,7 @@ class Filter(object):
         
         return filtered.squeeze()
         
-    def bin(self, n_bins='', n_channels='', bin_throughput='', plot=False):
+    def bin(self, n_bins='', n_channels='', bin_throughput=''):
         """
         Break the filter up into bins and apply a throughput to each bin,
         useful for G141, G102, and other grisms
@@ -242,8 +246,6 @@ class Filter(object):
         bin_throughput: array-like (optional)
             The throughput for each bin (top hat by default)
             must be of length n_channels
-        plot: bool
-            Plot the throughput before and after binning
         """
         # Calculate the number of bins and channels
         rsr = len(self.raw[0])
@@ -289,13 +291,25 @@ class Filter(object):
         else:
             print('bin_throughput must be an array of length',self.n_channels)
             print('Using top hat throughput for each bin.')
-            
-        if plot:
-            plt.plot(*self.centers, ls='None', marker='.', c='k')
-            plt.plot(self.raw[0], self.raw[1], lw=6, alpha=0.1)
+                
+    def plot(self):
+        """
+        Plot the filter
+        """
+        # If the filter is binned, plot each with bin centers
+        try:
             for x,y in self.rsr:
                 plt.plot(x, y)
-                
+            plt.plot(*self.centers, ls='None', marker='.', c='k')
+            plt.plot(self.raw[0], self.raw[1], lw=6, alpha=0.1, zorder=0)
+            
+        # Otherwise just plot curve
+        except:
+            plt.plot(*self.rsr)
+            
+        plt.xlabel('Wavelength [um]')
+        plt.ylabel('Throughput')
+        
     def info(self):
         """
         Print a table of info about the current filter
