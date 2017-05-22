@@ -192,8 +192,8 @@ class Filter(object):
         except TypeError:
             
             print('No filter named',band)
-            if os.path.isfile(filepath):
-                os.remove(filepath)
+            # if os.path.isfile(filepath):
+            #     os.remove(filepath)
                 
             return
             
@@ -357,7 +357,10 @@ class Filter(object):
             setattr(self, key, getattr(self, key).to(self.WavelengthUnit))
             
         # Update the rsr curve
-        self.raw[0] *= (old_unit/self.WavelengthUnit).decompose()._scale 
+        const = (old_unit/self.WavelengthUnit).decompose()._scale 
+        self.raw[0] *= const
+        self.rsr[:,0] *= const
+        self.centers[0] *= const
         
 def filter_list(filter_directory=pkg_resources.resource_filename('svo_filters', 'filters/')):
     """
