@@ -268,6 +268,9 @@ class Filter(object):
         elif n_bins and isinstance(n_bins,int):
             self.n_bins = int(n_bins)
             self.n_channels = int(rsr/self.n_bins)
+        elif not n_bins and not n_channels \
+        and isinstance(bin_throughput, (list,tuple,np.ndarray)):
+            pass
         else:
             print('Please specify n_bins or n_channels as integers.')
             return
