@@ -88,7 +88,7 @@ class Filter(object):
     
     """
     def __init__(self, band, filter_directory=pkg_resources.resource_filename('svo_filters', 'data/filters/'), 
-                 wl_units=q.um, **kwargs):
+                 wl_units=q.um, DELETE=False, **kwargs):
         """
         Loads the bandpass data into the Filter object
         
@@ -100,6 +100,8 @@ class Filter(object):
             The directory containing the filter files
         wl_units: str, astropy.units.core.PrefixUnit  (optional)
             The wavelength units
+        DELETE: bool
+            Delete the given filter
         """
         # Get list of filters
         files = glob(filter_directory+'*')
@@ -197,6 +199,16 @@ class Filter(object):
                 
             return
             
+    def delete(self):
+        """
+        Delete the current filter
+        """
+        do_it = input('Are you sure you want to delete {} ? [y/n] '.format(self.filterID))
+        if do_it.lower()=='y':
+            os.remove(self.path)
+            
+            filters(update=True)
+    
     def apply(self, spectrum, plot=False):
         """
         Apply the filter to the given spectrum
