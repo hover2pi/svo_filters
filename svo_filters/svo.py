@@ -98,7 +98,7 @@ class Filter(object):
             The bandpass filename (e.g. 2MASS.J)
         filter_directory: str
             The directory containing the filter files
-        wl_units: str, astropy.units.core.PrefixUnit, astropy.units.core.CompositeUnit (optional)
+        wl_units: str, astropy.units.core.PrefixUnit  (optional)
             The wavelength units
         """
         # Get list of filters
@@ -163,11 +163,6 @@ class Filter(object):
                 # Set the attribute
                 if key!='Description':
                     setattr(self, key, val)
-                    
-            # Set wavelength units
-            self.WavelengthUnit = q.Unit(self.WavelengthUnit)
-            for key in WL_KEYS:
-                setattr(self, key, getattr(self, key)*self.WavelengthUnit)
                 
             # Create some attributes
             self.path = filepath
@@ -260,7 +255,8 @@ class Filter(object):
         n_bins: int
             The number of bins to dice the throughput curve into
         n_cahnnels: int (optional)
-            The number of channels per bin, which will be used to calculate n_bins
+            The number of channels per bin, which will be used 
+            to calculate n_bins
         bin_throughput: array-like (optional)
             The throughput for each bin (top hat by default)
             must be of length n_channels
@@ -337,7 +333,7 @@ class Filter(object):
         """
         # Get the info from the class 
         tp = (int, bytes, bool, str, float, tuple, list, np.ndarray)
-        exclude = ['rsr', 'bin_throughput', 'raw']
+        exclude = ['rsr', 'bin_throughput', 'raw', 'centers']
         info = [[k,str(v)] for k,v in vars(self).items() if isinstance(v, tp)
                 and k not in exclude]
                 
@@ -351,7 +347,7 @@ class Filter(object):
         if fetch:
             return table
         else:
-            table.pprint(max_width=-1, align=['>','<'])
+            table.pprint(max_width=-1, max_lines=-1, align=['>','<'])
         
     def set_units(self, wl_units=q.um):
         """
@@ -359,23 +355,25 @@ class Filter(object):
         
         Parameters
         ----------
-        wl_units: str, astropy.units.core.PrefixUnit, astropy.units.core.CompositeUnit
+        wl_units: str, astropy.units.core.PrefixUnit
             The wavelength units
         """
         # Set wavelength units
-        old_unit = self.WavelengthUnit
-        self.WavelengthUnit = q.Unit(wl_units)
+        old_unit = q.Unit(self.WavelengthUnit)
+        new_unit = q.Unit(wl_units)
         for key in WL_KEYS:
-            setattr(self, key, getattr(self, key).to(self.WavelengthUnit))
+            old_val = getattr(self, key)*old_unit
+            setattr(self, key, round(old_val.to(new_unit).value, 5))
             
         # Update the rsr curve
-        const = (old_unit/self.WavelengthUnit).decompose()._scale 
+        const = (old_unit/new_unit).decompose()._scale 
         self.raw[0] *= const
         self.rsr[:,0] *= const
         self.centers[0] *= const
+        self.WavelengthUnit = str(new_unit)
         
 def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
-            'data/filters/'), update=False, fmt='table'):
+            'data/filters/'), update=False, fmt='table', **kwargs):
     """
     Get a list of the available filters
     
@@ -385,7 +383,9 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
         The directory containing the filter relative spectral response curves
     update: bool
         Check the filter directory for new filters and generate pickle of table
-    
+    fmt: str
+        The format for the returned table
+        
     Returns
     -------
     list
@@ -409,7 +409,7 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
         for band in bands:
             
             # Load the filter
-            filt = Filter(band)
+            filt = Filter(band, **kwargs)
             filt.Band = band
             
             # Put metadata into table
@@ -435,7 +435,8 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
     if data:
         
         if fmt=='dict':
-            data = {r[0]:{k:v for k,v in zip(data.keys()[1:],r[1:])} for r in data}
+            data = {r[0]:{k:r[k].value if hasattr(r[k],'unit') else r[k] \
+                    for k in data.keys()[1:]} for r in data}
             
         return data
         
