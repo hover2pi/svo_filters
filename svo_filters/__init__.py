@@ -1,5 +1,4 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
 This is an Astropy affiliated package.
 """
@@ -14,4 +13,3 @@ if not _ASTROPY_SETUP_:
     # For egg_info test builds to pass, put package imports here.
 
     from .example_mod import *
-
