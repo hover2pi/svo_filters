@@ -11,6 +11,7 @@ import astropy.io.votable as vo
 import astropy.units as q
 import matplotlib.pyplot as plt
 import warnings
+import pickle
 import pkg_resources
 import numpy as np
 import urllib
@@ -101,14 +102,15 @@ class Filter(object):
             The wavelength units
         """
         # Get list of filters
-        filters = filter_list(filter_directory)
-        filepath = filters['path']+band
+        files = glob(filter_directory+'*')
+        bands = [os.path.basename(b) for b in files]
+        filepath = filter_directory+band
         
         # If the filter is missing, ask what to do
-        if filepath not in filters['files']:
+        if filepath not in files:
             
             print('Current filters:',
-                  ', '.join(filters['bands']),
+                  ', '.join(bands),
                   '\n')
         
             print('No filters match',filepath)
@@ -329,7 +331,7 @@ class Filter(object):
         plt.xlabel('Wavelength [{}]'.format(str(self.WavelengthUnit)))
         plt.ylabel('Throughput')
         
-    def info(self):
+    def info(self, fetch=False):
         """
         Print a table of info about the current filter
         """
@@ -345,7 +347,11 @@ class Filter(object):
         
         # Sort and print
         table.sort('Attributes')
-        table.pprint(max_width=-1, align=['>','<'])
+        
+        if fetch:
+            return table
+        else:
+            table.pprint(max_width=-1, align=['>','<'])
         
     def set_units(self, wl_units=q.um):
         """
@@ -368,7 +374,8 @@ class Filter(object):
         self.rsr[:,0] *= const
         self.centers[0] *= const
         
-def filter_list(filter_directory=pkg_resources.resource_filename('svo_filters', 'data/filters/')):
+def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
+            'data/filters/'), update=False, fmt='table'):
     """
     Get a list of the available filters
     
@@ -376,13 +383,67 @@ def filter_list(filter_directory=pkg_resources.resource_filename('svo_filters', 
     ----------
     filter_directory: str
         The directory containing the filter relative spectral response curves
+    update: bool
+        Check the filter directory for new filters and generate pickle of table
     
     Returns
     -------
     list
         The list of band names
     """
-    files = glob(filter_directory+'*')
-    bands = [os.path.basename(b) for b in files]
+    # Get the pickle path and make sure file exists
+    p_path = filter_directory.split('/filters/')[0]+'/filter_list.p'
+    updated = False
+    if not os.path.isfile(p_path):
+        os.system('touch {}'.format(p_path))
+        
+    if update:
+        
+        print('Loading filters into table...')
+        
+        # Get all the filters
+        files = glob(filter_directory+'*')
+        bands = [os.path.basename(b) for b in files]
+        tables = []
+        
+        for band in bands:
+            
+            # Load the filter
+            filt = Filter(band)
+            filt.Band = band
+            
+            # Put metadata into table
+            info = filt.info(True)
+            table = at.Table(info['Values'], names=info['Attributes'])
+            
+            tables.append(table)
+            
+            del filt, info, table
+            
+        # Write to the pickle
+        with open(p_path, 'wb') as file:
+            pickle.dump(at.vstack(tables), file)
+        
+    # Load the saved pickle
+    try:
+        with open(p_path, 'rb') as file:
+            data = pickle.load(file)
+    except:
+        data = {}
     
-    return {'files':files, 'bands':bands, 'path':filter_directory}
+    # Return the data 
+    if data:
+        
+        if fmt=='dict':
+            data = {r[0]:{k:v for k,v in zip(data.keys()[1:],r[1:])} for r in data}
+            
+        return data
+        
+    # Or try to generate it once
+    else:
+        if not updated:
+            updated = True
+            filters(update=True)
+        else:
+            print('No filters found in',filter_directory)
+            
