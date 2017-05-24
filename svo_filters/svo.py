@@ -452,9 +452,12 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
             filt = Filter(band, **kwargs)
             filt.Band = band
             
-            # Put metadata into table
+            # Put metadata into table with correct dtypes
             info = filt.info(True)
-            table = at.Table(info['Values'], names=info['Attributes'])
+            vals = [float(i) if i.replace('.','').replace('-','')\
+                .replace('+','').isnumeric() else i for i in info['Values']]
+            dtypes = np.array([type(i) for i in vals])
+            table = at.Table(np.array([vals]), names=info['Attributes'], dtype=dtypes)
             
             tables.append(table)
             
