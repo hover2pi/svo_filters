@@ -9,6 +9,7 @@ from glob import glob
 import astropy.table as at
 import astropy.io.votable as vo
 import astropy.units as q
+import astropy.constants as ac
 import matplotlib.pyplot as plt
 import warnings
 import pickle
@@ -88,7 +89,7 @@ class Filter(object):
     
     """
     def __init__(self, band, filter_directory=pkg_resources.resource_filename('svo_filters', 'data/filters/'), 
-                 wl_units=q.um, DELETE=False, **kwargs):
+                 wl_units=q.um, zp_units=q.erg/q.s/q.cm**2/q.AA, DELETE=False, **kwargs):
         """
         Loads the bandpass data into the Filter object
         
@@ -100,6 +101,8 @@ class Filter(object):
             The directory containing the filter files
         wl_units: str, astropy.units.core.PrefixUnit  (optional)
             The wavelength units
+        zp_units: str, astropy.units.core.PrefixUnit  (optional)
+            The zeropoint flux units
         DELETE: bool
             Delete the given filter
         """
@@ -188,7 +191,11 @@ class Filter(object):
                 
             # Set the wavelength units
             if wl_units:
-                self.set_units(wl_units)
+                self.set_wl_units(wl_units)
+                
+            # Set zeropoint flux units
+            if zp_units:
+                self.set_zp_units(zp_units)
             
         # If empty, delete XML file
         except TypeError:
@@ -361,7 +368,7 @@ class Filter(object):
         else:
             table.pprint(max_width=-1, max_lines=-1, align=['>','<'])
         
-    def set_units(self, wl_units=q.um):
+    def set_wl_units(self, wl_units):
         """
         Set the wavelength and flux units
         
@@ -383,6 +390,27 @@ class Filter(object):
         self.rsr[:,0] *= const
         self.centers[0] *= const
         self.WavelengthUnit = str(new_unit)
+        
+    def set_zp_units(self, zp_units):
+        """
+        Set the wavelength and flux units
+        
+        Parameters
+        ----------
+        zp_units: str, astropy.units.core.PrefixUnit
+            The units of the zeropoint flux density
+        """
+        # Set zeropoint flux units
+        old_unit = q.Unit(self.ZeroPointUnit)
+        new_unit = q.Unit(zp_units)
+        
+        f_nu = self.ZeroPoint*old_unit
+        lam = self.WavelengthEff*q.Unit(self.WavelengthUnit)
+        f_lam = (f_nu*ac.c/lam**2).to(new_unit)
+        
+        # Update the attributes curve
+        self.ZeroPoint = f_lam.value
+        self.ZeroPointUnit = str(new_unit)
         
 def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
             'data/filters/'), update=False, fmt='table', **kwargs):
