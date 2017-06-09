@@ -36,6 +36,7 @@ AUTHOR = metadata.get('author', 'Joe Filippazzo')
 AUTHOR_EMAIL = metadata.get('author_email', '')
 LICENSE = metadata.get('license', 'unknown')
 URL = metadata.get('url', 'https://github.com/hover2pi/svo_filters')
+DOWNLOAD_URL = metadata.get('download_url', 'https://github.com/hover2pi/svo_filters')
 
 # order of priority for long_description:
 #   (1) set in setup.cfg,
@@ -136,5 +137,6 @@ setup(name=PACKAGENAME,
       zip_safe=False,
       use_2to3=False,
       entry_points=entry_points,
+      download_url=DOWNLOAD_URL
       **package_info
 )
