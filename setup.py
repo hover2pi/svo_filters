@@ -137,6 +137,5 @@ setup(name=PACKAGENAME,
       zip_safe=False,
       use_2to3=False,
       entry_points=entry_points,
-      download_url=DOWNLOAD_URL,
-      **package_info
+      download_url=DOWNLOAD_URL
 )
