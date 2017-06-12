@@ -21,7 +21,8 @@ import os
 warnings.simplefilter('ignore', category=AstropyWarning)
 WL_KEYS = ['FWHM', 'WavelengthCen', 'WavelengthEff', 'WavelengthMax',
            'WavelengthMean', 'WavelengthMin', 'WavelengthPeak', 
-           'WavelengthPhot', 'WavelengthPivot', 'WidthEff']
+           'WavelengthPhot', 'WavelengthPivot', 'WidthEff',
+           'wl_min', 'wl_max']
 
 class Filter(object):
     """
@@ -158,37 +159,30 @@ class Filter(object):
                 if p[2].split('"')[1]=='float'\
                 or p[3].split('"')[1]=='float':
                     val = float(val)
-                
+                    
                 else:
                     val = val.replace('b&apos;','')\
                              .replace('&apos','')\
                              .replace('&amp;','&')\
                              .strip(';')
-                
+                             
                 # Set the attribute
                 if key!='Description':
                     setattr(self, key, val)
-                
+                    
             # Create some attributes
             self.path = filepath
             self.n_channels = len(self.rsr[0])
             self.n_bins = 1
             self.raw = self.rsr
+            self.wl_min = self.WavelengthMin
+            self.wl_max = self.WavelengthMax
             
             # Get the bin centers
             w_cen = np.nanmean(self.rsr[0])
             f_cen = np.nanmean(self.rsr[1])
             self.centers = np.asarray([[w_cen],[f_cen]])
             
-            try:
-                self.refs = [self.CalibrationReference.split('=')[-1]]
-            except:
-                self.refs = []
-                
-            # Bin from the get-go
-            if kwargs:
-                self.bin(**kwargs)
-                
             # Set the wavelength units
             if wl_units:
                 self.set_wl_units(wl_units)
@@ -197,8 +191,18 @@ class Filter(object):
             if zp_units:
                 self.set_zp_units(zp_units)
             
+            # Get references
+            try:
+                self.refs = [self.CalibrationReference.split('=')[-1]]
+            except:
+                self.refs = []
+                
+            # Bin
+            if kwargs:
+                self.bin(**kwargs)
+                    
         # If empty, delete XML file
-        except TypeError:
+        except IOError:
             
             print('No filter named',band)
             # if os.path.isfile(filepath):
@@ -264,7 +268,8 @@ class Filter(object):
         
         return filtered.squeeze()
         
-    def bin(self, n_bins='', n_channels='', bin_throughput=''):
+    def bin(self, n_bins=1, n_channels='', bin_throughput='',
+            wl_min='', wl_max=''):
         """
         Break the filter up into bins and apply a throughput to each bin,
         useful for G141, G102, and other grisms
@@ -279,9 +284,34 @@ class Filter(object):
         bin_throughput: array-like (optional)
             The throughput for each bin (top hat by default)
             must be of length n_channels
+        wl_min: astropy.units.quantity (optional)
+            The minimum wavelength to use
+        wl_max: astropy.units.quantity (optional)
+            The maximum wavelength to use
         """
+        # Set n_bins and n_channels
+        self.n_bins = 1
+        self.n_channels = len(self.raw[0])
+        
+        # Get wavelength limits
+        unit = q.Unit(self.WavelengthUnit)
+        if not wl_min:
+            wl_min = self.wl_min*unit
+        if not wl_max:
+            wl_max = self.wl_max*unit
+            
+        # Apply wavelength unit
+        wl_min = wl_min.to(unit)
+        wl_max = wl_max.to(unit)
+        r = self.raw
+        
+        # Trim the rsr by the given min and max
+        self.rsr = r[:,np.logical_and(r[0]*unit>wl_min,r[0]*unit<wl_max)]
+        print('Bandpass trimmed to',
+              '{} - {}'.format(wl_min,wl_max))
+              
         # Calculate the number of bins and channels
-        rsr = len(self.raw[0])
+        rsr = len(self.rsr[0])
         if n_channels and isinstance(n_channels,int):
             self.n_channels = int(n_channels)
             self.n_bins = int(rsr/self.n_channels)
@@ -300,7 +330,7 @@ class Filter(object):
         # Trim throughput edges so that there are an integer number of bins
         new_len = self.n_bins*self.n_channels
         start = (rsr-new_len)//2
-        self.rsr = np.copy(self.raw[:,start:new_len+start])
+        self.rsr = np.copy(self.rsr[:,start:new_len+start])
         
         # Reshape the throughput array
         self.rsr = self.rsr.reshape(2,self.n_bins,self.n_channels)
@@ -411,7 +441,7 @@ class Filter(object):
         # Update the attributes curve
         self.ZeroPoint = f_lam.value
         self.ZeroPointUnit = str(new_unit)
-        
+
 def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
             'data/filters/'), update=False, fmt='table', **kwargs):
     """
