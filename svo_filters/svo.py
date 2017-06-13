@@ -107,109 +107,126 @@ class Filter(object):
         DELETE: bool
             Delete the given filter
         """
-        # Get list of filters
-        files = glob(filter_directory+'*')
-        bands = [os.path.basename(b) for b in files]
-        filepath = filter_directory+band
-        
-        # If the filter is missing, ask what to do
-        if filepath not in files:
+        # Check if TopHat
+        if band.lower().replace('-','').replace(' ','')=='tophat':
             
-            print('Current filters:',
-                  ', '.join(bands),
-                  '\n')
-        
-            print('No filters match',filepath)
-            dl = input('Would you like me to download it? [y/n] ')
+            # check kwargs for limits
+            wl_min = kwargs.get('wl_min')
+            wl_max = kwargs.get('wl_max')
+            filepath = ''
             
-            if dl.lower()=='y':
-                
-                # Prompt for new filter
-                print('\nA full list of available filters from the\n'\
-                      'SVO Filter Profile Service can be found at\n'\
-                      'http://svo2.cab.inta-csic.es/theory/fps3/\n')
-                band = input('Enter the band name to retrieve (e.g. 2MASS/2MASS.J): ')
-                
-                # Download the XML (VOTable) file
-                baseURL = 'http://svo2.cab.inta-csic.es/svo/theory/fps/fps.php?ID='
-                filepath = filter_directory+os.path.basename(band)
-                _ = urllib.request.urlretrieve(baseURL+band, filepath)
-                
-                # Print the new filepath
-                print('Band stored as',filepath)
-            
-            else:
+            if not wl_min and not wl_max:
+                print("Please provide **{'wl_min','wl_max'} to create top hat filter.")
                 return
+            else:
+                # Load the filter
+                self.load_TopHat(wl_min, wl_max)
             
-        # Try to read filter info
-        try:
+        else:
             
-            # Parse the XML file
-            vot = vo.parse_single_table(filepath)
-            self.rsr = np.array([list(i) for i in vot.array]).T
+            # Get list of filters
+            files = glob(filter_directory+'*')
+            bands = [os.path.basename(b) for b in files]
+            filepath = filter_directory+band
             
-            # Parse the filter metadata
-            for p in [str(p).split() for p in vot.params]:
+            # If the filter is missing, ask what to do
+            if filepath not in files:
+            
+                print('Current filters:',
+                      ', '.join(bands),
+                      '\n')
+                      
+                print('No filters match',filepath)
+                dl = input('Would you like me to download it? [y/n] ')
                 
-                # Extract the key/value pairs
-                key = p[1].split('"')[1]
-                val = p[-1].split('"')[1]
-                
-                # Do some formatting
-                if p[2].split('"')[1]=='float'\
-                or p[3].split('"')[1]=='float':
-                    val = float(val)
+                if dl.lower()=='y':
+                    
+                    # Prompt for new filter
+                    print('\nA full list of available filters from the\n'\
+                          'SVO Filter Profile Service can be found at\n'\
+                          'http://svo2.cab.inta-csic.es/theory/fps3/\n')
+                    band = input('Enter the band name to retrieve (e.g. 2MASS/2MASS.J): ')
+                    
+                    # Download the XML (VOTable) file
+                    baseURL = 'http://svo2.cab.inta-csic.es/svo/theory/fps/fps.php?ID='
+                    filepath = filter_directory+os.path.basename(band)
+                    _ = urllib.request.urlretrieve(baseURL+band, filepath)
+                    
+                    # Print the new filepath
+                    print('Band stored as',filepath)
                     
                 else:
-                    val = val.replace('b&apos;','')\
-                             .replace('&apos','')\
-                             .replace('&amp;','&')\
-                             .strip(';')
-                             
-                # Set the attribute
-                if key!='Description':
-                    setattr(self, key, val)
+                    return
                     
-            # Create some attributes
-            self.path = filepath
-            self.n_channels = len(self.rsr[0])
-            self.n_bins = 1
-            self.raw = self.rsr
-            self.wl_min = self.WavelengthMin
-            self.wl_max = self.WavelengthMax
-            
-            # Get the bin centers
-            w_cen = np.nanmean(self.rsr[0])
-            f_cen = np.nanmean(self.rsr[1])
-            self.centers = np.asarray([[w_cen],[f_cen]])
-            
-            # Set the wavelength units
-            if wl_units:
-                self.set_wl_units(wl_units)
-                
-            # Set zeropoint flux units
-            if zp_units:
-                self.set_zp_units(zp_units)
-            
-            # Get references
+            # Try to read filter info
             try:
-                self.refs = [self.CalibrationReference.split('=')[-1]]
-            except:
-                self.refs = []
                 
-            # Bin
-            if kwargs:
-                self.bin(**kwargs)
+                # Parse the XML file
+                vot = vo.parse_single_table(filepath)
+                self.rsr = np.array([list(i) for i in vot.array]).T
+                
+                # Parse the filter metadata
+                for p in [str(p).split() for p in vot.params]:
+                
+                    # Extract the key/value pairs
+                    key = p[1].split('"')[1]
+                    val = p[-1].split('"')[1]
                     
-        # If empty, delete XML file
-        except IOError:
-            
-            print('No filter named',band)
-            # if os.path.isfile(filepath):
-            #     os.remove(filepath)
+                    # Do some formatting
+                    if p[2].split('"')[1]=='float'\
+                    or p[3].split('"')[1]=='float':
+                        val = float(val)
+                        
+                    else:
+                        val = val.replace('b&apos;','')\
+                                 .replace('&apos','')\
+                                 .replace('&amp;','&')\
+                                 .strip(';')
+                                 
+                    # Set the attribute
+                    if key!='Description':
+                        setattr(self, key, val)
+                        
+                # Create some attributes
+                self.path = filepath
+                self.n_channels = len(self.rsr[0])
+                self.n_bins = 1
+                self.raw = self.rsr.copy()
+                self.wl_min = self.WavelengthMin
+                self.wl_max = self.WavelengthMax
+                    
+            # If empty, delete XML file
+            except IOError:
                 
-            return
+                print('No filter named',band)
+                # if os.path.isfile(filepath):
+                #     os.remove(filepath)
+                
+                return
+                
+        # Get the bin centers
+        w_cen = np.nanmean(self.rsr[0])
+        f_cen = np.nanmean(self.rsr[1])
+        self.centers = np.asarray([[w_cen],[f_cen]])
+        
+        # Set the wavelength units
+        if wl_units:
+            self.set_wl_units(wl_units)
             
+        # Set zeropoint flux units
+        if zp_units:
+            self.set_zp_units(zp_units)
+            
+        # Get references
+        try:
+            self.refs = [self.CalibrationReference.split('=')[-1]]
+        except:
+            self.refs = []
+            
+        # Bin
+        if kwargs:
+            self.bin(**kwargs)
+                
     def delete(self):
         """
         Delete the current filter
@@ -306,7 +323,7 @@ class Filter(object):
         r = self.raw
         
         # Trim the rsr by the given min and max
-        self.rsr = r[:,np.logical_and(r[0]*unit>wl_min,r[0]*unit<wl_max)]
+        self.rsr = r[:,np.logical_and(r[0]*unit>=wl_min,r[0]*unit<=wl_max)]
         print('Bandpass trimmed to',
               '{} - {}'.format(wl_min,wl_max))
               
@@ -417,7 +434,12 @@ class Filter(object):
         # Update the rsr curve
         const = (old_unit/new_unit).decompose()._scale 
         self.raw[0] *= const
-        self.rsr[:,0] *= const
+        
+        if len(self.rsr.shape)==2:
+            self.rsr[0] *= const
+        else:
+            self.rsr[:,0] *= const
+        
         self.centers[0] *= const
         self.WavelengthUnit = str(new_unit)
         
@@ -441,6 +463,66 @@ class Filter(object):
         # Update the attributes curve
         self.ZeroPoint = f_lam.value
         self.ZeroPointUnit = str(new_unit)
+        
+    def load_TopHat(self, wl_min, wl_max, n_channels=100):
+        """
+        Loads a top hat filter given wavelength min and max values
+        
+        Parameters
+        ----------
+        wl_min: astropy.units.quantity (optional)
+            The minimum wavelength to use
+        wl_max: astropy.units.quantity (optional)
+            The maximum wavelength to use
+        n_channels: int
+            The number of channels for the filter
+        """
+        if not isinstance(wl_min, q.quantity.Quantity) \
+        and not isinstance(wl_max, q.quantity.Quantity):
+            print('Please provide an astropy.units.quantity.Quantity for wl_min and wl_max.')
+            return
+            
+        # Get min, max, effective wavelengths and width
+        self.n_channels = n_channels
+        self.n_bins = 1
+        self.WavelengthUnit = str(wl_min.unit)
+        self.wl_min = wl_min.value
+        self.wl_max = wl_max.value
+        wl_eff = (self.wl_min+self.wl_max)/2.
+        width = self.wl_max-self.wl_min
+        
+        # Create the RSR curve
+        wave = np.linspace(self.wl_min, self.wl_max, n_channels)
+        rsr = np.ones(n_channels)
+        self.raw = np.array([wave,rsr])
+        self.rsr = self.raw
+        
+        # Add the attributes
+        self.WavelengthMin = self.wl_min
+        self.WavelengthMax = self.wl_max
+        self.path = ''
+        self.refs = ''
+        self.Band = 'Top Hat'
+        self.CalibrationReference = ''
+        self.FWHM = width
+        self.Facility = '-'
+        self.FilterProfileService = '-'
+        self.MagSys = '-'
+        self.PhotCalID = ''
+        self.PhotSystem = ''
+        self.ProfileReference = ''
+        self.WavelengthCen = wl_eff
+        self.WavelengthEff = wl_eff
+        self.WavelengthMean = wl_eff
+        self.WavelengthPeak = wl_eff
+        self.WavelengthPhot = wl_eff
+        self.WavelengthPivot = wl_eff
+        self.WavelengthUCD = ''
+        self.WidthEff = width
+        self.ZeroPoint = 0
+        self.ZeroPointType = ''
+        self.ZeroPointUnit = 'Jy'
+        self.filterID = 'Top Hat'
 
 def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
             'data/filters/'), update=False, fmt='table', **kwargs):
