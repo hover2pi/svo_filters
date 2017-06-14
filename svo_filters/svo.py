@@ -13,6 +13,7 @@ import astropy.constants as ac
 import matplotlib.pyplot as plt
 import warnings
 import pickle
+import inspect
 import pkg_resources
 import numpy as np
 import urllib
@@ -120,7 +121,7 @@ class Filter(object):
                 return
             else:
                 # Load the filter
-                self.load_TopHat(wl_min, wl_max)
+                self.load_TopHat(wl_min, wl_max, kwargs.get('n_pixels',100))
             
         else:
             
@@ -189,7 +190,8 @@ class Filter(object):
                         
                 # Create some attributes
                 self.path = filepath
-                self.n_channels = len(self.rsr[0])
+                self.pixels_per_bin = self.rsr.shape[-1]
+                self.n_pixels = self.rsr.shape[-1]
                 self.n_bins = 1
                 self.raw = self.rsr.copy()
                 self.wl_min = self.WavelengthMin
@@ -225,7 +227,9 @@ class Filter(object):
             
         # Bin
         if kwargs:
-            self.bin(**kwargs)
+            bwargs = {k:v for k,v in kwargs.items() if k in \
+                      inspect.signature(self.bin).parameters.keys()}
+            self.bin(**bwargs)
                 
     def delete(self):
         """
@@ -285,7 +289,7 @@ class Filter(object):
         
         return filtered.squeeze()
         
-    def bin(self, n_bins=1, n_channels='', bin_throughput='',
+    def bin(self, n_bins=1, pixels_per_bin='', bin_throughput='',
             wl_min='', wl_max=''):
         """
         Break the filter up into bins and apply a throughput to each bin,
@@ -300,15 +304,16 @@ class Filter(object):
             to calculate n_bins
         bin_throughput: array-like (optional)
             The throughput for each bin (top hat by default)
-            must be of length n_channels
+            must be of length pixels_per_bin
         wl_min: astropy.units.quantity (optional)
             The minimum wavelength to use
         wl_max: astropy.units.quantity (optional)
             The maximum wavelength to use
         """
-        # Set n_bins and n_channels
+        # Set n_bins and pixels_per_bin
         self.n_bins = 1
-        self.n_channels = len(self.raw[0])
+        self.pixels_per_bin = self.raw.shape[-1]
+        self.n_pixels = self.raw.shape[-1]
         
         # Get wavelength limits
         unit = q.Unit(self.WavelengthUnit)
@@ -329,28 +334,28 @@ class Filter(object):
               
         # Calculate the number of bins and channels
         rsr = len(self.rsr[0])
-        if n_channels and isinstance(n_channels,int):
-            self.n_channels = int(n_channels)
-            self.n_bins = int(rsr/self.n_channels)
+        if pixels_per_bin and isinstance(pixels_per_bin,int):
+            self.pixels_per_bin = int(pixels_per_bin)
+            self.n_bins = int(rsr/self.pixels_per_bin)
         elif n_bins and isinstance(n_bins,int):
             self.n_bins = int(n_bins)
-            self.n_channels = int(rsr/self.n_bins)
-        elif not n_bins and not n_channels \
+            self.pixels_per_bin = int(rsr/self.n_bins)
+        elif not n_bins and not pixels_per_bin \
         and isinstance(bin_throughput, (list,tuple,np.ndarray)):
             pass
         else:
-            print('Please specify n_bins or n_channels as integers.')
+            print('Please specify n_bins or pixels_per_bin as integers.')
             return
             
-        print('{} bins of {} channels each.'.format(self.n_bins,self.n_channels))
+        print('{} bins of {} pixels each.'.format(self.n_bins,self.pixels_per_bin))
         
         # Trim throughput edges so that there are an integer number of bins
-        new_len = self.n_bins*self.n_channels
+        new_len = self.n_bins*self.pixels_per_bin
         start = (rsr-new_len)//2
         self.rsr = np.copy(self.rsr[:,start:new_len+start])
         
         # Reshape the throughput array
-        self.rsr = self.rsr.reshape(2,self.n_bins,self.n_channels)
+        self.rsr = self.rsr.reshape(2,self.n_bins,self.pixels_per_bin)
         self.rsr = self.rsr.swapaxes(0,1)
         
         # Get the bin centers
@@ -360,10 +365,10 @@ class Filter(object):
         
         # Get the bin throughput function
         if not isinstance(bin_throughput, (list,tuple,np.ndarray)):
-            bin_throughput = np.ones(self.n_channels)
+            bin_throughput = np.ones(self.pixels_per_bin)
             
         # Make sure the shape is right
-        if len(bin_throughput)==self.n_channels:
+        if len(bin_throughput)==self.pixels_per_bin:
             
             # Save the attribute
             self.bin_throughput = np.asarray(bin_throughput)
@@ -372,7 +377,7 @@ class Filter(object):
             self.rsr[:,1] *= self.bin_throughput
             
         else:
-            print('bin_throughput must be an array of length',self.n_channels)
+            print('bin_throughput must be an array of length',self.pixels_per_bin)
             print('Using top hat throughput for each bin.')
                 
     def plot(self):
@@ -464,7 +469,7 @@ class Filter(object):
         self.ZeroPoint = f_lam.value
         self.ZeroPointUnit = str(new_unit)
         
-    def load_TopHat(self, wl_min, wl_max, n_channels=100):
+    def load_TopHat(self, wl_min, wl_max, n_pixels=100):
         """
         Loads a top hat filter given wavelength min and max values
         
@@ -474,8 +479,8 @@ class Filter(object):
             The minimum wavelength to use
         wl_max: astropy.units.quantity (optional)
             The maximum wavelength to use
-        n_channels: int
-            The number of channels for the filter
+        n_pixels: int
+            The number of pixels for the filter
         """
         if not isinstance(wl_min, q.quantity.Quantity) \
         and not isinstance(wl_max, q.quantity.Quantity):
@@ -483,7 +488,7 @@ class Filter(object):
             return
             
         # Get min, max, effective wavelengths and width
-        self.n_channels = n_channels
+        self.n_pixels = n_pixels
         self.n_bins = 1
         self.WavelengthUnit = str(wl_min.unit)
         self.wl_min = wl_min.value
@@ -492,8 +497,8 @@ class Filter(object):
         width = self.wl_max-self.wl_min
         
         # Create the RSR curve
-        wave = np.linspace(self.wl_min, self.wl_max, n_channels)
-        rsr = np.ones(n_channels)
+        wave = np.linspace(self.wl_min, self.wl_max, n_pixels)
+        rsr = np.ones(n_pixels)
         self.raw = np.array([wave,rsr])
         self.rsr = self.raw
         
