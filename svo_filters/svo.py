@@ -597,7 +597,10 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
         if fmt=='dict':
             data = {r[0]:{k:r[k].value if hasattr(r[k],'unit') else r[k] \
                     for k in data.keys()[1:]} for r in data}
-            
+                    
+        # Add Band as index
+        data.add_index('Band')
+        
         return data
         
     # Or try to generate it once
