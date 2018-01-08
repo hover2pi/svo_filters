@@ -91,7 +91,7 @@ class Filter(object):
     
     """
     def __init__(self, band, filter_directory=pkg_resources.resource_filename('svo_filters', 'data/filters/'), 
-                 wl_units=q.um, zp_units=q.erg/q.s/q.cm**2/q.AA, DELETE=False, **kwargs):
+                 wl_units=q.um, zp_units=q.erg/q.s/q.cm**2/q.AA, DELETE=False, guess=True, **kwargs):
         """
         Loads the bandpass data into the Filter object
         
@@ -107,6 +107,8 @@ class Filter(object):
             The zeropoint flux units
         DELETE: bool
             Delete the given filter
+        guess: bool
+            Guess the filter if no match
         """
         # Check if TopHat
         if band.lower().replace('-','').replace(' ','')=='tophat':
@@ -132,32 +134,44 @@ class Filter(object):
             
             # If the filter is missing, ask what to do
             if filepath not in files:
-            
-                print('Current filters:',
-                      ', '.join(bands),
-                      '\n')
-                      
-                print('No filters match',filepath)
-                dl = input('Would you like me to download it? [y/n] ')
                 
-                if dl.lower()=='y':
+                if guess:
                     
-                    # Prompt for new filter
-                    print('\nA full list of available filters from the\n'\
-                          'SVO Filter Profile Service can be found at\n'\
-                          'http://svo2.cab.inta-csic.es/theory/fps3/\n')
-                    band = input('Enter the band name to retrieve (e.g. 2MASS/2MASS.J): ')
-                    
-                    # Download the XML (VOTable) file
-                    baseURL = 'http://svo2.cab.inta-csic.es/svo/theory/fps/fps.php?ID='
-                    filepath = filter_directory+os.path.basename(band)
-                    _ = urllib.request.urlretrieve(baseURL+band, filepath)
-                    
-                    # Print the new filepath
-                    print('Band stored as',filepath)
+                    # Guess the band they meant to use, e.g. 'SDSS_z' => 'SDSS.z'
+                    band = min(bands, key=lambda v: len(set(band) ^ set(v)))
+                    filepath = filter_directory+band
                     
                 else:
-                    return
+                    
+                    print('Current filters:',
+                          ', '.join(bands),
+                          '\n')
+                          
+                    print('No filters match',filepath)
+                    dl = input('Would you like me to download it? [y/n] ')
+                    
+                    if dl.lower()=='y':
+                        
+                        # Prompt for new filter
+                        print('\nA full list of available filters from the\n'\
+                              'SVO Filter Profile Service can be found at\n'\
+                              'http://svo2.cab.inta-csic.es/theory/fps3/\n')
+                        band = input('Enter the band name to retrieve (e.g. 2MASS/2MASS.J): ')
+                        
+                        # Download the XML (VOTable) file
+                        baseURL = 'http://svo2.cab.inta-csic.es/svo/theory/fps/fps.php?ID='
+                        filepath = filter_directory+os.path.basename(band)
+                        _ = urllib.request.urlretrieve(baseURL+band, filepath)
+                        
+                        # Print the new filepath
+                        print('Band stored as',filepath)
+                        
+                        # Update the table of filters
+                        print('Indexing the master table of filters...')
+                        filters(update=True)
+                    
+                    else:
+                        return
                     
             # Try to read filter info
             try:
