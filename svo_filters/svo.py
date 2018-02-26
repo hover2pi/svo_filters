@@ -274,7 +274,14 @@ class Filter(object):
             
         """
         # Make into iterable arrays
-        wav, flx = [np.asarray(i) for i in spectrum]
+        if len(spectrum)==2:
+            wav, flx = [np.asarray(i) for i in spectrum]
+            err = np.zeros(len(wav))
+        elif len(spectrum)==3:
+            wav, flx, err = [np.asarray(i) for i in spectrum]
+        else:
+            print("Please input spectrum of shape [w,f] or [w,f,e].")
+            return
         
         # Make flux 2D
         if len(flx.shape)==1:
@@ -303,8 +310,7 @@ class Filter(object):
         
         return filtered.squeeze()
         
-    def bin(self, n_bins=1, pixels_per_bin='', bin_throughput='',
-            wl_min='', wl_max=''):
+    def bin(self, n_bins=1, pixels_per_bin='', bin_throughput='', wl_min='', wl_max=''):
         """
         Break the filter up into bins and apply a throughput to each bin,
         useful for G141, G102, and other grisms
@@ -343,8 +349,7 @@ class Filter(object):
         
         # Trim the rsr by the given min and max
         self.rsr = r[:,np.logical_and(r[0]*unit>=wl_min,r[0]*unit<=wl_max)]
-        print('Bandpass trimmed to',
-              '{} - {}'.format(wl_min,wl_max))
+        print('Bandpass trimmed to {} - {}'.format(wl_min,wl_max))
               
         # Calculate the number of bins and channels
         rsr = len(self.rsr[0])
