@@ -572,7 +572,7 @@ def filters(filter_directory='', update=False, fmt='table', **kwargs):
         filter_directory = os.path.abspath(pkg_resources.resource_filename('svo_filters', 'data/'))
         
     # Get the pickle path and make sure file exists
-    p_path = os.abspath(os.path.join(filter_directory,'/filter_list.p'))
+    p_path = os.path.abspath(os.path.join(filter_directory,'/filter_list.p'))
     updated = False
     if not os.path.isfile(p_path):
         os.system('touch {}'.format(p_path))
