@@ -13,7 +13,7 @@ from os import path
 
 setup(
     name='svo_filters',
-    version='0.1.10',
+    version='0.1.11',
     description='A Python wrapper for the SVO Filter Profile Service',
     url='https://github.com/hover2pi/svo_filters',
     author='Joe Filippazzo',
@@ -26,7 +26,9 @@ setup(
         'Programming Language :: Python',
     ],
     keywords='astrophysics',
-    packages=find_packages(exclude=['contrib', 'docs', 'data*', 'filters*']),
+    packages=find_packages(exclude=['contrib', 'docs']),
+    package_data={'svo_filters':['data/*','data/filters/*']},
+    include_package_data=True,
     install_requires=['numpy','astropy','matplotlib'],
 
 )
