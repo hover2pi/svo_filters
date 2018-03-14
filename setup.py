@@ -11,11 +11,9 @@ except ImportError:
 from codecs import open
 from os import path
 
-from svo_filters import __version__
-
 setup(
     name='svo_filters',
-    version=__version__,
+    version=0.1.8,
     description='A Python wrapper for the SVO Filter Profile Service',
     url='https://github.com/hover2pi/svo_filters',
     author='Joe Filippazzo',
