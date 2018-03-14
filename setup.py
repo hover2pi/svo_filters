@@ -81,8 +81,11 @@ if not RELEASE:
 cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
 
 # Freeze build information in version.py
-generate_version_py(PACKAGENAME, VERSION, RELEASE,
-                    get_debug_option(PACKAGENAME))
+try:
+    generate_version_py(PACKAGENAME, VERSION, RELEASE,
+                        get_debug_option(PACKAGENAME))
+except:
+    pass
 
 # Treat everything in scripts except README* as a script to be installed
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
