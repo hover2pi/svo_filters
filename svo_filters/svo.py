@@ -128,7 +128,7 @@ class Filter(object):
         else:
             
             # Get list of filters
-            files = glob(filter_directory+'*')
+            files = glob(os.path.join(filter_directory,'*'))
             bands = [os.path.basename(b) for b in files]
             filepath = filter_directory+band
             
@@ -568,7 +568,7 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
         The list of band names
     """
     # Get the pickle path and make sure file exists
-    p_path = filter_directory.split('/filters/')[0]+'/filter_list.p'
+    p_path = os.path.join(filter_directory.split('/filters/')[0],'/filter_list.p')
     updated = False
     if not os.path.isfile(p_path):
         os.system('touch {}'.format(p_path))
@@ -578,7 +578,7 @@ def filters(filter_directory=pkg_resources.resource_filename('svo_filters', \
         print('Loading filters into table...')
         
         # Get all the filters
-        files = glob(filter_directory+'*')
+        files = glob(os.path.join(filter_directory,'*'))
         bands = [os.path.basename(b) for b in files]
         tables = []
         
