@@ -569,10 +569,10 @@ def filters(filter_directory='', update=False, fmt='table', **kwargs):
         The list of band names
     """
     if filter_directory=='':
-        filter_directory = os.path.abspath(pkg_resources.resource_filename('svo_filters', 'data/'))
+        filter_directory = os.path.abspath(pkg_resources.resource_filename('svo_filters', 'data'))
         
     # Get the pickle path and make sure file exists
-    p_path = os.path.abspath(os.path.join(filter_directory,'/filter_list.p'))
+    p_path = os.path.abspath(os.path.join(filter_directory,'filter_list.p'))
     updated = False
     if not os.path.isfile(p_path):
         os.system('touch {}'.format(p_path))
@@ -582,7 +582,7 @@ def filters(filter_directory='', update=False, fmt='table', **kwargs):
         print('Loading filters into table...')
         
         # Get all the filters
-        files = glob(os.path.abspath(os.path.join(filter_directory,'/filters/','*')))
+        files = glob(os.path.abspath(os.path.join(filter_directory,'filters','*')))
         bands = [os.path.basename(b) for b in files]
         tables = []
         
