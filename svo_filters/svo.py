@@ -11,7 +11,7 @@ import astropy.io.votable as vo
 import astropy.units as q
 import astropy.constants as ac
 import matplotlib
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 import pylab as plt
 import warnings
 import pickle
