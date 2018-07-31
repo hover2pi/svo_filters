@@ -1,4 +1,3 @@
 numpy
 astropy
 matplotlib
-pytest
