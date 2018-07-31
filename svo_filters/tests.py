@@ -1,7 +1,7 @@
 """Some tests to make sure the filters work as intended"""
 import unittest
 import astropy.units as q
-from .svo import Filter
+from svo import Filter
 
  
 class TestFilters(unittest.TestCase):
