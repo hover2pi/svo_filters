@@ -15,6 +15,7 @@ setup(
     name='svo_filters',
     version='0.2',
     description='A Python wrapper for the SVO Filter Profile Service',
+    long_description='A Python wrapper for the SVO Filter Profile Service',
     url='https://github.com/hover2pi/svo_filters',
     author='Joe Filippazzo',
     author_email='jfilippazzo@stsci.edu',
