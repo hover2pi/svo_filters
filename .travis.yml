@@ -10,4 +10,4 @@ install:
   - python svo_filters/setup.py
 
 script:
-  - python svo_filters/tests.py
+  - python test_svo.py

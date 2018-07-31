@@ -1,7 +1,7 @@
 """Some tests to make sure the filters work as intended"""
 import unittest
 import astropy.units as q
-from svo import Filter
+import svo
 
  
 class TestFilters(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestFilters(unittest.TestCase):
 
     def test_filter_class(self):
         """Test if Filter object is created properly"""
-        filt = Filter('2MASS.J')
+        filt = svo.Filter('2MASS.J')
 
         is_filter = isinstance(filt, Filter)
 
@@ -19,7 +19,7 @@ class TestFilters(unittest.TestCase):
 
     def test_tophat(self):
         """Test if Filter object is created properly"""
-        filt = Filter('tophat', wl_min=0.8*q.um, wl_max=1.2*q.um)
+        filt = svo.Filter('tophat', wl_min=0.8*q.um, wl_max=1.2*q.um)
 
         is_filter = isinstance(filt, Filter)
 
