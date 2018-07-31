@@ -1,7 +1,7 @@
 """Some tests to make sure the filters work as intended"""
 
 import astropy.units as q
-from . import Filter
+from .svo import Filter
 
 def test_filter_class():
     """Test if Filter object is created properly"""
