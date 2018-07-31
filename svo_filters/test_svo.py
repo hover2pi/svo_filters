@@ -13,7 +13,7 @@ class TestFilters(unittest.TestCase):
         """Test if Filter object is created properly"""
         filt = svo.Filter('2MASS.J')
 
-        is_filter = isinstance(filt, Filter)
+        is_filter = isinstance(filt, svo.Filter)
 
         self.assertTrue(is_filter)
 
@@ -21,7 +21,7 @@ class TestFilters(unittest.TestCase):
         """Test if Filter object is created properly"""
         filt = svo.Filter('tophat', wl_min=0.8*q.um, wl_max=1.2*q.um)
 
-        is_filter = isinstance(filt, Filter)
+        is_filter = isinstance(filt, svo.Filter)
 
         self.assertTrue(is_filter)
 
