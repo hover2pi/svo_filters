@@ -7,6 +7,7 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - python svo_filters/setup.py
 
 script:
   - python svo_filters/tests.py
