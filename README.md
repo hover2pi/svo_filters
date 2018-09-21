@@ -62,37 +62,39 @@ H_band.info()
 H_band.plot()
 ```
 
-         Attributes                                              Values                                        
-    -------------------- --------------------------------------------------------------------------------------
-                    Band H                                                                                     
-    CalibrationReference http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&db_key=AST
-                    FWHM 0.26096                                                                               
-                Facility 2MASS                                                                                 
-    FilterProfileService ivo://svo/fps                                                                         
-                  MagSys Vega                                                                                  
-               PhotCalID 2MASS/2MASS.H/Vega                                                                    
-              PhotSystem 2MASS                                                                                 
-        ProfileReference http://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec6_4a.html                    
-           WavelengthCen 1.64872                                                                               
-           WavelengthEff 1.662                                                                                 
-           WavelengthMax 1.8231                                                                                
-          WavelengthMean 1.662                                                                                 
-           WavelengthMin 1.47874                                                                               
-          WavelengthPeak 1.671                                                                                 
-          WavelengthPhot 1.64238                                                                               
-         WavelengthPivot 1.64949                                                                               
-           WavelengthUCD em.wl                                                                                 
-          WavelengthUnit um                                                                                    
-                WidthEff 0.25094                                                                               
-               ZeroPoint 1024.0                                                                                
-           ZeroPointType Pogson                                                                                
-           ZeroPointUnit Jy                                                                                    
-                filterID 2MASS/2MASS.H                                                                         
-                  n_bins 1                                                                                     
-              n_channels 58                                                                                    
-                    path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/2MASS.H     
-                    refs ['AST']                                                                               
-
+     Attributes                                              Values                                        
+-------------------- --------------------------------------------------------------------------------------
+                Band H                                                                                     
+CalibrationReference http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&db_key=AST
+                FWHM 0.26096                                                                               
+            Facility 2MASS                                                                                 
+FilterProfileService ivo://svo/fps                                                                         
+              MagSys Vega                                                                                  
+           PhotCalID 2MASS/2MASS.H/Vega                                                                    
+          PhotSystem 2MASS                                                                                 
+    ProfileReference http://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec6_4a.html                    
+       WavelengthCen 1.64872                                                                               
+       WavelengthEff 1.662                                                                                 
+       WavelengthMax 1.8231                                                                                
+      WavelengthMean 1.662                                                                                 
+       WavelengthMin 1.47874                                                                               
+      WavelengthPeak 1.671                                                                                 
+      WavelengthPhot 1.64238                                                                               
+     WavelengthPivot 1.64949                                                                               
+       WavelengthUCD em.wl                                                                                 
+      WavelengthUnit um                                                                                    
+            WidthEff 0.25094                                                                               
+           ZeroPoint 1.1113698753332439e-10                                                                
+       ZeroPointType Pogson                                                                                
+       ZeroPointUnit erg / (Angstrom cm2 s)                                                                
+            filterID 2MASS/2MASS.H                                                                         
+              n_bins 1                                                                                     
+            n_pixels 58                                                                                    
+                path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/2MASS.H     
+      pixels_per_bin 58                                                                                    
+                refs ['AST']                                                                               
+              wl_max 1.8231                                                                                
+              wl_min 1.47874                                                                               
 
 
 ![png](svo_demo_files/svo_demo_7_1.png)
@@ -123,44 +125,46 @@ G141.info()
 G141.plot()
 ```
 
-    15 bins of 634 channels each.
-         Attributes                                              Values                                        
-    -------------------- --------------------------------------------------------------------------------------
-                Comments />                                                                                    
-                    FWHM 0.57288                                                                               
-                Facility HST                                                                                   
-    FilterProfileService ivo://svo/fps                                                                         
-              Instrument WFC3                                                                                  
-                  MagSys Vega                                                                                  
-               PhotCalID HST/WFC3_IR.G141/Vega                                                                 
-              PhotSystem WFC3                                                                                  
-        ProfileReference http://www.stsci.edu/hst/wfc3/documents/handbooks/currentIHB/                         
-           WavelengthCen 1.38902                                                                               
-           WavelengthEff 1.32829                                                                               
-           WavelengthMax 1.77466                                                                               
-          WavelengthMean 1.39879                                                                               
-           WavelengthMin 1.04039                                                                               
-          WavelengthPeak 1.48039                                                                               
-          WavelengthPhot 1.3481                                                                                
-         WavelengthPivot 1.38869                                                                               
-           WavelengthUCD em.wl                                                                                 
-          WavelengthUnit um                                                                                    
-                WidthEff 0.52172                                                                               
-               ZeroPoint 1330.8028480785                                                                       
-           ZeroPointType Pogson                                                                                
-           ZeroPointUnit Jy                                                                                    
-                filterID HST/WFC3_IR.G141                                                                      
-                  n_bins 15                                                                                    
-              n_channels 634                                                                                   
-                    path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_IR.G141
-                    refs []                                                                                    
+     Attributes                                              Values                                        
+-------------------- --------------------------------------------------------------------------------------
+            Comments />                                                                                    
+                FWHM 0.57288                                                                               
+            Facility HST                                                                                   
+FilterProfileService ivo://svo/fps                                                                         
+          Instrument WFC3                                                                                  
+              MagSys Vega                                                                                  
+           PhotCalID HST/WFC3_IR.G141/Vega                                                                 
+          PhotSystem WFC3                                                                                  
+    ProfileReference http://www.stsci.edu/hst/wfc3/documents/handbooks/currentIHB/                         
+       WavelengthCen 1.38902                                                                               
+       WavelengthEff 1.32829                                                                               
+       WavelengthMax 1.77466                                                                               
+      WavelengthMean 1.39879                                                                               
+       WavelengthMin 1.04039                                                                               
+      WavelengthPeak 1.48039                                                                               
+      WavelengthPhot 1.3481                                                                                
+     WavelengthPivot 1.38869                                                                               
+       WavelengthUCD em.wl                                                                                 
+      WavelengthUnit um                                                                                    
+            WidthEff 0.52172                                                                               
+           ZeroPoint 2.2612502006498423e-10                                                                
+       ZeroPointType Pogson                                                                                
+       ZeroPointUnit erg / (Angstrom cm2 s)                                                                
+            filterID HST/WFC3_IR.G141                                                                      
+              n_bins 15                                                                                    
+            n_pixels 9512                                                                                  
+                path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_IR.G141
+      pixels_per_bin 580                                                                                   
+                refs []                                                                                    
+              wl_max 1.77466                                                                               
+              wl_min 1.04039  
 
 
 
 ![png](svo_demo_files/svo_demo_12_1.png)
 
 
-This can get even fancier by passing an arbitrary array of length `n_channels` to the `bin_throughput` argument in order to change the shape of the bin throughput.
+This can get even fancier by passing an arbitrary array of length `n_pixels` to the `bin_throughput` argument in order to change the shape of the bin throughput.
 
 
 ```python
@@ -168,89 +172,14 @@ import numpy as np
 G141 = svo.Filter('WFC3_IR.G141', n_bins=15)
 
 # Let's just do a top-hat
-throughput = np.ones(G141.n_channels)
+throughput = np.ones(G141.n_pixels)
 throughput[:100] = 0
 throughput[-100:] = 0
 G141.bin(bin_throughput=throughput)
 G141.plot()
 ```
 
-    15 bins of 634 channels each.
-    15 bins of 634 channels each.
-
-
-
 ![png](svo_demo_files/svo_demo_14_1.png)
-
-
-# Getting More Filters
-
-If the filter you need is not in the `filters()` list, the package will ask if you want to download it.
-
-
-```python
-# Delete one first!
-svo.Filter('NIRISS.F200W').delete()
-
-# Now try it...
-F200W = svo.Filter('NIRISS.F200W')
-```
-
-    Are you sure you want to delete JWST/NIRISS.F200W ? [y/n] y
-    Loading filters into table...
-    Current filters: 2MASS.H, 2MASS.J, 2MASS.Ks, IRAC.I1, IRAC.I2, IRAC.I3, IRAC.I4, Kepler.K, NIRISS.F277W, WFC3_IR.G102, WFC3_IR.G141, WFC3_UVIS2.F814W, WFC3_UVIS2.F850LP, WISE.W1, WISE.W2, WISE.W3, WISE.W4 
-    
-    No filters match /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/NIRISS.F200W
-    Would you like me to download it? [y/n] y
-    
-    A full list of available filters from the
-    SVO Filter Profile Service can be found at
-    http://svo2.cab.inta-csic.es/theory/fps3/
-    
-    Enter the band name to retrieve (e.g. 2MASS/2MASS.J): JWST/NIRISS.F200W
-    Band stored as /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/NIRISS.F200W
-
-
-
-```python
-F200W.info()
-F200W.plot()
-```
-
-         Attributes                                              Values                                        
-    -------------------- --------------------------------------------------------------------------------------
-            DetectorType 1                                                                                     
-                    FWHM 0.47561                                                                               
-                Facility JWST                                                                                  
-    FilterProfileService ivo://svo/fps                                                                         
-              Instrument NIRISS                                                                                
-                  MagSys Vega                                                                                  
-               PhotCalID JWST/NIRISS.F200W/Vega                                                                
-              PhotSystem NIRISS                                                                                
-        ProfileReference http://jwst.astro.umontreal.ca/?page_id=116                                           
-           WavelengthCen 1.98862                                                                               
-           WavelengthEff 1.95309                                                                               
-           WavelengthMax 2.2595                                                                                
-          WavelengthMean 1.98855                                                                               
-           WavelengthMin 1.72006                                                                               
-          WavelengthPeak 1.921                                                                                 
-          WavelengthPhot 1.96262                                                                               
-         WavelengthPivot 1.98368                                                                               
-           WavelengthUCD em.wl                                                                                 
-          WavelengthUnit um                                                                                    
-                WidthEff 0.46125                                                                               
-               ZeroPoint 768.85596635185                                                                       
-           ZeroPointType Pogson                                                                                
-           ZeroPointUnit Jy                                                                                    
-                filterID JWST/NIRISS.F200W                                                                     
-                  n_bins 1                                                                                     
-              n_channels 577                                                                                   
-                    path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/NIRISS.F200W
-                    refs []                                                                                    
-
-
-
-![png](svo_demo_files/svo_demo_17_1.png)
 
 
 Filters are fun!
