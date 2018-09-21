@@ -125,7 +125,7 @@ FilterProfileService ivo://svo/fps
 ```
 
 
-![png](svo_demo_files/svo_demo_7_1.png)
+![png](data/plots/H.png)
 
 
 The actual relative spectral response curve is stored as an array of the wavelength and throughput.
@@ -140,7 +140,7 @@ H_band.rsr.shape
 
 # Load a Grism
 
-Filters can also be binned arbitrarily, for use with grisms. We can pass integers to the `n_bins` or `n_pixels` arguments to specify the number of wavelength bins or channels per bin, respectively.
+Filters can also be binned arbitrarily, for use with grisms. We can pass integers to the `n_bins` or `n_pixels` arguments to specify the number of wavelength bins or pixels per bin, respectively.
 
 
 ```python
@@ -185,26 +185,26 @@ FilterProfileService ivo://svo/fps
 ```
 
 
-![png](svo_demo_files/svo_demo_12_1.png)
+![png](data/plots/G141.png)
 
 
-This can get even fancier by passing an arbitrary array of length `n_pixels` to the `bin_throughput` argument in order to change the shape of the bin throughput.
+Now we can apply our filter to a spectrum like so
 
 
 ```python
+# Get the filter object
 import numpy as np
 G141 = svo.Filter('WFC3_IR.G141', n_bins=15)
 
-# Let's just do a top-hat
-throughput = np.ones(G141.n_pixels)
-throughput[:100] = 0
-throughput[-100:] = 0
-G141.bin(bin_throughput=throughput)
-G141.plot()
+# Get a spectrum
+file = resource_filename('svo_filters', 'data/spectra/vega.txt')
+spec = np.genfromtxt(file)
+
+# Applyt the filter
+filtered = G141.apply(spec, plot=True)
 ```
 
-![png](svo_demo_files/svo_demo_14_1.png)
-
+![png](data/plots/filtered.png)
 
 Filters are fun!
 

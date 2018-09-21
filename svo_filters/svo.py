@@ -178,6 +178,10 @@ class Filter:
         f_cen = np.nanmean(self.rsr[1])
         self.centers = np.asarray([[w_cen], [f_cen]])
 
+        # Set n_bins and pixels_per_bin
+        self.n_bins = 1
+        self.pixels_per_bin = self.raw.shape[-1]
+
         # Set the wavelength units
         if wl_units:
             self.set_wl_units(wl_units)
@@ -199,7 +203,7 @@ class Filter:
             bwargs = {k: v for k, v in kwargs.items() if k in
                       inspect.signature(self.bin).parameters.keys()}
             self.bin(**bwargs)
-            
+
     def apply(self, spectrum, plot=False):
         """
         Apply the filter to the given spectrum
@@ -219,7 +223,7 @@ class Filter:
 
         """
         # Make into iterable arrays
-        wav, flx = [np.asarray(i) for i in spectrum]
+        wav, flx, *err = [np.asarray(i) for i in spectrum]
 
         # Make flux 2D
         if len(flx.shape) == 1:
@@ -243,13 +247,14 @@ class Filter:
             plt.loglog(wav, flx[0])
             for n, bn in enumerate(rsr):
                 plt.loglog(bn[0], filtered[n][0])
+            plt.xlabel('Wavelength [um]')
+            plt.ylabel('Flux Density')
 
         del rsr, wav, flx
 
         return filtered.squeeze()
 
-    def bin(self, n_bins=1, pixels_per_bin=None, bin_throughput=None,
-            wl_min=None, wl_max=None):
+    def bin(self, n_bins=1, pixels_per_bin=None, wl_min=None, wl_max=None):
         """
         Break the filter up into bins and apply a throughput to each bin,
         useful for G141, G102, and other grisms
@@ -258,22 +263,14 @@ class Filter:
         ----------
         n_bins: int
             The number of bins to dice the throughput curve into
-        n_cahnnels: int (optional)
+        pixels_per_bin: int (optional)
             The number of channels per bin, which will be used
             to calculate n_bins
-        bin_throughput: array-like (optional)
-            The throughput for each bin (top hat by default)
-            must be of length pixels_per_bin
         wl_min: astropy.units.quantity (optional)
             The minimum wavelength to use
         wl_max: astropy.units.quantity (optional)
             The maximum wavelength to use
         """
-        # Set n_bins and pixels_per_bin
-        self.n_bins = 1
-        self.pixels_per_bin = self.raw.shape[-1]
-        self.n_pixels = self.raw.shape[-1]
-
         # Get wavelength limits
         unit = q.Unit(self.WavelengthUnit)
         if wl_min is None:
@@ -294,17 +291,14 @@ class Filter:
 
         # Calculate the number of bins and channels
         rsr = len(self.rsr[0])
-        t_bin = isinstance(bin_throughput, (list, tuple, np.ndarray))
-        if pixels_per_bin is not None and isinstance(pixels_per_bin, int):
+        if isinstance(pixels_per_bin, int):
             self.pixels_per_bin = int(pixels_per_bin)
             self.n_bins = int(rsr/self.pixels_per_bin)
-        elif n_bins is not None and isinstance(n_bins, int):
+        elif isinstance(n_bins, int):
             self.n_bins = int(n_bins)
             self.pixels_per_bin = int(rsr/self.n_bins)
-        elif n_bins is None and pixels_per_bin is None and t_bin:
-            pass
         else:
-            print('Please specify n_bins or pixels_per_bin as integers.')
+            print("Please specify 'n_bins' OR 'pixels_per_bin' as integers.")
             return
 
         print('{} bins of {} pixels each.'.format(self.n_bins,
@@ -324,33 +318,14 @@ class Filter:
         f_cen = np.nanmean(self.rsr[:, 1, :], axis=1)
         self.centers = np.asarray([w_cen, f_cen])
 
-        # Get the bin throughput function
-        if not isinstance(bin_throughput, (list, tuple, np.ndarray)):
-            bin_throughput = np.ones(self.pixels_per_bin)
-
-        # Make sure the shape is right
-        if len(bin_throughput) == self.pixels_per_bin:
-
-            # Save the attribute
-            self.bin_throughput = np.asarray(bin_throughput)
-
-            # Apply the bin throughput
-            self.rsr[:, 1] *= self.bin_throughput
-
-        else:
-            print('bin_throughput must be an array of length',
-                  self.pixels_per_bin)
-            print('Using top hat throughput for each bin.')
-
     def info(self, fetch=False):
         """
         Print a table of info about the current filter
         """
         # Get the info from the class
         tp = (int, bytes, bool, str, float, tuple, list, np.ndarray)
-        exclude = ['rsr', 'bin_throughput', 'raw', 'centers']
         info = [[k, str(v)] for k, v in vars(self).items() if isinstance(v, tp)
-                and k not in exclude]
+                and k not in ['rsr', 'raw', 'centers']]
 
         # Make the table
         table = at.Table(np.asarray(info).reshape(len(info), 2),
@@ -364,7 +339,7 @@ class Filter:
         else:
             table.pprint(max_width=-1, max_lines=-1, align=['>', '<'])
             
-    def load_TopHat(self, wl_min, wl_max, n_pixels=100):
+    def load_TopHat(self, wl_min, wl_max, pixels_per_bin=100):
         """
         Loads a top hat filter given wavelength min and max values
 
@@ -384,7 +359,7 @@ class Filter:
                             'for wl_min and wl_max.')
 
         # Get min, max, effective wavelengths and width
-        self.n_pixels = n_pixels
+        self.pixels_per_bin = pixels_per_bin
         self.n_bins = 1
         self.WavelengthUnit = str(wl_min.unit)
         self.wl_min = wl_min.value
@@ -394,7 +369,7 @@ class Filter:
 
         # Create the RSR curve
         wave = np.linspace(self.wl_min, self.wl_max, n_pixels)
-        rsr = np.ones(n_pixels)
+        rsr = np.ones(pixels_per_bin)
         self.raw = np.array([wave, rsr])
         self.rsr = self.raw
 
@@ -471,7 +446,6 @@ class Filter:
         self.rsr = self.raw.copy()
         self.path = ''
         self.pixels_per_bin = self.rsr.shape[-1]
-        self.n_pixels = self.rsr.shape[-1]
         self.n_bins = 1
         self.wl_min = self.WavelengthMin
         self.wl_max = self.WavelengthMax
@@ -514,7 +488,6 @@ class Filter:
         # Create some attributes
         self.path = filepath
         self.pixels_per_bin = self.rsr.shape[-1]
-        self.n_pixels = self.rsr.shape[-1]
         self.n_bins = 1
         self.raw = self.rsr.copy()
         self.wl_min = self.WavelengthMin
