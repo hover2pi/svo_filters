@@ -149,9 +149,9 @@ G141.info()
 G141.plot()
 ```
 
+```
      Attributes                                              Values                                        
 -------------------- --------------------------------------------------------------------------------------
-            Comments />                                                                                    
                 FWHM 0.57288                                                                               
             Facility HST                                                                                   
 FilterProfileService ivo://svo/fps                                                                         
@@ -182,7 +182,7 @@ FilterProfileService ivo://svo/fps
                 refs []                                                                                    
               wl_max 1.77466                                                                               
               wl_min 1.04039  
-
+```
 
 
 ![png](svo_demo_files/svo_demo_12_1.png)
