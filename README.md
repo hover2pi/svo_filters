@@ -2,15 +2,20 @@
 
 The [Spanish Virtual Observatory (SVO) Filter Profile Service](http://svo2.cab.inta-csic.es/theory/fps3/) is a great resource for homogenized photometric filter curves and metadata. With `svo_filters`, I tried to create a lightweight and flexible package to incorporate these filters into Python applications.
 
-Install in the usual fashion with
+Install via PyPI with
 
 ```
-cd svo_filters
-python setup.py install
+pip install svo_filters
+```
+
+Or install via Github with
+
+```
+git clone https://github.com/hover2pi/svo_filters.git
+python svo_filters/setup.py install
 ```
 
 Then import like so
-
 
 ```python
 from svo_filters import svo
@@ -22,34 +27,53 @@ The actual filters are stored locally as XML files and can be viewed with
 ```python
 svo.filters()
 ```
-
-
-
-
-&lt;Table masked=True length=17&gt;
-<table id="table4531156752" class="table-striped table-bordered table-condensed">
-<thead><tr><th>Band</th><th>CalibrationReference</th><th>FWHM</th><th>Facility</th><th>FilterProfileService</th><th>MagSys</th><th>PhotCalID</th><th>PhotSystem</th><th>ProfileReference</th><th>WavelengthCen</th><th>WavelengthEff</th><th>WavelengthMax</th><th>WavelengthMean</th><th>WavelengthMin</th><th>WavelengthPeak</th><th>WavelengthPhot</th><th>WavelengthPivot</th><th>WavelengthUCD</th><th>WavelengthUnit</th><th>WidthEff</th><th>ZeroPoint</th><th>ZeroPointType</th><th>ZeroPointUnit</th><th>filterID</th><th>n_bins</th><th>n_channels</th><th>path</th><th>refs</th><th>Instrument</th><th>DetectorType</th><th>Comments</th></tr></thead>
-<thead><tr><th>str91</th><th>str86</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str91</th><th>str86</th><th>str91</th></tr></thead>
-<tr><td>2MASS.H</td><td>http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&amp;db_key=AST</td><td>0.26096</td><td>2MASS</td><td>ivo://svo/fps</td><td>Vega</td><td>2MASS/2MASS.H/Vega</td><td>2MASS</td><td>http://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec6_4a.html</td><td>1.64872</td><td>1.662</td><td>1.8231</td><td>1.662</td><td>1.47874</td><td>1.671</td><td>1.64238</td><td>1.64949</td><td>em.wl</td><td>um</td><td>0.25094</td><td>1024.0</td><td>Pogson</td><td>Jy</td><td>2MASS/2MASS.H</td><td>1</td><td>58</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/2MASS.H</td><td>[&apos;AST&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-<tr><td>2MASS.J</td><td>http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C</td><td>0.21491</td><td>2MASS</td><td>ivo://svo/fps</td><td>Vega</td><td>2MASS/2MASS.J/Vega</td><td>2MASS</td><td>http://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec6_4a.html#rsr</td><td>1.23906</td><td>1.235</td><td>1.4068</td><td>1.235</td><td>1.08065</td><td>1.326</td><td>1.23209</td><td>1.23931</td><td>em.wl</td><td>um</td><td>0.16241</td><td>1594.0</td><td>Pogson</td><td>Jy</td><td>2MASS/2MASS.J</td><td>1</td><td>107</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/2MASS.J</td><td>[&apos;2003AJ....126.1090C&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-<tr><td>2MASS.Ks</td><td>http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C</td><td>0.27846</td><td>2MASS</td><td>ivo://svo/fps</td><td>Vega</td><td>2MASS/2MASS.Ks/Vega</td><td>2MASS</td><td>http://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec6_4a.html#rsr</td><td>2.1634</td><td>2.159</td><td>2.35524</td><td>2.159</td><td>1.95437</td><td>2.263</td><td>2.15577</td><td>2.16386</td><td>em.wl</td><td>um</td><td>0.26189</td><td>666.8</td><td>Pogson</td><td>Jy</td><td>2MASS/2MASS.Ks</td><td>1</td><td>76</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/2MASS.Ks</td><td>[&apos;2003AJ....126.1090C&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-<tr><td>IRAC.I1</td><td>--</td><td>0.74317</td><td>Spitzer</td><td>ivo://svo/fps</td><td>Vega</td><td>Spitzer/IRAC.I1/Vega</td><td>IRAC</td><td>http://ssc.spitzer.caltech.edu/irac/spectral_response.html</td><td>3.54656</td><td>3.50751</td><td>3.96144</td><td>3.55726</td><td>3.12962</td><td>3.73052</td><td>3.52039</td><td>3.55079</td><td>em.wl</td><td>um</td><td>0.68362</td><td>277.222253517</td><td>Pogson</td><td>Jy</td><td>Spitzer/IRAC.I1</td><td>1</td><td>391</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/IRAC.I1</td><td>[]</td><td>IRAC</td><td>--</td><td>--</td></tr>
-<tr><td>IRAC.I2</td><td>--</td><td>1.00968</td><td>Spitzer</td><td>ivo://svo/fps</td><td>Vega</td><td>Spitzer/IRAC.I2/Vega</td><td>IRAC</td><td>http://ssc.spitzer.caltech.edu/irac/spectral_response.html</td><td>4.50243</td><td>4.43658</td><td>5.05606</td><td>4.50493</td><td>3.91733</td><td>4.43578</td><td>4.4543</td><td>4.49596</td><td>em.wl</td><td>um</td><td>0.86499</td><td>179.036636396</td><td>Pogson</td><td>Jy</td><td>Spitzer/IRAC.I2</td><td>1</td><td>401</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/IRAC.I2</td><td>[]</td><td>IRAC</td><td>--</td><td>--</td></tr>
-<tr><td>IRAC.I3</td><td>--</td><td>1.39119</td><td>Spitzer</td><td>ivo://svo/fps</td><td>Vega</td><td>Spitzer/IRAC.I3/Vega</td><td>IRAC</td><td>http://ssc.spitzer.caltech.edu/irac/spectral_response.html</td><td>5.71566</td><td>5.6281</td><td>6.50889</td><td>5.73857</td><td>4.89828</td><td>5.96712</td><td>5.65638</td><td>5.72446</td><td>em.wl</td><td>um</td><td>1.25612</td><td>113.848293842</td><td>Pogson</td><td>Jy</td><td>Spitzer/IRAC.I3</td><td>1</td><td>311</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/IRAC.I3</td><td>[]</td><td>IRAC</td><td>--</td><td>--</td></tr>
-<tr><td>IRAC.I4</td><td>--</td><td>2.83118</td><td>Spitzer</td><td>ivo://svo/fps</td><td>Vega</td><td>Spitzer/IRAC.I4/Vega</td><td>IRAC</td><td>http://ssc.spitzer.caltech.edu/irac/spectral_response.html</td><td>7.85565</td><td>7.58916</td><td>9.58759</td><td>7.92737</td><td>6.29938</td><td>8.45909</td><td>7.67414</td><td>7.88423</td><td>em.wl</td><td>um</td><td>2.52885</td><td>61.9973692512</td><td>Pogson</td><td>Jy</td><td>Spitzer/IRAC.I4</td><td>1</td><td>350</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/IRAC.I4</td><td>[]</td><td>IRAC</td><td>--</td><td>--</td></tr>
-<tr><td>Kepler.K</td><td>--</td><td>0.39934</td><td>Kepler</td><td>ivo://svo/fps</td><td>Vega</td><td>Kepler/Kepler.K/Vega</td><td>Kepler</td><td>http://keplergo.arc.nasa.gov/CalibrationResponse.shtml</td><td>0.63593</td><td>0.57813</td><td>0.90502</td><td>0.64168</td><td>0.41837</td><td>0.589</td><td>0.59823</td><td>0.63034</td><td>em.wl</td><td>um</td><td>0.35284</td><td>3033.0662326897</td><td>Pogson</td><td>Jy</td><td>Kepler/Kepler.K</td><td>1</td><td>623</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/Kepler.K</td><td>[]</td><td>Kepler</td><td>--</td><td>--</td></tr>
-<tr><td>NIRISS.F277W</td><td>--</td><td>0.73007</td><td>JWST</td><td>ivo://svo/fps</td><td>Vega</td><td>JWST/NIRISS.F277W/Vega</td><td>NIRISS</td><td>http://jwst.astro.umontreal.ca/?page_id=116</td><td>2.77775</td><td>2.72355</td><td>3.22972</td><td>2.78392</td><td>2.36989</td><td>2.902</td><td>2.73952</td><td>2.77579</td><td>em.wl</td><td>um</td><td>0.71526</td><td>430.62938035989</td><td>Pogson</td><td>Jy</td><td>JWST/NIRISS.F277W</td><td>1</td><td>933</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/NIRISS.F277W</td><td>[]</td><td>NIRISS</td><td>1</td><td>--</td></tr>
-<tr><td>WFC3_IR.G102</td><td>--</td><td>0.57288</td><td>HST</td><td>ivo://svo/fps</td><td>Vega</td><td>HST/WFC3_IR.G141/Vega</td><td>WFC3</td><td>http://www.stsci.edu/hst/wfc3/documents/handbooks/currentIHB/</td><td>1.38902</td><td>1.32829</td><td>1.77466</td><td>1.39879</td><td>1.04039</td><td>1.48039</td><td>1.3481</td><td>1.38869</td><td>em.wl</td><td>um</td><td>0.52172</td><td>1330.8028480785</td><td>Pogson</td><td>Jy</td><td>HST/WFC3_IR.G141</td><td>1</td><td>9512</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_IR.G102</td><td>[]</td><td>WFC3</td><td>--</td><td>/&gt;</td></tr>
-<tr><td>WFC3_IR.G141</td><td>--</td><td>0.57288</td><td>HST</td><td>ivo://svo/fps</td><td>Vega</td><td>HST/WFC3_IR.G141/Vega</td><td>WFC3</td><td>http://www.stsci.edu/hst/wfc3/documents/handbooks/currentIHB/</td><td>1.38902</td><td>1.32829</td><td>1.77466</td><td>1.39879</td><td>1.04039</td><td>1.48039</td><td>1.3481</td><td>1.38869</td><td>em.wl</td><td>um</td><td>0.52172</td><td>1330.8028480785</td><td>Pogson</td><td>Jy</td><td>HST/WFC3_IR.G141</td><td>1</td><td>9512</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_IR.G141</td><td>[]</td><td>WFC3</td><td>--</td><td>/&gt;</td></tr>
-<tr><td>WFC3_UVIS2.F814W</td><td>--</td><td>0.15047</td><td>HST</td><td>ivo://svo/fps</td><td>Vega</td><td>HST/WFC3_UVIS2.F814W/Vega</td><td>WFC3</td><td>http://www.stsci.edu/hst/wfc3/documents/handbooks/currentIHB/</td><td>0.78142</td><td>0.78961</td><td>0.96836</td><td>0.80527</td><td>0.69782</td><td>0.71331</td><td>0.795</td><td>0.8024</td><td>em.wl</td><td>um</td><td>0.15357</td><td>2440.7647763072</td><td>Pogson</td><td>Jy</td><td>HST/WFC3_UVIS2.F814W</td><td>1</td><td>1981</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_UVIS2.F814W</td><td>[]</td><td>WFC3</td><td>--</td><td>/&gt;</td></tr>
-<tr><td>WFC3_UVIS2.F850LP</td><td>--</td><td>0.1168</td><td>HST</td><td>ivo://svo/fps</td><td>Vega</td><td>HST/WFC3_UVIS2.F850LP/Vega</td><td>WFC3</td><td>http://www.stsci.edu/hst/wfc3/documents/handbooks/currentIHB/</td><td>0.90823</td><td>0.91246</td><td>1.09224</td><td>0.91781</td><td>0.82505</td><td>0.88218</td><td>0.91474</td><td>0.9166</td><td>em.wl</td><td>um</td><td>0.1182</td><td>2240.8216993878</td><td>Pogson</td><td>Jy</td><td>HST/WFC3_UVIS2.F850LP</td><td>1</td><td>1711</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_UVIS2.F850LP</td><td>[]</td><td>WFC3</td><td>--</td><td>/&gt;</td></tr>
-<tr><td>WISE.W1</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif</td><td>0.63579</td><td>WISE</td><td>ivo://svo/fps</td><td>Vega</td><td>WISE/WISE.W1/Vega</td><td>WISE</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/sec4_3g.html#WISEZMA</td><td>3.46552</td><td>3.3526</td><td>3.87239</td><td>3.3526</td><td>2.7541</td><td>3.48</td><td>3.3387</td><td>3.3897</td><td>em.wl</td><td>um</td><td>0.66264</td><td>309.54</td><td>Pogson</td><td>Jy</td><td>WISE/WISE.W1</td><td>1</td><td>141</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WISE.W1</td><td>[&apos;http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-<tr><td>WISE.W2</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif</td><td>1.10732</td><td>WISE</td><td>ivo://svo/fps</td><td>Vega</td><td>WISE/WISE.W2/Vega</td><td>WISE</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/sec4_3g.html#WISEZMA</td><td>4.6443</td><td>4.6028</td><td>5.34136</td><td>4.6028</td><td>3.96333</td><td>4.93</td><td>4.58694</td><td>4.64064</td><td>em.wl</td><td>um</td><td>1.04227</td><td>171.787</td><td>Pogson</td><td>Jy</td><td>WISE/WISE.W2</td><td>1</td><td>168</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WISE.W2</td><td>[&apos;http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-<tr><td>WISE.W3</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif</td><td>6.2758</td><td>WISE</td><td>ivo://svo/fps</td><td>Vega</td><td>WISE/WISE.W3/Vega</td><td>WISE</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/sec4_3g.html#WISEZMA</td><td>13.21564</td><td>11.5608</td><td>17.26134</td><td>11.5608</td><td>7.44304</td><td>14.46</td><td>11.30813</td><td>12.56755</td><td>em.wl</td><td>um</td><td>5.50557</td><td>31.674</td><td>Pogson</td><td>Jy</td><td>WISE/WISE.W3</td><td>1</td><td>1122</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WISE.W3</td><td>[&apos;http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-<tr><td>WISE.W4</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif</td><td>4.73973</td><td>WISE</td><td>ivo://svo/fps</td><td>Vega</td><td>WISE/WISE.W4/Vega</td><td>WISE</td><td>http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/sec4_3g.html#WISEZMA</td><td>22.22288</td><td>22.0883</td><td>27.91072</td><td>22.0883</td><td>19.52008</td><td>21.62</td><td>22.02311</td><td>22.31427</td><td>em.wl</td><td>um</td><td>4.10168</td><td>8.363</td><td>Pogson</td><td>Jy</td><td>WISE/WISE.W4</td><td>1</td><td>897</td><td>/Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WISE.W4</td><td>[&apos;http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif&apos;]</td><td>--</td><td>--</td><td>--</td></tr>
-</table>
-
-
+```       Band                                        CalibrationReference                                    FWHM   Facility  FilterProfileService ...  wl_max   wl_min  Instrument
+      str91                                               str86                                          float64   str91           str91         ... float64  float64    str91   
+----------------- -------------------------------------------------------------------------------------- ------- ---------- -------------------- ... -------- -------- ----------
+          2MASS.H http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&db_key=AST 0.26096      2MASS        ivo://svo/fps ...   1.8231  1.47874         --
+          2MASS.J            http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C 0.21491      2MASS        ivo://svo/fps ...   1.4068  1.08065         --
+         2MASS.Ks            http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C 0.27846      2MASS        ivo://svo/fps ...  2.35524  1.95437         --
+    ACS_HRC.F435W                                                                                     -- 0.08852        HST        ivo://svo/fps ...  0.48613   0.3599        ACS
+    ACS_HRC.F555W                                                                                     --   0.123        HST        ivo://svo/fps ...  0.62049  0.45867        ACS
+    ACS_HRC.F658N                                                                                     --  0.0072        HST        ivo://svo/fps ...  0.66594  0.65099        ACS
+    ACS_HRC.F775W                                                                                     -- 0.15151        HST        ivo://svo/fps ...  0.86307  0.68014        ACS
+   ACS_HRC.F850LP                                                                                     -- 0.15317        HST        ivo://svo/fps ...  1.09465  0.80151        ACS
+        Cousins.I                                                                                     -- 0.10937         --        ivo://svo/fps ...  0.90006  0.70665         --
+        Cousins.R                                                                                     -- 0.15165         --        ivo://svo/fps ...    0.795     0.55         --
+       FourStar.J                                                                                     -- 0.22829        LCO        ivo://svo/fps ...  1.37261  1.10964   FourStar
+      FourStar.J1                                                                                     -- 0.09882        LCO        ivo://svo/fps ...  1.12095   0.9908   FourStar
+      FourStar.J2                                                                                     -- 0.13685        LCO        ivo://svo/fps ...  1.23809  1.06006   FourStar
+      FourStar.J3                                                                                     -- 0.13998        LCO        ivo://svo/fps ...  1.37794  1.20031   FourStar
+          Gaia.bp                                                                                     -- 0.24832       GAIA        ivo://svo/fps ...  0.67089  0.32793       GAIA
+           Gaia.G                                                                                     -- 0.45783       GAIA        ivo://svo/fps ...  1.08275  0.33212       GAIA
+          Gaia.rp                                                                                     -- 0.31164       GAIA        ivo://svo/fps ...  1.06083  0.61768       GAIA
+        GALEX.FUV                                                                                     -- 0.02278      GALEX        ivo://svo/fps ...  0.18064  0.13403         --
+        GALEX.NUV                                                                                     -- 0.07956      GALEX        ivo://svo/fps ...  0.30067  0.16925         --
+          IRAC.I1                                                                                     -- 0.74317    Spitzer        ivo://svo/fps ...  3.96144  3.12962       IRAC
+          IRAC.I2                                                                                     -- 1.00968    Spitzer        ivo://svo/fps ...  5.05606  3.91733       IRAC
+              ...                                                                                    ...     ...        ...                  ... ...      ...      ...        ...
+            PS1.r                                                                                     -- 0.14044 PAN-STARRS        ivo://svo/fps ...  0.70357  0.53862 PAN-STARRS
+            PS1.y                                                                                     -- 0.06282 PAN-STARRS        ivo://svo/fps ...  1.08385  0.91005 PAN-STARRS
+            PS1.z                                                                                     -- 0.10343 PAN-STARRS        ivo://svo/fps ...   0.9346   0.8028 PAN-STARRS
+           SDSS.g                                               www.sdss.org/DR2/algorithms/fluxcal.html 0.12627      SLOAN        ivo://svo/fps ...  0.55493  0.37825         --
+           SDSS.i                                               www.sdss.org/DR2/algorithms/fluxcal.html 0.12389      SLOAN        ivo://svo/fps ...  0.83895  0.66895         --
+           SDSS.r                                               www.sdss.org/DR2/algorithms/fluxcal.html 0.11495      SLOAN        ivo://svo/fps ...  0.69891  0.54153         --
+           SDSS.u                                               www.sdss.org/DR2/algorithms/fluxcal.html 0.05823      SLOAN        ivo://svo/fps ...  0.40282  0.30483         --
+           SDSS.z                                               www.sdss.org/DR2/algorithms/fluxcal.html 0.09944      SLOAN        ivo://svo/fps ...  1.08333  0.79604         --
+    WFC3_IR.F125W                                                                                     -- 0.30052        HST        ivo://svo/fps ...  1.41392  1.08446       WFC3
+     WFC3_IR.G102                                                                                     -- 0.57288        HST        ivo://svo/fps ...  1.77466  1.04039       WFC3
+     WFC3_IR.G141                                                                                     -- 0.57288        HST        ivo://svo/fps ...  1.77466  1.04039       WFC3
+ WFC3_UVIS2.F814W                                                                                     -- 0.15047        HST        ivo://svo/fps ...  0.96836  0.69782       WFC3
+WFC3_UVIS2.F850LP                                                                                     --  0.1168        HST        ivo://svo/fps ...  1.09224  0.82505       WFC3
+      WFPC2.F336W                                                                                     -- 0.04909        HST        ivo://svo/fps ...  0.37903  0.29565      WFPC2
+      WFPC2.F439W                                                                                     -- 0.07058        HST        ivo://svo/fps ...  0.47581  0.38935      WFPC2
+      WFPC2.F656N                                                                                     -- 0.00285        HST        ivo://svo/fps ...  0.65874  0.65384      WFPC2
+      WFPC2.F814W                                                                                     -- 0.25562        HST        ivo://svo/fps ...  1.00426  0.69476      WFPC2
+         Wircam.Y                                                                                     -- 0.11053       CFHT        ivo://svo/fps ...   1.1134   0.9386     Wircam
+          WISE.W1         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 0.63579       WISE        ivo://svo/fps ...  3.87239   2.7541         --
+          WISE.W2         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 1.10732       WISE        ivo://svo/fps ...  5.34136  3.96333         --
+          WISE.W3         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif  6.2758       WISE        ivo://svo/fps ... 17.26134  7.44304         --
+          WISE.W4         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 4.73973       WISE        ivo://svo/fps ... 27.91072 19.52008         --```
 
 # Load a Photometric Filter
 
@@ -62,7 +86,7 @@ H_band.info()
 H_band.plot()
 ```
 
-     Attributes                                              Values                                        
+```     Attributes                                              Values                                        
 -------------------- --------------------------------------------------------------------------------------
                 Band H                                                                                     
 CalibrationReference http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&db_key=AST
@@ -94,7 +118,7 @@ FilterProfileService ivo://svo/fps
       pixels_per_bin 58                                                                                    
                 refs ['AST']                                                                               
               wl_max 1.8231                                                                                
-              wl_min 1.47874                                                                               
+              wl_min 1.47874                                                                               ```
 
 
 ![png](svo_demo_files/svo_demo_7_1.png)
