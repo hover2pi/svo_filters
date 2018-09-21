@@ -125,7 +125,7 @@ FilterProfileService ivo://svo/fps
 ```
 
 
-![png](data/plots/H.png)
+![png](svo_filters/data/plots/H.png)
 
 
 The actual relative spectral response curve is stored as an array of the wavelength and throughput.
@@ -185,7 +185,7 @@ FilterProfileService ivo://svo/fps
 ```
 
 
-![png](data/plots/G141.png)
+![png](svo_filters/data/plots/G141.png)
 
 
 Now we can apply our filter to a spectrum like so
@@ -204,7 +204,7 @@ spec = np.genfromtxt(file)
 filtered = G141.apply(spec, plot=True)
 ```
 
-![png](data/plots/filtered.png)
+![png](svo_filters/data/plots/filtered.png)
 
 Filters are fun!
 
