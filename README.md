@@ -140,7 +140,7 @@ H_band.rsr.shape
 
 # Load a Grism
 
-Filters can also be binned arbitrarily, for use with grisms. We can pass integers to the `n_bins` or `n_channels` arguments to specify the number of wavelength bins or channels per bin, respectively.
+Filters can also be binned arbitrarily, for use with grisms. We can pass integers to the `n_bins` or `n_pixels` arguments to specify the number of wavelength bins or channels per bin, respectively.
 
 
 ```python
