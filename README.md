@@ -27,7 +27,8 @@ The actual filters are stored locally as XML files and can be viewed with
 ```python
 svo.filters()
 ```
-```       Band                                        CalibrationReference                                    FWHM   Facility  FilterProfileService ...  wl_max   wl_min  Instrument
+```
+       Band                                        CalibrationReference                                    FWHM   Facility  FilterProfileService ...  wl_max   wl_min  Instrument
       str91                                               str86                                          float64   str91           str91         ... float64  float64    str91   
 ----------------- -------------------------------------------------------------------------------------- ------- ---------- -------------------- ... -------- -------- ----------
           2MASS.H http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&db_key=AST 0.26096      2MASS        ivo://svo/fps ...   1.8231  1.47874         --
@@ -73,7 +74,8 @@ WFC3_UVIS2.F850LP                                                               
           WISE.W1         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 0.63579       WISE        ivo://svo/fps ...  3.87239   2.7541         --
           WISE.W2         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 1.10732       WISE        ivo://svo/fps ...  5.34136  3.96333         --
           WISE.W3         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif  6.2758       WISE        ivo://svo/fps ... 17.26134  7.44304         --
-          WISE.W4         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 4.73973       WISE        ivo://svo/fps ... 27.91072 19.52008         --```
+          WISE.W4         http://wise2.ipac.caltech.edu/docs/release/prelim/expsup/figures/sec4_3gt4.gif 4.73973       WISE        ivo://svo/fps ... 27.91072 19.52008         --
+```
 
 # Load a Photometric Filter
 
@@ -86,7 +88,8 @@ H_band.info()
 H_band.plot()
 ```
 
-```     Attributes                                              Values                                        
+```
+     Attributes                                              Values                                        
 -------------------- --------------------------------------------------------------------------------------
                 Band H                                                                                     
 CalibrationReference http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2003AJ....126.1090C&db_key=AST
@@ -118,7 +121,8 @@ FilterProfileService ivo://svo/fps
       pixels_per_bin 58                                                                                    
                 refs ['AST']                                                                               
               wl_max 1.8231                                                                                
-              wl_min 1.47874                                                                               ```
+              wl_min 1.47874                                                                               
+```
 
 
 ![png](svo_demo_files/svo_demo_7_1.png)
@@ -130,10 +134,6 @@ The actual relative spectral response curve is stored as an array of the wavelen
 ```python
 H_band.rsr.shape
 ```
-
-
-
-
     (2, 58)
 
 
