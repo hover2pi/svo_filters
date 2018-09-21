@@ -116,7 +116,6 @@ FilterProfileService ivo://svo/fps
        ZeroPointUnit erg / (Angstrom cm2 s)                                                                
             filterID 2MASS/2MASS.H                                                                         
               n_bins 1                                                                                     
-      pixels_per_bin 58                                                                                    
                 path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/2MASS.H     
       pixels_per_bin 58                                                                                    
                 refs ['AST']                                                                               
@@ -176,7 +175,6 @@ FilterProfileService ivo://svo/fps
        ZeroPointUnit erg / (Angstrom cm2 s)                                                                
             filterID HST/WFC3_IR.G141                                                                      
               n_bins 15                                                                                    
-      pixels_per_bin 9512                                                                                  
                 path /Users/jfilippazzo/Documents/Modules/svo_filters/svo_filters/data/filters/WFC3_IR.G141
       pixels_per_bin 580                                                                                   
                 refs []                                                                                    
