@@ -3,20 +3,22 @@
 """
 A Python wrapper for the SVO Filter Profile Service
 """
-from astropy.utils.exceptions import AstropyWarning
 from glob import glob
+import inspect
+import os
+import pickle
 from pkg_resources import resource_filename
+import urllib
+import warnings
+
 import astropy.table as at
 import astropy.io.votable as vo
 import astropy.units as q
 import astropy.constants as ac
+from astropy.utils.exceptions import AstropyWarning
 import matplotlib.pyplot as plt
-import warnings
-import pickle
-import inspect
 import numpy as np
-import urllib
-import os
+
 
 warnings.simplefilter('ignore', category=AstropyWarning)
 WL_KEYS = ['FWHM', 'WavelengthCen', 'WavelengthEff', 'WavelengthMax',
