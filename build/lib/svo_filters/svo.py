@@ -368,7 +368,7 @@ class Filter:
         width = self.wl_max-self.wl_min
 
         # Create the RSR curve
-        wave = np.linspace(self.wl_min, self.wl_max, pixels_per_bin)
+        wave = np.linspace(self.wl_min, self.wl_max, n_pixels)
         rsr = np.ones(pixels_per_bin)
         self.raw = np.array([wave, rsr])
         self.rsr = self.raw
