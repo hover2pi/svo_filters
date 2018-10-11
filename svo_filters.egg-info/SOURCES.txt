@@ -130,4 +130,7 @@ svo_filters/data/filters/WISE.W2
 svo_filters/data/filters/WISE.W3
 svo_filters/data/filters/WISE.W4
 svo_filters/data/filters/Wircam.Y
+svo_filters/data/plots/G141.png
+svo_filters/data/plots/H.png
+svo_filters/data/plots/filtered.png
 svo_filters/data/spectra/vega.txt

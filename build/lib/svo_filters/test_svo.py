@@ -3,7 +3,7 @@ import unittest
 
 import astropy.units as q
 
-from svo_filters import svo
+from . import svo
 
  
 class TestFilters(unittest.TestCase):
