@@ -30,6 +30,6 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs']),
     package_data={'svo_filters': ['data/*', 'data/filters/*', 'data/plots/*', 'data/spectra/*']},
     include_package_data=True,
-    install_requires=['numpy','astropy','matplotlib'],
+    install_requires=['numpy', 'astropy', 'matplotlib', 'bokeh'],
 
 )
