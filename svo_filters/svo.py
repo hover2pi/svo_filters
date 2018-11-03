@@ -8,7 +8,6 @@ import inspect
 import os
 import pickle
 from pkg_resources import resource_filename
-import urllib
 import warnings
 import itertools
 
@@ -23,9 +22,9 @@ import numpy as np
 
 
 warnings.simplefilter('ignore', category=AstropyWarning)
-EXTINCTION = {'PS1.g':3.384, 'PS1.r':2.483, 'PS1.i':1.838, 'PS1.z':1.414, 'PS1.y':1.126,
-              'SDSS.u':4.0, 'SDSS.g':3.384, 'SDSS.r':2.483, 'SDSS.i':1.838, 'SDSS.z':1.414,
-              '2MASS.J':0.650, '2MASS.H':0.327, '2MASS.Ks':0.161}
+EXTINCTION = {'PS1.g': 3.384, 'PS1.r': 2.483, 'PS1.i': 1.838, 'PS1.z': 1.414, 'PS1.y': 1.126,
+              'SDSS.u': 4.0, 'SDSS.g': 3.384, 'SDSS.r': 2.483, 'SDSS.i': 1.838, 'SDSS.z': 1.414,
+              '2MASS.J': 0.650, '2MASS.H': 0.327, '2MASS.Ks': 0.161}
 
 
 class Filter:
@@ -147,15 +146,15 @@ class Filter:
                       '\n')
 
                 print('No filters match', filepath)
-                
+
                 print('\nA full list of available filters from the\n'
                       'SVO Filter Profile Service can be found at\n'
                       'http: //svo2.cab.inta-csic.es/theory/fps3/\n\n'
                       'Place the desired filter XML file in your\n'
                       'filter directory and try again.')
-                      
+
                 return
-                
+
             # Get the first line to determine format
             with open(filepath) as f:
                 top = f.readline()
@@ -164,14 +163,14 @@ class Filter:
             if top.startswith('<?xml'):
 
                 self.load_xml(filepath)
-                
+
             # Read in txt file
             elif filepath.endswith('.txt'):
-                
+
                 self.load_txt(filepath)
-                
+
             else:
-                
+
                 raise TypeError("File must be XML or ascii format.")
 
         # Set the wavelength and throughput
@@ -370,7 +369,7 @@ class Filter:
             return table
         else:
             table.pprint(max_width=-1, max_lines=-1, align=['>', '<'])
-            
+
     def load_TopHat(self, wave_min, wave_max, pixels_per_bin=100):
         """
         Loads a top hat filter given wavelength min and max values
@@ -432,10 +431,10 @@ class Filter:
         self.ZeroPointType = ''
         self.ZeroPointUnit = 'Jy'
         self.filterID = 'Top Hat'
-            
+
     def load_txt(self, filepath):
         """Load the filter from a txt file
-        
+
         Parameters
         ----------
         file: str
@@ -453,7 +452,7 @@ class Filter:
 
         # Get a spectrum of Vega
         vega_file = resource_filename('svo_filters', 'data/spectra/vega.txt')
-        vega = np.genfromtxt(vega_file, unpack=True)[:2]
+        vega = np.genfromtxt(vega_file, unpack=True)[: 2]
         vega[0] = vega[0] * 10000
         vega = rebin_spec(vega, x)*q.erg/q.s/q.cm**2/q.AA
         flam = np.trapz((vega[1]*f).to(q.erg/q.s/q.cm**2/q.AA), x=x)
@@ -466,8 +465,8 @@ class Filter:
         f0 = f[: np.where(np.diff(f) > 0)[0][-1]]
         x0 = x[: np.where(np.diff(f) > 0)[0][-1]]
         self.WavelengthMin = np.interp(max(f)/100., f0, x0)
-        f1 = f[::-1][:np.where(np.diff(f[::-1]) > 0)[0][-1]]
-        x1 = x[::-1][:np.where(np.diff(f[::-1]) > 0)[0][-1]]
+        f1 = f[::-1][: np.where(np.diff(f[::-1]) > 0)[0][-1]]
+        x1 = x[::-1][: np.where(np.diff(f[::-1]) > 0)[0][-1]]
         self.WavelengthMax = np.interp(max(f)/100., f1, x1)
         self.WavelengthEff = np.trapz(f*x*vega, x=x)/np.trapz(f*vega, x=x)
         self.WavelengthMean = np.trapz(f*x, x=x)/np.trapz(f, x=x)
@@ -488,7 +487,7 @@ class Filter:
 
     def load_xml(self, filepath):
         """Load the filter from a txt file
-        
+
         Parameters
         ----------
         filepath: str
@@ -534,7 +533,7 @@ class Filter:
             |---------- spectrum ----------|
                |------ self ------|
 
-        Examples of partial overlap::
+        Examples of partial overlap: :
 
             |---------- self ----------|
                |------ spectrum ------|
@@ -545,7 +544,7 @@ class Filter:
             |---- self ----|
                |---- spectrum ----|
 
-        Examples of no overlap::
+        Examples of no overlap: :
 
             |---- spectrum ----|  |---- other ----|
 
@@ -590,7 +589,7 @@ class Filter:
             ylab = 'Throughput'
             title = self.filterID
             fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
-        
+
         # Plot the raw curve
         fig.line((self.raw[0]*q.AA).to(self.wave_units), self.raw[1],
                  alpha=0.1, line_width=8, color='black')
@@ -609,7 +608,7 @@ class Filter:
 
         # Reshape if binned grism
         if arr.ndim == 3:
-            arr = arr.swapaxes(0,1).squeeze()
+            arr = arr.swapaxes(0, 1).squeeze()
 
         return arr
 
@@ -833,8 +832,8 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
             filters(update=True)
         else:
             print('No filters found in', filter_directory)
-            
-            
+
+
 def rebin_spec(spec, wavnew, oversamp=100, plot=False):
     """
     Rebin a spectrum to a new wavelength array while preserving
@@ -876,10 +875,5 @@ def rebin_spec(spec, wavnew, oversamp=100, plot=False):
 
     for ii in range(nbins):
         specnew[ii] = np.sum(spec0int[inds2[ii][0]: inds2[ii][1]])
-
-    if plot:
-        plt.figure()
-        plt.loglog(wave, flux, c='b')
-        plt.loglog(wavnew, specnew, c='r')
 
     return specnew
