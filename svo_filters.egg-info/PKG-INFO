@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: svo-filters
-Version: 0.2.2
+Version: 0.2.3
 Summary: A Python wrapper for the SVO Filter Profile Service
 Home-page: https://github.com/hover2pi/svo_filters
 Author: Joe Filippazzo
