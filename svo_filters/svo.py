@@ -185,7 +185,7 @@ class Filter:
         self.pixels_per_bin = self.raw.shape[-1]
 
         # Rename some values and apply units
-        self.wave_min = self.WavelengthMin * self.wave_units
+        self.wave_min = round(self.WavelengthMin, 4) * self.wave_units
         self.wave_max = self.WavelengthMax * self.wave_units
         self.wave_eff = self.WavelengthEff * self.wave_units
         self.wave_center = self.WavelengthCen * self.wave_units
@@ -194,6 +194,13 @@ class Filter:
         self.wave_phot = self.WavelengthPhot * self.wave_units
         self.wave_pivot = self.WavelengthPivot * self.wave_units
         self.width_eff = self.WidthEff * self.wave_units
+        self.fwhm = self.FWHM * self.wave_units
+
+        # Delete redundant attributes
+        del self.WavelengthMin, self.WavelengthMax, self.WavelengthEff
+        del self.WavelengthCen, self.WavelengthMean, self.WavelengthPeak
+        del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff
+        del self.WavelengthUCD, self.WavelengthUnit, self.FWHM
 
         # Set the wavelength units
         if wave_units:
@@ -202,6 +209,8 @@ class Filter:
         # Set zeropoint flux units
         if flux_units != self.ZeroPointUnit:
             self.flux_units = flux_units
+
+        del self.ZeroPointType, self.ZeroPointUnit, self.ZeroPoint
 
         # Get references
         self.refs = []
@@ -216,6 +225,11 @@ class Filter:
 
         # Try to get the extinction vector R from Green et al. (2018)
         self.ext_vector = EXTINCTION.get(self.name, 0)
+
+        # Calculate wavelength centers
+        w_cen = np.nanmean(self.wave.value)
+        f_cen = np.nanmean(self.throughput)
+        self.centers = np.asarray([w_cen, f_cen])
 
         # Bin
         if kwargs:
@@ -266,7 +280,7 @@ class Filter:
 
             # Make the figure
             COLORS = color_gen('Category10')
-            xlab = 'Wavelength [{}]'.format(str(self.WavelengthUnit))
+            xlab = 'Wavelength [{}]'.format(self.wave_units)
             ylab = 'Flux Density [{}]'.format(self.flux_units)
             title = self.filterID
             fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
@@ -356,7 +370,7 @@ class Filter:
         # Get the info from the class
         tp = (int, bytes, bool, str, float, tuple, list, np.ndarray)
         info = [[k, str(v)] for k, v in vars(self).items() if isinstance(v, tp)
-                and k not in ['rsr', 'raw', 'centers']]
+                and k not in ['rsr', 'raw', 'centers'] and not k.startswith('_')]
 
         # Make the table
         table = at.Table(np.asarray(info).reshape(len(info), 2),
@@ -585,7 +599,7 @@ class Filter:
 
         # Make the figure
         if fig is None:
-            xlab = 'Wavelength [{}]'.format(str(self.WavelengthUnit))
+            xlab = 'Wavelength [{}]'.format(self.wave_units)
             ylab = 'Throughput'
             title = self.filterID
             fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
@@ -595,8 +609,11 @@ class Filter:
                  alpha=0.1, line_width=8, color='black')
 
         # If the filter is binned, plot each with bin centers
-        for x, y in self.rsr:
-            fig.line(x, y, color=next(COLORS), line_width=2)
+        if self.rsr.ndim == 2:
+            fig.line(*self.rsr, color=next(COLORS), line_width=2)
+        else:
+            for x, y in self.rsr:
+                fig.line(x, y, color=next(COLORS), line_width=2)
         fig.circle(*self.centers, size=8, color='black')
 
         show(fig)
@@ -678,16 +695,17 @@ class Filter:
         self._wave_units = units
 
         # Update all the wavelength values
-        self._wave = self.wave.to(self.wave_units)
-        self.wave_min = self.wave_min.to(self.wave_units)
-        self.wave_max = self.wave_max.to(self.wave_units)
-        self.wave_eff = self.wave_eff.to(self.wave_units)
-        self.wave_center = self.wave_center.to(self.wave_units)
-        self.wave_mean = self.wave_mean.to(self.wave_units)
-        self.wave_peak = self.wave_peak.to(self.wave_units)
-        self.wave_phot = self.wave_phot.to(self.wave_units)
-        self.wave_pivot = self.wave_pivot.to(self.wave_units)
-        self.width_eff = self.width_eff.to(self.wave_units)
+        self._wave = self.wave.to(self.wave_units).round(5)
+        self.wave_min = self.wave_min.to(self.wave_units).round(5)
+        self.wave_max = self.wave_max.to(self.wave_units).round(5)
+        self.wave_eff = self.wave_eff.to(self.wave_units).round(5)
+        self.wave_center = self.wave_center.to(self.wave_units).round(5)
+        self.wave_mean = self.wave_mean.to(self.wave_units).round(5)
+        self.wave_peak = self.wave_peak.to(self.wave_units).round(5)
+        self.wave_phot = self.wave_phot.to(self.wave_units).round(5)
+        self.wave_pivot = self.wave_pivot.to(self.wave_units).round(5)
+        self.width_eff = self.width_eff.to(self.wave_units).round(5)
+        self.fwhm = self.fwhm.to(self.wave_units).round(5)
 
     @property
     def flux_units(self):
@@ -712,7 +730,7 @@ class Filter:
             raise ValueError(self.ZeroPointUnit, "units not understood.")
 
 
-def color_gen(colormap='viridis', key=None, n=10):
+def color_gen(colormap='viridis', key=None, n=15):
     """Color generator for Bokeh plots
 
     Parameters
