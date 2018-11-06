@@ -8,23 +8,23 @@ import inspect
 import os
 import pickle
 from pkg_resources import resource_filename
-import urllib
 import warnings
+import itertools
 
 import astropy.table as at
 import astropy.io.votable as vo
 import astropy.units as q
 import astropy.constants as ac
 from astropy.utils.exceptions import AstropyWarning
-import matplotlib.pyplot as plt
+from bokeh.plotting import figure, show
+import bokeh.palettes as bpal
 import numpy as np
 
 
 warnings.simplefilter('ignore', category=AstropyWarning)
-WL_KEYS = ['FWHM', 'WavelengthCen', 'WavelengthEff', 'WavelengthMax',
-           'WavelengthMean', 'WavelengthMin', 'WavelengthPeak',
-           'WavelengthPhot', 'WavelengthPivot', 'WidthEff',
-           'wl_min', 'wl_max']
+EXTINCTION = {'PS1.g': 3.384, 'PS1.r': 2.483, 'PS1.i': 1.838, 'PS1.z': 1.414, 'PS1.y': 1.126,
+              'SDSS.u': 4.0, 'SDSS.g': 3.384, 'SDSS.r': 2.483, 'SDSS.i': 1.838, 'SDSS.z': 1.414,
+              '2MASS.J': 0.650, '2MASS.H': 0.327, '2MASS.Ks': 0.161}
 
 
 class Filter:
@@ -93,7 +93,7 @@ class Filter:
 
     """
     def __init__(self, band, filter_directory=None,
-                 wl_units=q.um, zp_units=q.erg/q.s/q.cm**2/q.AA,
+                 wave_units=q.um, flux_units=q.erg/q.s/q.cm**2/q.AA,
                  **kwargs):
         """
         Loads the bandpass data into the Filter object
@@ -104,9 +104,9 @@ class Filter:
             The bandpass filename (e.g. 2MASS.J)
         filter_directory: str
             The directory containing the filter files
-        wl_units: str, astropy.units.core.PrefixUnit  (optional)
+        wave_units: str, astropy.units.core.PrefixUnit  (optional)
             The wavelength units
-        zp_units: str, astropy.units.core.PrefixUnit  (optional)
+        flux_units: str, astropy.units.core.PrefixUnit  (optional)
             The zeropoint flux units
         """
         if filter_directory is None:
@@ -116,18 +116,18 @@ class Filter:
         if band.lower().replace('-', '').replace(' ', '') == 'tophat':
 
             # check kwargs for limits
-            wl_min = kwargs.get('wl_min')
-            wl_max = kwargs.get('wl_max')
+            wave_min = kwargs.get('wave_min')
+            wave_max = kwargs.get('wave_max')
             filepath = ''
 
-            if wl_min is None or wl_max is None:
-                print("Please provide **{'wl_min', 'wl_max'} "
+            if wave_min is None or wave_max is None:
+                print("Please provide **{'wave_min', 'wave_max'} "
                       "to create top hat filter.")
                 return
             else:
                 # Load the filter
                 n_pix = kwargs.get('n_pixels', 100)
-                self.load_TopHat(wl_min, wl_max, n_pix)
+                self.load_TopHat(wave_min, wave_max, n_pix)
 
         else:
 
@@ -146,15 +146,15 @@ class Filter:
                       '\n')
 
                 print('No filters match', filepath)
-                
+
                 print('\nA full list of available filters from the\n'
                       'SVO Filter Profile Service can be found at\n'
                       'http: //svo2.cab.inta-csic.es/theory/fps3/\n\n'
                       'Place the desired filter XML file in your\n'
                       'filter directory and try again.')
-                      
+
                 return
-                
+
             # Get the first line to determine format
             with open(filepath) as f:
                 top = f.readline()
@@ -163,32 +163,54 @@ class Filter:
             if top.startswith('<?xml'):
 
                 self.load_xml(filepath)
-                
+
             # Read in txt file
             elif filepath.endswith('.txt'):
-                
+
                 self.load_txt(filepath)
-                
+
             else:
-                
+
                 raise TypeError("File must be XML or ascii format.")
 
-        # Get the bin centers
-        w_cen = np.nanmean(self.rsr[0])
-        f_cen = np.nanmean(self.rsr[1])
-        self.centers = np.asarray([[w_cen], [f_cen]])
+        # Set the wavelength and throughput
+        self._wave_units = q.AA
+        self._flux_units = flux_units
+        self._wave = self.raw[0] * self.wave_units
+        self._throughput = self.raw[1]
+        self._rsr = np.array([self.wave.value, self.throughput])
 
         # Set n_bins and pixels_per_bin
         self.n_bins = 1
         self.pixels_per_bin = self.raw.shape[-1]
 
+        # Rename some values and apply units
+        self.wave_min = round(self.WavelengthMin, 4) * self.wave_units
+        self.wave_max = self.WavelengthMax * self.wave_units
+        self.wave_eff = self.WavelengthEff * self.wave_units
+        self.wave_center = self.WavelengthCen * self.wave_units
+        self.wave_mean = self.WavelengthMean * self.wave_units
+        self.wave_peak = self.WavelengthPeak * self.wave_units
+        self.wave_phot = self.WavelengthPhot * self.wave_units
+        self.wave_pivot = self.WavelengthPivot * self.wave_units
+        self.width_eff = self.WidthEff * self.wave_units
+        self.fwhm = self.FWHM * self.wave_units
+
+        # Delete redundant attributes
+        del self.WavelengthMin, self.WavelengthMax, self.WavelengthEff
+        del self.WavelengthCen, self.WavelengthMean, self.WavelengthPeak
+        del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff
+        del self.WavelengthUnit, self.FWHM
+
         # Set the wavelength units
-        if wl_units:
-            self.set_wl_units(wl_units)
+        if wave_units:
+            self.wave_units = wave_units
 
         # Set zeropoint flux units
-        if zp_units != self.ZeroPointUnit:
-            self.set_zp_units(zp_units)
+        if flux_units != self.ZeroPointUnit:
+            self.flux_units = flux_units
+
+        del self.ZeroPointUnit, self.ZeroPoint
 
         # Get references
         self.refs = []
@@ -197,6 +219,17 @@ class Filter:
                 self.refs = [self.CalibrationReference.split('=')[-1]]
         except:
             self.CalibrationReference = None
+
+        # Set a base name
+        self.name = self.filterID.split('/')[-1]
+
+        # Try to get the extinction vector R from Green et al. (2018)
+        self.ext_vector = EXTINCTION.get(self.name, 0)
+
+        # Calculate wavelength centers
+        w_cen = np.nanmean(self.wave.value)
+        f_cen = np.nanmean(self.throughput)
+        self.centers = np.asarray([w_cen, f_cen])
 
         # Bin
         if kwargs:
@@ -244,17 +277,31 @@ class Filter:
                 filtered[i][j] = np.interp(bn[0], wav, f)*bn[1]
 
         if plot:
-            plt.loglog(wav, flx[0])
-            for n, bn in enumerate(rsr):
-                plt.loglog(bn[0], filtered[n][0])
-            plt.xlabel('Wavelength [um]')
-            plt.ylabel('Flux Density')
+
+            # Make the figure
+            COLORS = color_gen('Category10')
+            xlab = 'Wavelength [{}]'.format(self.wave_units)
+            ylab = 'Flux Density [{}]'.format(self.flux_units)
+            title = self.filterID
+            fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
+
+            # Plot the unfiltered spectrum
+            fig.line(wav, flx[0], legend='Input spectrum', color='black')
+
+            # If the filter is binned, plot each spectrum bin
+            if self.wave.ndim == 1:
+                fig.line(self.wave, filtered[0][0], color=next(COLORS))
+            else:
+                for wav, bn in zip(self.wave, filtered):
+                    fig.line(wav, bn[0], color=next(COLORS))
+
+            show(fig)
 
         del rsr, wav, flx
 
         return filtered.squeeze()
 
-    def bin(self, n_bins=1, pixels_per_bin=None, wl_min=None, wl_max=None):
+    def bin(self, n_bins=1, pixels_per_bin=None, wave_min=None, wave_max=None):
         """
         Break the filter up into bins and apply a throughput to each bin,
         useful for G141, G102, and other grisms
@@ -266,37 +313,34 @@ class Filter:
         pixels_per_bin: int (optional)
             The number of channels per bin, which will be used
             to calculate n_bins
-        wl_min: astropy.units.quantity (optional)
+        wave_min: astropy.units.quantity (optional)
             The minimum wavelength to use
-        wl_max: astropy.units.quantity (optional)
+        wave_max: astropy.units.quantity (optional)
             The maximum wavelength to use
         """
         # Get wavelength limits
-        unit = q.Unit(self.WavelengthUnit)
-        if wl_min is None:
-            wl_min = self.wl_min*unit
-        if wl_max is None:
-            wl_max = self.wl_max*unit
-
-        # Apply wavelength unit
-        wl_min = wl_min.to(unit)
-        wl_max = wl_max.to(unit)
-        r = self.raw
+        if wave_min is None:
+            wave_min = self.wave_min
+        if wave_max is None:
+            wave_max = self.wave_max
 
         # Trim the rsr by the given min and max
-        whr = np.logical_and(r[0]*unit >= wl_min, r[0]*unit <= wl_max)
-        self.rsr = r[:, whr]
+        raw_wave = self.raw[0]
+        whr = np.logical_and(raw_wave * q.AA >= wave_min,
+                             raw_wave * q.AA <= wave_max)
+        self.wave = (raw_wave[whr] * q.AA).to(self.wave_units)
+        self.throughput = self.raw[1][whr]
         print('Bandpass trimmed to',
-              '{} - {}'.format(wl_min, wl_max))
+              '{} - {}'.format(wave_min, wave_max))
 
         # Calculate the number of bins and channels
-        rsr = len(self.rsr[0])
+        pts = len(raw_wave)
         if isinstance(pixels_per_bin, int):
-            self.pixels_per_bin = int(pixels_per_bin)
-            self.n_bins = int(rsr/self.pixels_per_bin)
+            self.pixels_per_bin = pixels_per_bin
+            self.n_bins = int(pts/self.pixels_per_bin)
         elif isinstance(n_bins, int):
-            self.n_bins = int(n_bins)
-            self.pixels_per_bin = int(rsr/self.n_bins)
+            self.n_bins = n_bins
+            self.pixels_per_bin = int(pts/self.n_bins)
         else:
             print("Please specify 'n_bins' OR 'pixels_per_bin' as integers.")
             return
@@ -305,17 +349,18 @@ class Filter:
                                                   self.pixels_per_bin))
 
         # Trim throughput edges so that there are an integer number of bins
-        new_len = self.n_bins*self.pixels_per_bin
-        start = (rsr-new_len)//2
-        self.rsr = np.copy(self.rsr[:, start: new_len+start])
+        new_len = self.n_bins * self.pixels_per_bin
+        start = (pts - new_len) // 2
+        rsr = self.raw[:, start: new_len+start]
 
         # Reshape the throughput array
-        self.rsr = self.rsr.reshape(2, self.n_bins, self.pixels_per_bin)
-        self.rsr = self.rsr.swapaxes(0, 1)
+        rsr = rsr.reshape(2, self.n_bins, self.pixels_per_bin)
+        self.wave = (rsr[0, :, :] * q.AA).to(self.wave_units)
+        self.throughput = rsr[1, :, :]
 
         # Get the bin centers
-        w_cen = np.nanmean(self.rsr[:, 0, :], axis=1)
-        f_cen = np.nanmean(self.rsr[:, 1, :], axis=1)
+        w_cen = np.nanmean(self.wave, axis=1)
+        f_cen = np.nanmean(self.throughput, axis=1)
         self.centers = np.asarray([w_cen, f_cen])
 
     def info(self, fetch=False):
@@ -325,7 +370,7 @@ class Filter:
         # Get the info from the class
         tp = (int, bytes, bool, str, float, tuple, list, np.ndarray)
         info = [[k, str(v)] for k, v in vars(self).items() if isinstance(v, tp)
-                and k not in ['rsr', 'raw', 'centers']]
+                and k not in ['rsr', 'raw', 'centers'] and not k.startswith('_')]
 
         # Make the table
         table = at.Table(np.asarray(info).reshape(len(info), 2),
@@ -338,44 +383,43 @@ class Filter:
             return table
         else:
             table.pprint(max_width=-1, max_lines=-1, align=['>', '<'])
-            
-    def load_TopHat(self, wl_min, wl_max, pixels_per_bin=100):
+
+    def load_TopHat(self, wave_min, wave_max, pixels_per_bin=100):
         """
         Loads a top hat filter given wavelength min and max values
 
         Parameters
         ----------
-        wl_min: astropy.units.quantity (optional)
+        wave_min: astropy.units.quantity (optional)
             The minimum wavelength to use
-        wl_max: astropy.units.quantity (optional)
+        wave_max: astropy.units.quantity (optional)
             The maximum wavelength to use
         n_pixels: int
             The number of pixels for the filter
         """
-        t_min = hasattr(wl_min, 'unit')
-        t_max = hasattr(wl_max, 'unit')
+        t_min = hasattr(wave_min, 'unit')
+        t_max = hasattr(wave_max, 'unit')
         if not t_min or not t_max:
             raise TypeError('Please provide an astropy.units.quantity.Quantity '
-                            'for wl_min and wl_max.')
+                            'for wave_min and wave_max.')
 
         # Get min, max, effective wavelengths and width
         self.pixels_per_bin = pixels_per_bin
         self.n_bins = 1
-        self.WavelengthUnit = str(wl_min.unit)
-        self.wl_min = wl_min.value
-        self.wl_max = wl_max.value
-        wl_eff = (self.wl_min+self.wl_max)/2.
-        width = self.wl_max-self.wl_min
+        self._wave_units = wave_min.unit
+        self.wave_min = wave_min
+        self.wave_max = wave_max
 
         # Create the RSR curve
-        wave = np.linspace(self.wl_min, self.wl_max, pixels_per_bin)
-        rsr = np.ones(pixels_per_bin)
-        self.raw = np.array([wave, rsr])
-        self.rsr = self.raw
+        self._wave = np.linspace(wave_min, wave_max, pixels_per_bin)
+        self._throughput = np.ones_like(self.wave)
+        self.raw = np.array([self.wave.value, self.throughput])
+
+        # Calculate the effective wavelength
+        wave_eff = ((wave_min+wave_max) / 2.).value
+        width = (wave_max - wave_min).value
 
         # Add the attributes
-        self.WavelengthMin = self.wl_min
-        self.WavelengthMax = self.wl_max
         self.path = ''
         self.refs = ''
         self.Band = 'Top Hat'
@@ -387,35 +431,43 @@ class Filter:
         self.PhotCalID = ''
         self.PhotSystem = ''
         self.ProfileReference = ''
-        self.WavelengthCen = wl_eff
-        self.WavelengthEff = wl_eff
-        self.WavelengthMean = wl_eff
-        self.WavelengthPeak = wl_eff
-        self.WavelengthPhot = wl_eff
-        self.WavelengthPivot = wl_eff
+        self.WavelengthMin = wave_min.value
+        self.WavelengthMax = wave_max.value
+        self.WavelengthCen = wave_eff
+        self.WavelengthEff = wave_eff
+        self.WavelengthMean = wave_eff
+        self.WavelengthPeak = wave_eff
+        self.WavelengthPhot = wave_eff
+        self.WavelengthPivot = wave_eff
         self.WavelengthUCD = ''
         self.WidthEff = width
         self.ZeroPoint = 0
         self.ZeroPointType = ''
         self.ZeroPointUnit = 'Jy'
         self.filterID = 'Top Hat'
-            
+
     def load_txt(self, filepath):
         """Load the filter from a txt file
-        
+
         Parameters
         ----------
         file: str
             The filepath
         """
         self.raw = np.genfromtxt(filepath, unpack=True)
-        self.WavelengthUnit = str(q.um)
+
+        # Convert to Angstroms if microns
+        if self.raw[0][-1] < 100:
+            self.raw[0] = self.raw[0] * 10000
+
+        self.WavelengthUnit = str(q.AA)
         self.ZeroPointUnit = str(q.erg/q.s/q.cm**2/q.AA)
         x, f = self.raw
 
         # Get a spectrum of Vega
-        vega_file = resource_filename('ExoCTK', 'data/core/vega.txt')
+        vega_file = resource_filename('svo_filters', 'data/spectra/vega.txt')
         vega = np.genfromtxt(vega_file, unpack=True)[: 2]
+        vega[0] = vega[0] * 10000
         vega = rebin_spec(vega, x)*q.erg/q.s/q.cm**2/q.AA
         flam = np.trapz((vega[1]*f).to(q.erg/q.s/q.cm**2/q.AA), x=x)
         thru = np.trapz(f, x=x)
@@ -427,8 +479,8 @@ class Filter:
         f0 = f[: np.where(np.diff(f) > 0)[0][-1]]
         x0 = x[: np.where(np.diff(f) > 0)[0][-1]]
         self.WavelengthMin = np.interp(max(f)/100., f0, x0)
-        f1 = f[::-1][:np.where(np.diff(f[::-1]) > 0)[0][-1]]
-        x1 = x[::-1][:np.where(np.diff(f[::-1]) > 0)[0][-1]]
+        f1 = f[::-1][: np.where(np.diff(f[::-1]) > 0)[0][-1]]
+        x1 = x[::-1][: np.where(np.diff(f[::-1]) > 0)[0][-1]]
         self.WavelengthMax = np.interp(max(f)/100., f1, x1)
         self.WavelengthEff = np.trapz(f*x*vega, x=x)/np.trapz(f*vega, x=x)
         self.WavelengthMean = np.trapz(f*x, x=x)/np.trapz(f, x=x)
@@ -443,16 +495,13 @@ class Filter:
         self.FWHM = self.WidthEff
 
         # Add missing attributes
-        self.rsr = self.raw.copy()
         self.path = ''
-        self.pixels_per_bin = self.rsr.shape[-1]
+        self.pixels_per_bin = self.raw.shape[-1]
         self.n_bins = 1
-        self.wl_min = self.WavelengthMin
-        self.wl_max = self.WavelengthMax
-        
+
     def load_xml(self, filepath):
         """Load the filter from a txt file
-        
+
         Parameters
         ----------
         filepath: str
@@ -460,7 +509,7 @@ class Filter:
         """
         # Parse the XML file
         vot = vo.parse_single_table(filepath)
-        self.rsr = np.array([list(i) for i in vot.array]).T
+        self.raw = np.array([list(i) for i in vot.array]).T
 
         # Parse the filter metadata
         for p in [str(p).split() for p in vot.params]:
@@ -487,78 +536,234 @@ class Filter:
 
         # Create some attributes
         self.path = filepath
-        self.pixels_per_bin = self.rsr.shape[-1]
+        self.pixels_per_bin = self.raw.shape[-1]
         self.n_bins = 1
-        self.raw = self.rsr.copy()
-        self.wl_min = self.WavelengthMin
-        self.wl_max = self.WavelengthMax
-        
-    def plot(self):
+
+    def overlap(self, spectrum):
+        """Tests for overlap of this filter with a spectrum
+
+        Example of full overlap:
+
+            |---------- spectrum ----------|
+               |------ self ------|
+
+        Examples of partial overlap: :
+
+            |---------- self ----------|
+               |------ spectrum ------|
+
+            |---- spectrum ----|
+               |----- self -----|
+
+            |---- self ----|
+               |---- spectrum ----|
+
+        Examples of no overlap: :
+
+            |---- spectrum ----|  |---- other ----|
+
+            |---- other ----|  |---- spectrum ----|
+
+        Parameters
+        ----------
+        spectrum: sedkit.spectrum.Spectrum
+            The spectrum
+
+        Returns
+        -------
+        ans : {'full', 'partial', 'none'}
+            Overlap status.
+        """
+        swave = self.wave[np.where(self.throughput != 0)]*self.wave_units
+        s1, s2 = swave.min(), swave.max()
+
+        owave = spectrum[0]
+        o1, o2 = owave.min(), owave.max()
+
+        if (s1 >= o1 and s2 <= o2):
+            ans = 'full'
+
+        elif (s2 < o1) or (o2 < s1):
+            ans = 'none'
+
+        else:
+            ans = 'partial'
+
+        return ans
+
+    def plot(self, fig=None):
         """
         Plot the filter
         """
+        COLORS = color_gen('Category10')
+
+        # Make the figure
+        if fig is None:
+            xlab = 'Wavelength [{}]'.format(self.wave_units)
+            ylab = 'Throughput'
+            title = self.filterID
+            fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
+
+        # Plot the raw curve
+        fig.line((self.raw[0]*q.AA).to(self.wave_units), self.raw[1],
+                 alpha=0.1, line_width=8, color='black')
+
         # If the filter is binned, plot each with bin centers
-        try:
+        if self.rsr.ndim == 2:
+            fig.line(*self.rsr, color=next(COLORS), line_width=2)
+        else:
             for x, y in self.rsr:
-                plt.plot(x, y)
-            plt.plot(*self.centers, ls='None', marker='.', c='k')
-            plt.plot(self.raw[0], self.raw[1], lw=6, alpha=0.1, zorder=0)
+                fig.line(x, y, color=next(COLORS), line_width=2)
+        fig.circle(*self.centers, size=8, color='black')
 
-        # Otherwise just plot curve
-        except:
-            plt.plot(*self.rsr)
+        show(fig)
 
-        plt.xlabel('Wavelength [{}]'.format(str(self.WavelengthUnit)))
-        plt.ylabel('Throughput')
+    @property
+    def rsr(self):
+        """A getter for the relative spectral response (rsr) curve"""
+        arr = np.array([self.wave.value, self.throughput])
 
-    def set_wl_units(self, wl_units):
-        """
-        Set the wavelength and flux units
+        # Reshape if binned grism
+        if arr.ndim == 3:
+            arr = arr.swapaxes(0, 1).squeeze()
+
+        return arr
+
+    @property
+    def throughput(self):
+        """A getter for the throughput"""
+        return self._throughput
+
+    @throughput.setter
+    def throughput(self, points):
+        """A setter for the throughput
 
         Parameters
         ----------
-        wl_units: str, astropy.units.core.PrefixUnit
+        throughput: sequence
+            The array of throughput points
+        """
+        # Test shape
+        if not points.shape == self.wave.shape:
+            raise ValueError("Throughput and wavelength must be same shape.")
+
+        self._throughput = points
+
+    @property
+    def wave(self):
+        """A getter for the wavelength"""
+        return self._wave
+
+    @wave.setter
+    def wave(self, wavelength):
+        """A setter for the wavelength
+
+        Parameters
+        ----------
+        wavelength: astropy.units.quantity.Quantity
+            The array with units
+        """
+        # Test units
+        if not isinstance(wavelength, q.quantity.Quantity):
+            raise ValueError("Wavelength must be in length units.")
+
+        self._wave = wavelength
+        self.wave_units = wavelength.unit
+
+    @property
+    def wave_units(self):
+        """A getter for the wavelength units"""
+        return self._wave_units
+
+    @wave_units.setter
+    def wave_units(self, units):
+        """
+        A setter for the wavelength units
+
+        Parameters
+        ----------
+        units: str, astropy.units.core.PrefixUnit
             The wavelength units
         """
-        # Set wavelength units
-        old_unit = q.Unit(self.WavelengthUnit)
-        new_unit = q.Unit(wl_units)
-        for key in WL_KEYS:
-            old_val = getattr(self, key)*old_unit
-            setattr(self, key, round(old_val.to(new_unit).value, 5))
+        # Make sure it's length units
+        try:
+            units.to(q.m)
+        except AttributeError:
+            raise ValueError(units, ": New wavelength units must be a length.")
 
-        # Update the rsr curve
-        const = (old_unit/new_unit).decompose()._scale
-        self.raw[0] *= const
+        # Update the units
+        self._wave_units = units
 
-        if len(self.rsr.shape) == 2:
-            self.rsr[0] *= const
-        else:
-            self.rsr[:, 0] *= const
+        # Update all the wavelength values
+        self._wave = self.wave.to(self.wave_units).round(5)
+        self.wave_min = self.wave_min.to(self.wave_units).round(5)
+        self.wave_max = self.wave_max.to(self.wave_units).round(5)
+        self.wave_eff = self.wave_eff.to(self.wave_units).round(5)
+        self.wave_center = self.wave_center.to(self.wave_units).round(5)
+        self.wave_mean = self.wave_mean.to(self.wave_units).round(5)
+        self.wave_peak = self.wave_peak.to(self.wave_units).round(5)
+        self.wave_phot = self.wave_phot.to(self.wave_units).round(5)
+        self.wave_pivot = self.wave_pivot.to(self.wave_units).round(5)
+        self.width_eff = self.width_eff.to(self.wave_units).round(5)
+        self.fwhm = self.fwhm.to(self.wave_units).round(5)
 
-        self.centers[0] *= const
-        self.WavelengthUnit = str(new_unit)
+    @property
+    def flux_units(self):
+        """A getter for the flux units"""
+        return self._flux_units
 
-    def set_zp_units(self, zp_units):
+    @flux_units.setter
+    def flux_units(self, units):
         """
-        Set the wavelength and flux units
+        A setter for the flux units
 
         Parameters
         ----------
-        zp_units: str, astropy.units.core.PrefixUnit
+        units: str, astropy.units.core.PrefixUnit
             The units of the zeropoint flux density
         """
-        # Set zeropoint flux units
-        old_unit = q.Unit(self.ZeroPointUnit)
-        new_unit = q.Unit(zp_units)
+        # Convert from native Jy to desired units
+        if self.ZeroPointUnit == 'Jy':
+            f_nu = self.ZeroPoint * q.Jy
+            self.zp = (f_nu * ac.c / self.wave_eff**2).to(units)
+        else:
+            raise ValueError(self.ZeroPointUnit, "units not understood.")
 
-        f_nu = self.ZeroPoint*old_unit
-        lam = self.WavelengthEff*q.Unit(self.WavelengthUnit)
-        f_lam = (f_nu*ac.c/lam**2).to(new_unit)
 
-        # Update the attributes curve
-        self.ZeroPoint = f_lam.value
-        self.ZeroPointUnit = str(new_unit)
+def color_gen(colormap='viridis', key=None, n=15):
+    """Color generator for Bokeh plots
+
+    Parameters
+    ----------
+    colormap: str, sequence
+        The name of the color map
+
+    Returns
+    -------
+    generator
+        A generator for the color palette
+    """
+    if colormap in dir(bpal):
+        palette = getattr(bpal, colormap)
+
+        if isinstance(palette, dict):
+            if key is None:
+                key = list(palette.keys())[0]
+            palette = palette[key]
+
+        elif callable(palette):
+            palette = palette(n)
+
+        else:
+            raise TypeError("pallette must be a bokeh palette name or a sequence of color hex values.")
+
+    elif isinstance(colormap, (list, tuple)):
+        palette = colormap
+
+    else:
+        raise TypeError("pallette must be a bokeh palette name or a sequence of color hex values.")
+
+    yield from itertools.cycle(palette)
 
 
 def filters(filter_directory=None, update=False, fmt='table', **kwargs):
@@ -645,8 +850,8 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
             filters(update=True)
         else:
             print('No filters found in', filter_directory)
-            
-            
+
+
 def rebin_spec(spec, wavnew, oversamp=100, plot=False):
     """
     Rebin a spectrum to a new wavelength array while preserving
@@ -688,10 +893,5 @@ def rebin_spec(spec, wavnew, oversamp=100, plot=False):
 
     for ii in range(nbins):
         specnew[ii] = np.sum(spec0int[inds2[ii][0]: inds2[ii][1]])
-
-    if plot:
-        plt.figure()
-        plt.loglog(wave, flux, c='b')
-        plt.loglog(wavnew, specnew, c='r')
 
     return specnew

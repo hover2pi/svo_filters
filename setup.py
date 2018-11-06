@@ -13,7 +13,7 @@ from os import path
 
 setup(
     name='svo_filters',
-    version='0.2.2',
+    version='0.2.4',
     description='A Python wrapper for the SVO Filter Profile Service',
     long_description='A Python wrapper for the SVO Filter Profile Service',
     url='https://github.com/hover2pi/svo_filters',
@@ -30,6 +30,6 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs']),
     package_data={'svo_filters': ['data/*', 'data/filters/*', 'data/plots/*', 'data/spectra/*']},
     include_package_data=True,
-    install_requires=['numpy','astropy','matplotlib'],
+    install_requires=['numpy', 'astropy', 'bokeh'],
 
 )

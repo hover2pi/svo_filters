@@ -11,21 +11,23 @@ class TestFilters(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_filter_class(self):
+    def test_filter_xml(self):
         """Test if Filter object is created properly"""
         filt = svo.Filter('2MASS.J')
 
-        is_filter = isinstance(filt, svo.Filter)
+        self.assertTrue(isinstance(filt, svo.Filter))
 
-        self.assertTrue(is_filter)
+    def test_filter_txt(self):
+        """Test if Filter object is created properly"""
+        filt = svo.Filter('NIRISS.GR700XD.1')
 
-    def test_tophat(self):
+        self.assertTrue(isinstance(filt, svo.Filter))
+
+    def test_filter_tophat(self):
         """Test if Filter object is created properly"""
         filt = svo.Filter('tophat', wl_min=0.8*q.um, wl_max=1.2*q.um)
 
-        is_filter = isinstance(filt, svo.Filter)
-
-        self.assertTrue(is_filter)
+        self.assertTrue(isinstance(filt, svo.Filter))
 
 if __name__ == '__main__':
     unittest.main()
