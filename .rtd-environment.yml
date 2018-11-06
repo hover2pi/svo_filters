@@ -5,8 +5,5 @@ channels:
 
 dependencies:
     - astropy
-    - Cython
-    - matplotlib
+    - bokeh
     - numpy
-#   - pip:
-#       - dependency_from_pip
