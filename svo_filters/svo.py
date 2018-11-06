@@ -178,14 +178,13 @@ class Filter:
         self._flux_units = flux_units
         self._wave = self.raw[0] * self.wave_units
         self._throughput = self.raw[1]
-        self._rsr = np.array([self.wave.value, self.throughput])
 
         # Set n_bins and pixels_per_bin
         self.n_bins = 1
         self.pixels_per_bin = self.raw.shape[-1]
 
         # Rename some values and apply units
-        self.wave_min = round(self.WavelengthMin, 4) * self.wave_units
+        self.wave_min = self.WavelengthMin * self.wave_units
         self.wave_max = self.WavelengthMax * self.wave_units
         self.wave_eff = self.WavelengthEff * self.wave_units
         self.wave_center = self.WavelengthCen * self.wave_units
@@ -319,22 +318,22 @@ class Filter:
             The maximum wavelength to use
         """
         # Get wavelength limits
-        if wave_min is None:
-            wave_min = self.wave_min
-        if wave_max is None:
-            wave_max = self.wave_max
+        if wave_min is not None:
+            self.wave_min = wave_min
+        if wave_max is not None:
+            self.wave_max = wave_max
 
-        # Trim the rsr by the given min and max
+        # Trim the wavelength by the given min and max
         raw_wave = self.raw[0]
-        whr = np.logical_and(raw_wave * q.AA >= wave_min,
-                             raw_wave * q.AA <= wave_max)
+        whr = np.logical_and(raw_wave * q.AA >= self.wave_min,
+                             raw_wave * q.AA <= self.wave_max)
         self.wave = (raw_wave[whr] * q.AA).to(self.wave_units)
         self.throughput = self.raw[1][whr]
         print('Bandpass trimmed to',
-              '{} - {}'.format(wave_min, wave_max))
+              '{} - {}'.format(self.wave_min, self.wave_max))
 
         # Calculate the number of bins and channels
-        pts = len(raw_wave)
+        pts = len(self.wave)
         if isinstance(pixels_per_bin, int):
             self.pixels_per_bin = pixels_per_bin
             self.n_bins = int(pts/self.pixels_per_bin)
@@ -351,12 +350,8 @@ class Filter:
         # Trim throughput edges so that there are an integer number of bins
         new_len = self.n_bins * self.pixels_per_bin
         start = (pts - new_len) // 2
-        rsr = self.raw[:, start: new_len+start]
-
-        # Reshape the throughput array
-        rsr = rsr.reshape(2, self.n_bins, self.pixels_per_bin)
-        self.wave = (rsr[0, :, :] * q.AA).to(self.wave_units)
-        self.throughput = rsr[1, :, :]
+        self.wave = self.wave[start:new_len+start].reshape(self.n_bins, self.pixels_per_bin)
+        self.throughput = self.throughput[start:new_len+start].reshape(self.n_bins, self.pixels_per_bin)
 
         # Get the bin centers
         w_cen = np.nanmean(self.wave, axis=1)
