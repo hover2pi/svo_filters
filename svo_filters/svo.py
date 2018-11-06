@@ -199,7 +199,8 @@ class Filter:
         # Delete redundant attributes
         del self.WavelengthMin, self.WavelengthMax, self.WavelengthEff
         del self.WavelengthCen, self.WavelengthMean, self.WavelengthPeak
-        del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff, self.FWHM
+        del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff
+        del self.WavelengthUnit, self.FWHM
 
         # Set the wavelength units
         if wave_units:
@@ -209,7 +210,7 @@ class Filter:
         if flux_units != self.ZeroPointUnit:
             self.flux_units = flux_units
 
-        del self.ZeroPointType, self.ZeroPointUnit, self.ZeroPoint
+        del self.ZeroPointUnit, self.ZeroPoint
 
         # Get references
         self.refs = []
