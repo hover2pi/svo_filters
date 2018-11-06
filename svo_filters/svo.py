@@ -199,8 +199,7 @@ class Filter:
         # Delete redundant attributes
         del self.WavelengthMin, self.WavelengthMax, self.WavelengthEff
         del self.WavelengthCen, self.WavelengthMean, self.WavelengthPeak
-        del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff
-        del self.WavelengthUCD, self.WavelengthUnit, self.FWHM
+        del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff, self.FWHM
 
         # Set the wavelength units
         if wave_units:
