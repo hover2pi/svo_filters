@@ -1,3 +1,0 @@
-recursive-include svo_filters/data *
-recursive-include svo_filters/data/filters *
-recursive-include svo_filters/data/spectra *
