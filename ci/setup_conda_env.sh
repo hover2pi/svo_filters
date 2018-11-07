@@ -6,3 +6,4 @@ source activate svo
 
 echo "Installing packages..."
 conda install flake8 beautifulsoup4 lxml numpy astropy
+pip install pytest pytest-cov coveralls
