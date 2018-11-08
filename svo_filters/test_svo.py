@@ -25,6 +25,6 @@ class TestFilters(unittest.TestCase):
 
     def test_filter_tophat(self):
         """Test if Filter object is created properly"""
-        filt = svo.Filter('tophat', wl_min=0.8*q.um, wl_max=1.2*q.um)
+        filt = svo.Filter('tophat', wave_min=0.8*q.um, wave_max=1.2*q.um)
 
         self.assertTrue(isinstance(filt, svo.Filter))

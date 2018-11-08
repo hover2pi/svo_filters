@@ -404,9 +404,9 @@ class Filter:
         # Get min, max, effective wavelengths and width
         self.pixels_per_bin = pixels_per_bin
         self.n_bins = 1
-        self._wave_units = wave_min.unit
-        self.wave_min = wave_min
-        self.wave_max = wave_max
+        self._wave_units = q.AA
+        wave_min = wave_min.to(self.wave_units)
+        wave_max = wave_max.to(self.wave_units)
 
         # Create the RSR curve
         self._wave = np.linspace(wave_min, wave_max, pixels_per_bin)
@@ -414,7 +414,7 @@ class Filter:
         self.raw = np.array([self.wave.value, self.throughput])
 
         # Calculate the effective wavelength
-        wave_eff = ((wave_min+wave_max) / 2.).value
+        wave_eff = ((wave_min + wave_max) / 2.).value
         width = (wave_max - wave_min).value
 
         # Add the attributes
