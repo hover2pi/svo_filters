@@ -561,8 +561,8 @@ class Filter:
 
         Parameters
         ----------
-        spectrum: sedkit.spectrum.Spectrum
-            The spectrum
+        spectrum: sequence
+            The [W, F] spectrum with astropy units
 
         Returns
         -------

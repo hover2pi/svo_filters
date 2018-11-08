@@ -1,5 +1,9 @@
 # Introduction
 
+[![Build Status](https://travis-ci.org/hover2pi/svo_filters.svg?branch=master)](https://travis-ci.org/hover2pi/svo_filters)
+[![Coverage Status](https://coveralls.io/repos/github/hover2pi/svo_filters/badge.svg?branch=master)](https://coveralls.io/github/hover2pi/svo_filters?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/svo_filters/badge/?version=latest)](https://svo_filters.readthedocs.io/en/latest/?badge=latest)
+
 The [Spanish Virtual Observatory (SVO) Filter Profile Service](http://svo2.cab.inta-csic.es/theory/fps3/) is a great resource for homogenized photometric filter curves and metadata. With `svo_filters`, I tried to create a lightweight and flexible package to incorporate these filters into Python applications.
 
 Install via PyPI with

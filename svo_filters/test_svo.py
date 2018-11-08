@@ -28,6 +28,3 @@ class TestFilters(unittest.TestCase):
         filt = svo.Filter('tophat', wl_min=0.8*q.um, wl_max=1.2*q.um)
 
         self.assertTrue(isinstance(filt, svo.Filter))
-
-if __name__ == '__main__':
-    unittest.main()
