@@ -141,19 +141,9 @@ class Filter:
             # If the filter is missing, ask what to do
             if band not in bands:
 
-                print('Current filters: ',
-                      ', '.join(bands),
-                      '\n')
+                err = """No filters match {}\n\nCurrent filters: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nPlace the desired filter XML file in your\nfilter directory and try again.""".format(filepath, ', '.join(bands))
 
-                print('No filters match', filepath)
-
-                print('\nA full list of available filters from the\n'
-                      'SVO Filter Profile Service can be found at\n'
-                      'http: //svo2.cab.inta-csic.es/theory/fps3/\n\n'
-                      'Place the desired filter XML file in your\n'
-                      'filter directory and try again.')
-
-                return
+                raise IOError(err)
 
             # Get the first line to determine format
             with open(filepath) as f:
@@ -786,7 +776,7 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
         filter_directory = resource_filename('svo_filters', 'data/filters/')
 
     # Get the pickle path and make sure file exists
-    p_path = filter_directory.split('/filters/')[0]+'/filter_list.p'
+    p_path = os.path.join(filter_directory, 'filter_list.p')
     updated = False
     if not os.path.isfile(p_path):
         os.system('touch {}'.format(p_path))
@@ -795,8 +785,9 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
 
         print('Loading filters into table...')
 
-        # Get all the filters
+        # Get all the filters (except the pickle)
         files = glob(filter_directory+'*')
+        files = [f for f in files if not f.endswith('.p')]
         bands = [os.path.basename(b) for b in files]
         tables = []
 
