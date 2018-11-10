@@ -165,7 +165,6 @@ class Filter:
 
         # Set the wavelength and throughput
         self._wave_units = q.AA
-        self._flux_units = flux_units
         self._wave = self.raw[0] * self.wave_units
         self._throughput = self.raw[1]
 
@@ -184,25 +183,26 @@ class Filter:
         self.wave_pivot = self.WavelengthPivot * self.wave_units
         self.width_eff = self.WidthEff * self.wave_units
         self.fwhm = self.FWHM * self.wave_units
+        self.zp = self.ZeroPoint * q.Unit(self.ZeroPointUnit)
 
         # Delete redundant attributes
         del self.WavelengthMin, self.WavelengthMax, self.WavelengthEff
         del self.WavelengthCen, self.WavelengthMean, self.WavelengthPeak
         del self.WavelengthPhot, self.WavelengthPivot, self.WidthEff, self.FWHM
+        del self.ZeroPointUnit, self.ZeroPoint
         try:
             del self.WavelengthUnit
         except AttributeError:
             pass
 
         # Set the wavelength units
-        if wave_units:
+        if wave_units is not None:
             self.wave_units = wave_units
 
         # Set zeropoint flux units
-        if flux_units != self.ZeroPointUnit:
+        if flux_units is not None:
+            self._flux_units = self.zp.unit
             self.flux_units = flux_units
-
-        del self.ZeroPointUnit, self.ZeroPoint
 
         # Get references
         self.refs = []
@@ -350,6 +350,36 @@ class Filter:
         w_cen = np.nanmean(self.wave, axis=1)
         f_cen = np.nanmean(self.throughput, axis=1)
         self.centers = np.asarray([w_cen, f_cen])
+
+    @property
+    def flux_units(self):
+        """A getter for the flux units"""
+        return self._flux_units
+
+    @flux_units.setter
+    def flux_units(self, units):
+        """
+        A setter for the flux units
+
+        Parameters
+        ----------
+        units: str, astropy.units.core.PrefixUnit
+            The desired units of the zeropoint flux density
+        """
+        # Check that the units are valid
+        dtypes = (q.core.PrefixUnit, q.quantity.Quantity, q.core.CompositeUnit)
+        if not isinstance(units, dtypes):
+            raise ValueError(units, "units not understood.")
+
+        # Check that the units changed
+        if units != self.flux_units:
+
+            # Convert to new units
+            sfd = q.spectral_density(self.wave_eff)
+            self.zp = self.zp.to(units, equivalencies=sfd)
+
+            # Store new units
+            self._flux_units = units
 
     def info(self, fetch=False):
         """
@@ -674,9 +704,7 @@ class Filter:
             The wavelength units
         """
         # Make sure it's length units
-        try:
-            units.to(q.m)
-        except AttributeError:
+        if not units.is_equivalent(q.m):
             raise ValueError(units, ": New wavelength units must be a length.")
 
         # Update the units
@@ -694,28 +722,6 @@ class Filter:
         self.wave_pivot = self.wave_pivot.to(self.wave_units).round(5)
         self.width_eff = self.width_eff.to(self.wave_units).round(5)
         self.fwhm = self.fwhm.to(self.wave_units).round(5)
-
-    @property
-    def flux_units(self):
-        """A getter for the flux units"""
-        return self._flux_units
-
-    @flux_units.setter
-    def flux_units(self, units):
-        """
-        A setter for the flux units
-
-        Parameters
-        ----------
-        units: str, astropy.units.core.PrefixUnit
-            The units of the zeropoint flux density
-        """
-        # Convert from native Jy to desired units
-        if self.ZeroPointUnit == 'Jy':
-            f_nu = self.ZeroPoint * q.Jy
-            self.zp = (f_nu * ac.c / self.wave_eff**2).to(units)
-        else:
-            raise ValueError(self.ZeroPointUnit, "units not understood.")
 
 
 def color_gen(colormap='viridis', key=None, n=15):
@@ -792,7 +798,7 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
         tables = []
 
         for band in bands:
-            print(band)
+
             # Load the filter
             filt = Filter(band, **kwargs)
             filt.Band = band
