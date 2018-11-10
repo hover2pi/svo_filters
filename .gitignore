@@ -9,5 +9,6 @@ htmlcov
 MANIFEST
 .ipynb_checkpoints
 
+build
 dist/*
 *.egg-info*

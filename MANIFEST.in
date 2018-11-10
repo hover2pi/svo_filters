@@ -1,14 +1,7 @@
 include README.md
 
-recursive-include svo_filters *.pyx *.c *.pxd
-recursive-include docs *
-recursive-include svo_filters/data *
-recursive-include svo_filters/data/filters *
-recursive-include svo_filters/data/plots *
-recursive-include svo_filters/data/spectra *
+graft svo_filters/data/filters *
+graft svo_filters/data/plots *
+graft svo_filters/data/spectra *
 
-prune build
-prune docs/_build
-prune docs/api
-
-global-exclude *.pyc *.o
+global-exclude *.pyc
