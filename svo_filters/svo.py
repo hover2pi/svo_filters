@@ -218,11 +218,6 @@ class Filter:
         # Try to get the extinction vector R from Green et al. (2018)
         self.ext_vector = EXTINCTION.get(self.name, 0)
 
-        # Calculate wavelength centers
-        w_cen = np.nanmean(self.wave.value)
-        f_cen = np.nanmean(self.throughput)
-        self.centers = np.asarray([w_cen, f_cen])
-
         # Bin
         if kwargs:
             bwargs = {k: v for k, v in kwargs.items() if k in
@@ -346,10 +341,13 @@ class Filter:
         self.wave = self.wave[start:new_len+start].reshape(self.n_bins, self.pixels_per_bin)
         self.throughput = self.throughput[start:new_len+start].reshape(self.n_bins, self.pixels_per_bin)
 
+    @property
+    def centers(self):
+        """A getter for the wavelength bin centers and average fluxes"""
         # Get the bin centers
         w_cen = np.nanmean(self.wave, axis=1)
         f_cen = np.nanmean(self.throughput, axis=1)
-        self.centers = np.asarray([w_cen, f_cen])
+        return np.asarray([w_cen, f_cen])
 
     @property
     def flux_units(self):
