@@ -121,9 +121,8 @@ class Filter:
             filepath = ''
 
             if wave_min is None or wave_max is None:
-                print("Please provide **{'wave_min', 'wave_max'} "
-                      "to create top hat filter.")
-                return
+                raise ValueError("Please provide **{'wave_min', 'wave_max'} to create top hat filter.")
+
             else:
                 # Load the filter
                 n_pix = kwargs.get('n_pixels', 100)
@@ -324,8 +323,7 @@ class Filter:
             self.n_bins = n_bins
             self.pixels_per_bin = int(pts/self.n_bins)
         else:
-            print("Please specify 'n_bins' OR 'pixels_per_bin' as integers.")
-            return
+            raise ValueError("Please specify 'n_bins' OR 'pixels_per_bin' as integers.")
 
         print('{} bins of {} pixels each.'.format(self.n_bins,
                                                   self.pixels_per_bin))
@@ -409,12 +407,6 @@ class Filter:
         n_pixels: int
             The number of pixels for the filter
         """
-        t_min = hasattr(wave_min, 'unit')
-        t_max = hasattr(wave_max, 'unit')
-        if not t_min or not t_max:
-            raise TypeError('Please provide an astropy.units.quantity.Quantity '
-                            'for wave_min and wave_max.')
-
         # Get min, max, effective wavelengths and width
         self.pixels_per_bin = pixels_per_bin
         self.n_bins = 1
@@ -820,8 +812,10 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
             data = {r[0]: {k: r[k].value if hasattr(r[k], 'unit') else r[k]
                     for k in data.keys()[1:]} for r in data}
 
-        # Add Band as index
-        data.add_index('Band')
+        else:
+
+            # Add Band as index
+            data.add_index('Band')
 
         return data
 
