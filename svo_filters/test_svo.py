@@ -3,6 +3,7 @@ import unittest
 
 import astropy.units as q
 import astropy.table as at
+import numpy as np
 
 from svo_filters import svo
 
@@ -46,6 +47,26 @@ class TestFilter(unittest.TestCase):
 
         # Fun syntax to test attribute setting
         self.assertRaises(ValueError, setattr, filt, 'wave_units', q.second)
+
+    def test_filter_apply(self):
+        """Test that the filter gets applied to a spectrum properly"""
+        filt = svo.Filter('2MASS.J')
+        spec = [np.linspace(0.9, 2, 1000)*q.um,
+                np.ones(1000)*q.erg/q.s/q.cm**2/q.AA]
+
+        # Apply the filter to the spectrum
+        filtered = filt.apply(spec)
+        self.assertEqual(filtered.shape, filt.wave.squeeze().shape)
+
+    def test_filter_apply_binned(self):
+        """Test that the filter gets applied to a spectrum properly"""
+        filt = svo.Filter('2MASS.J', n_bins=4)
+        spec = [np.linspace(0.9, 2, 1000)*q.um,
+                np.ones(1000)*q.erg/q.s/q.cm**2/q.AA]
+
+        # Apply the filter to the spectrum
+        filtered = filt.apply(spec)
+        self.assertEqual(filtered.shape, filt.wave.squeeze().shape)
 
 
 class TestFilterList(unittest.TestCase):
