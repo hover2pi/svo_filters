@@ -345,8 +345,14 @@ class Filter:
     def centers(self):
         """A getter for the wavelength bin centers and average fluxes"""
         # Get the bin centers
-        w_cen = np.nanmean(self.wave, axis=1)
-        f_cen = np.nanmean(self.throughput, axis=1)
+        if self.wave.ndim == 1:
+            w_cen = np.nanmean(self.wave.value)
+            f_cen = np.nanmean(self.throughput)
+
+        else:
+            w_cen = np.nanmean(self.wave.value, axis=1)
+            f_cen = np.nanmean(self.throughput, axis=1)
+
         return np.asarray([w_cen, f_cen])
 
     @property
