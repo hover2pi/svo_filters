@@ -165,8 +165,8 @@ class Filter:
 
         # Set the wavelength and throughput
         self._wave_units = q.AA
-        self._wave = self.raw[0] * self.wave_units
-        self._throughput = self.raw[1]
+        self._wave = np.array([self.raw[0]]) * self.wave_units
+        self._throughput = np.array([self.raw[1]])
 
         # Set n_bins and pixels_per_bin
         self.n_bins = 1
@@ -251,8 +251,6 @@ class Filter:
 
         # Make throughput 3D
         rsr = np.copy(self.rsr)
-        if len(rsr.shape) == 2:
-            rsr = np.expand_dims(rsr, axis=0)
 
         # Make empty filtered array
         filtered = np.zeros((rsr.shape[0], flx.shape[0], rsr.shape[2]))
@@ -275,12 +273,9 @@ class Filter:
             # Plot the unfiltered spectrum
             fig.line(wav, flx[0], legend='Input spectrum', color='black')
 
-            # If the filter is binned, plot each spectrum bin
-            if self.wave.ndim == 1:
-                fig.line(self.wave, filtered[0][0], color=next(COLORS))
-            else:
-                for wav, bn in zip(self.wave, filtered):
-                    fig.line(wav, bn[0], color=next(COLORS))
+            # Plot each spectrum bin
+            for wav, bn in zip(self.wave, filtered):
+                fig.line(wav, bn[0], color=next(COLORS))
 
             show(fig)
 
@@ -345,13 +340,8 @@ class Filter:
     def centers(self):
         """A getter for the wavelength bin centers and average fluxes"""
         # Get the bin centers
-        if self.wave.ndim == 1:
-            w_cen = np.nanmean(self.wave.value)
-            f_cen = np.nanmean(self.throughput)
-
-        else:
-            w_cen = np.nanmean(self.wave.value, axis=1)
-            f_cen = np.nanmean(self.throughput, axis=1)
+        w_cen = np.nanmean(self.wave.value, axis=1)
+        f_cen = np.nanmean(self.throughput, axis=1)
 
         return np.asarray([w_cen, f_cen])
 
@@ -596,7 +586,7 @@ class Filter:
         ans : {'full', 'partial', 'none'}
             Overlap status.
         """
-        swave = self.wave[np.where(self.throughput != 0)]*self.wave_units
+        swave = self.wave[np.where(self.throughput != 0)]
         s1, s2 = swave.min(), swave.max()
 
         owave = spectrum[0]
@@ -630,12 +620,9 @@ class Filter:
         fig.line((self.raw[0]*q.AA).to(self.wave_units), self.raw[1],
                  alpha=0.1, line_width=8, color='black')
 
-        # If the filter is binned, plot each with bin centers
-        if self.rsr.ndim == 2:
-            fig.line(*self.rsr, color=next(COLORS), line_width=2)
-        else:
-            for x, y in self.rsr:
-                fig.line(x, y, color=next(COLORS), line_width=2)
+        # Plot each with bin centers
+        for x, y in self.rsr:
+            fig.line(x, y, color=next(COLORS), line_width=2)
         fig.circle(*self.centers, size=8, color='black')
 
         show(fig)
@@ -643,11 +630,7 @@ class Filter:
     @property
     def rsr(self):
         """A getter for the relative spectral response (rsr) curve"""
-        arr = np.array([self.wave.value, self.throughput])
-
-        # Reshape if binned grism
-        if arr.ndim == 3:
-            arr = arr.swapaxes(0, 1).squeeze()
+        arr = np.array([self.wave.value, self.throughput]).swapaxes(0, 1)
 
         return arr
 
