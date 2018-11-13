@@ -70,4 +70,6 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   svo
+
 .. automodule:: svo_filters.svo

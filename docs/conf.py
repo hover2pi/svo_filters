@@ -16,8 +16,6 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath('../svo_filters/'))
-sys.path.append(os.path.abspath('../svo_filters/svo_filters/'))
-
 
 # -- Project information -----------------------------------------------------
 
