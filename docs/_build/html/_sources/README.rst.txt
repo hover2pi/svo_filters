@@ -35,7 +35,7 @@ And you can plot the bandpass like so::
 
     H_band.plot()
 
-.. image:: svo_filters/data/plots/H.png
+.. image:: ../svo_filters/data/plots/H.png
     :align: center
     :height: 300px
     :alt: Filter bandpass
@@ -47,7 +47,7 @@ Filters can also be binned arbitrarily, for use with grisms. We can pass integer
 
     G141 = svo.Filter('WFC3_IR.G141', n_bins=15)
 
-.. image:: svo_filters/data/plots/G141.png
+.. image:: ../svo_filters/data/plots/G141.png
     :align: center
     :height: 300px
     :alt: Filter bandpass
@@ -59,7 +59,7 @@ Filters can be applied to a spectrum by passing a sequence of [W, F] or [W, F, E
 
     filtered = G141.apply(spec, plot=True)
 
-.. image:: svo_filters/data/plots/filtered.png
+.. image:: ../svo_filters/data/plots/filtered.png
     :align: center
     :height: 300px
     :alt: Filter bandpass
