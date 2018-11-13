@@ -72,4 +72,4 @@ Contents
 
    svo
 
-.. automodule:: svo_filters.svo
+.. automodule:: svo_filters/svo
