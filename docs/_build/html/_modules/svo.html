@@ -1,0 +1,1071 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>svo &mdash; svo_filters 0.2.16 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> svo_filters
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../svo.html">svo module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">svo_filters</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>svo</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for svo</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="c1"># -*- coding: latin-1 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A Python wrapper for the SVO Filter Profile Service</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="k">import</span> <span class="n">resource_filename</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">astropy.table</span> <span class="k">as</span> <span class="nn">at</span>
+<span class="kn">import</span> <span class="nn">astropy.io.votable</span> <span class="k">as</span> <span class="nn">vo</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">q</span>
+<span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="k">as</span> <span class="nn">ac</span>
+<span class="kn">from</span> <span class="nn">astropy.utils.exceptions</span> <span class="k">import</span> <span class="n">AstropyWarning</span>
+<span class="kn">from</span> <span class="nn">bokeh.plotting</span> <span class="k">import</span> <span class="n">figure</span><span class="p">,</span> <span class="n">show</span>
+<span class="kn">import</span> <span class="nn">bokeh.palettes</span> <span class="k">as</span> <span class="nn">bpal</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">AstropyWarning</span><span class="p">)</span>
+<span class="n">EXTINCTION</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PS1.g&#39;</span><span class="p">:</span> <span class="mf">3.384</span><span class="p">,</span> <span class="s1">&#39;PS1.r&#39;</span><span class="p">:</span> <span class="mf">2.483</span><span class="p">,</span> <span class="s1">&#39;PS1.i&#39;</span><span class="p">:</span> <span class="mf">1.838</span><span class="p">,</span> <span class="s1">&#39;PS1.z&#39;</span><span class="p">:</span> <span class="mf">1.414</span><span class="p">,</span> <span class="s1">&#39;PS1.y&#39;</span><span class="p">:</span> <span class="mf">1.126</span><span class="p">,</span>
+              <span class="s1">&#39;SDSS.u&#39;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s1">&#39;SDSS.g&#39;</span><span class="p">:</span> <span class="mf">3.384</span><span class="p">,</span> <span class="s1">&#39;SDSS.r&#39;</span><span class="p">:</span> <span class="mf">2.483</span><span class="p">,</span> <span class="s1">&#39;SDSS.i&#39;</span><span class="p">:</span> <span class="mf">1.838</span><span class="p">,</span> <span class="s1">&#39;SDSS.z&#39;</span><span class="p">:</span> <span class="mf">1.414</span><span class="p">,</span>
+              <span class="s1">&#39;2MASS.J&#39;</span><span class="p">:</span> <span class="mf">0.650</span><span class="p">,</span> <span class="s1">&#39;2MASS.H&#39;</span><span class="p">:</span> <span class="mf">0.327</span><span class="p">,</span> <span class="s1">&#39;2MASS.Ks&#39;</span><span class="p">:</span> <span class="mf">0.161</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="Filter"><a class="viewcode-back" href="../svo.html#svo.Filter">[docs]</a><span class="k">class</span> <span class="nc">Filter</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a Filter object to store a photometric filter profile</span>
+<span class="sd">    and metadata</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: str</span>
+<span class="sd">        The absolute filepath for the bandpass data, an ASCII file with</span>
+<span class="sd">        a wavelength column in Angstroms and a response column of values</span>
+<span class="sd">        ranging from 0 to 1</span>
+<span class="sd">    refs: list, str</span>
+<span class="sd">        The references for the bandpass data</span>
+<span class="sd">    rsr: np.ndarray</span>
+<span class="sd">        The wavelength and relative spectral response (RSR) arrays</span>
+<span class="sd">    Band: str</span>
+<span class="sd">        The band name</span>
+<span class="sd">    CalibrationReference: str</span>
+<span class="sd">        The paper detailing the calibration</span>
+<span class="sd">    FWHM: float</span>
+<span class="sd">        The FWHM for the filter</span>
+<span class="sd">    Facility: str</span>
+<span class="sd">        The telescope facility</span>
+<span class="sd">    FilterProfileService: str</span>
+<span class="sd">        The SVO source</span>
+<span class="sd">    MagSys: str</span>
+<span class="sd">        The magnitude system</span>
+<span class="sd">    PhotCalID: str</span>
+<span class="sd">        The calibration standard</span>
+<span class="sd">    PhotSystem: str</span>
+<span class="sd">        The photometric system</span>
+<span class="sd">    ProfileReference: str</span>
+<span class="sd">        The SVO reference</span>
+<span class="sd">    WavelengthCen: float</span>
+<span class="sd">        The center wavelength</span>
+<span class="sd">    WavelengthEff: float</span>
+<span class="sd">        The effective wavelength</span>
+<span class="sd">    WavelengthMax: float</span>
+<span class="sd">        The maximum wavelength</span>
+<span class="sd">    WavelengthMean: float</span>
+<span class="sd">        The mean wavelength</span>
+<span class="sd">    WavelengthMin: float</span>
+<span class="sd">        The minimum wavelength</span>
+<span class="sd">    WavelengthPeak: float</span>
+<span class="sd">        The peak wavelength</span>
+<span class="sd">    WavelengthPhot: float</span>
+<span class="sd">        The photon distribution based effective wavelength</span>
+<span class="sd">    WavelengthPivot: float</span>
+<span class="sd">        The wavelength pivot</span>
+<span class="sd">    WavelengthUCD: str</span>
+<span class="sd">        The SVO wavelength unit</span>
+<span class="sd">    WavelengthUnit: str</span>
+<span class="sd">        The wavelength unit</span>
+<span class="sd">    WidthEff: float</span>
+<span class="sd">        The effective width</span>
+<span class="sd">    ZeroPoint: float</span>
+<span class="sd">        The value of the zero point flux</span>
+<span class="sd">    ZeroPointType: str</span>
+<span class="sd">        The system of the zero point</span>
+<span class="sd">    ZeroPointUnit: str</span>
+<span class="sd">        The units of the zero point</span>
+<span class="sd">    filterID: str</span>
+<span class="sd">        The SVO filter ID</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">filter_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">wave_units</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">um</span><span class="p">,</span> <span class="n">flux_units</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">erg</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">s</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads the bandpass data into the Filter object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        band: str</span>
+<span class="sd">            The bandpass filename (e.g. 2MASS.J)</span>
+<span class="sd">        filter_directory: str</span>
+<span class="sd">            The directory containing the filter files</span>
+<span class="sd">        wave_units: str, astropy.units.core.PrefixUnit  (optional)</span>
+<span class="sd">            The wavelength units</span>
+<span class="sd">        flux_units: str, astropy.units.core.PrefixUnit  (optional)</span>
+<span class="sd">            The zeropoint flux units</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filter_directory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filter_directory</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;svo_filters&#39;</span><span class="p">,</span> <span class="s1">&#39;data/filters/&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Check if TopHat</span>
+        <span class="k">if</span> <span class="n">band</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;tophat&#39;</span><span class="p">:</span>
+
+            <span class="c1"># check kwargs for limits</span>
+            <span class="n">wave_min</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wave_min&#39;</span><span class="p">)</span>
+            <span class="n">wave_max</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;wave_max&#39;</span><span class="p">)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+            <span class="k">if</span> <span class="n">wave_min</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">wave_max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide **{&#39;wave_min&#39;, &#39;wave_max&#39;} to create top hat filter.&quot;</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Load the filter</span>
+                <span class="n">n_pix</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;n_pixels&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_TopHat</span><span class="p">(</span><span class="n">wave_min</span><span class="p">,</span> <span class="n">wave_max</span><span class="p">,</span> <span class="n">n_pix</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># Get list of filters</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">filter_directory</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+            <span class="n">no_ext</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">}</span>
+            <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">no_ext</span><span class="p">]</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_directory</span><span class="p">,</span> <span class="n">band</span><span class="p">)</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">no_ext</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+
+            <span class="c1"># If the filter is missing, ask what to do</span>
+            <span class="k">if</span> <span class="n">band</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">:</span>
+
+                <span class="n">err</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;No filters match </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">Current filters: </span><span class="si">{}</span><span class="se">\n\n</span><span class="s2">A full list of available filters from the</span><span class="se">\n</span><span class="s2">SVO Filter Profile Service can be found at</span><span class="se">\n</span><span class="s2">http: //svo2.cab.inta-csic.es/theory/fps3/</span><span class="se">\n\n</span><span class="s2">Place the desired filter XML file in your</span><span class="se">\n</span><span class="s2">filter directory and try again.&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bands</span><span class="p">))</span>
+
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+            <span class="c1"># Get the first line to determine format</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">top</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+            <span class="c1"># Read in XML file</span>
+            <span class="k">if</span> <span class="n">top</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&lt;?xml&#39;</span><span class="p">):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_xml</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+            <span class="c1"># Read in txt file</span>
+            <span class="k">elif</span> <span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">load_txt</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;File must be XML or ascii format.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set the wavelength and throughput</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave_units</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">AA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_throughput</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+        <span class="c1"># Set n_bins and pixels_per_bin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Rename some values and apply units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMin</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMax</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_eff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthEff</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthCen</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMean</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_peak</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPeak</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_phot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPhot</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_pivot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPivot</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width_eff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WidthEff</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fwhm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FWHM</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPoint</span> <span class="o">*</span> <span class="n">q</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ZeroPointUnit</span><span class="p">)</span>
+
+        <span class="c1"># Delete redundant attributes</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthEff</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthCen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPeak</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPhot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPivot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WidthEff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FWHM</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPointUnit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPoint</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthUnit</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># Set the wavelength units</span>
+        <span class="k">if</span> <span class="n">wave_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span> <span class="o">=</span> <span class="n">wave_units</span>
+
+        <span class="c1"># Set zeropoint flux units</span>
+        <span class="k">if</span> <span class="n">flux_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flux_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zp</span><span class="o">.</span><span class="n">unit</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flux_units</span> <span class="o">=</span> <span class="n">flux_units</span>
+
+        <span class="c1"># Get references</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CalibrationReference</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">refs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CalibrationReference</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CalibrationReference</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Set a base name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filterID</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Try to get the extinction vector R from Green et al. (2018)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ext_vector</span> <span class="o">=</span> <span class="n">EXTINCTION</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Bin</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">bwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span>
+                      <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="o">**</span><span class="n">bwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Filter.apply"><a class="viewcode-back" href="../svo.html#svo.Filter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the filter to the given spectrum</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spectrum: array-like</span>
+<span class="sd">            The wavelength [um] and flux of the spectrum</span>
+<span class="sd">            to apply the filter to</span>
+<span class="sd">        plot: bool</span>
+<span class="sd">            Plot the original and filtered spectrum</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            The filtered spectrum</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make into iterable arrays</span>
+        <span class="n">wav</span><span class="p">,</span> <span class="n">flx</span><span class="p">,</span> <span class="o">*</span><span class="n">err</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">spectrum</span><span class="p">]</span>
+
+        <span class="c1"># Make flux 2D</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">flx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">flx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Make throughput 3D</span>
+        <span class="n">rsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsr</span><span class="p">)</span>
+
+        <span class="c1"># Make empty filtered array</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rsr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">flx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rsr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="c1"># Rebin the input spectra to the filter wavelength array</span>
+        <span class="c1"># and apply the RSR curve to the spectrum</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rsr</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">flx</span><span class="p">):</span>
+                <span class="n">filtered</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">bn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wav</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">*</span><span class="n">bn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+
+            <span class="c1"># Make the figure</span>
+            <span class="n">COLORS</span> <span class="o">=</span> <span class="n">color_gen</span><span class="p">(</span><span class="s1">&#39;Category10&#39;</span><span class="p">)</span>
+            <span class="n">xlab</span> <span class="o">=</span> <span class="s1">&#39;Wavelength [</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span>
+            <span class="n">ylab</span> <span class="o">=</span> <span class="s1">&#39;Flux Density [</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_units</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filterID</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">x_axis_label</span><span class="o">=</span><span class="n">xlab</span><span class="p">,</span> <span class="n">y_axis_label</span><span class="o">=</span><span class="n">ylab</span><span class="p">)</span>
+
+            <span class="c1"># Plot the unfiltered spectrum</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">flx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;Input spectrum&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Plot each spectrum bin</span>
+            <span class="k">for</span> <span class="n">wav</span><span class="p">,</span> <span class="n">bn</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">,</span> <span class="n">filtered</span><span class="p">):</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">bn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">COLORS</span><span class="p">))</span>
+
+            <span class="n">show</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="n">rsr</span><span class="p">,</span> <span class="n">wav</span><span class="p">,</span> <span class="n">flx</span>
+
+        <span class="k">return</span> <span class="n">filtered</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Filter.bin"><a class="viewcode-back" href="../svo.html#svo.Filter.bin">[docs]</a>    <span class="k">def</span> <span class="nf">bin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pixels_per_bin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wave_min</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wave_max</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Break the filter up into bins and apply a throughput to each bin,</span>
+<span class="sd">        useful for G141, G102, and other grisms</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n_bins: int</span>
+<span class="sd">            The number of bins to dice the throughput curve into</span>
+<span class="sd">        pixels_per_bin: int (optional)</span>
+<span class="sd">            The number of channels per bin, which will be used</span>
+<span class="sd">            to calculate n_bins</span>
+<span class="sd">        wave_min: astropy.units.quantity (optional)</span>
+<span class="sd">            The minimum wavelength to use</span>
+<span class="sd">        wave_max: astropy.units.quantity (optional)</span>
+<span class="sd">            The maximum wavelength to use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get wavelength limits</span>
+        <span class="k">if</span> <span class="n">wave_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wave_min</span> <span class="o">=</span> <span class="n">wave_min</span>
+        <span class="k">if</span> <span class="n">wave_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wave_max</span> <span class="o">=</span> <span class="n">wave_max</span>
+
+        <span class="c1"># Trim the wavelength by the given min and max</span>
+        <span class="n">raw_wave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">whr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">raw_wave</span> <span class="o">*</span> <span class="n">q</span><span class="o">.</span><span class="n">AA</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_min</span><span class="p">,</span>
+                             <span class="n">raw_wave</span> <span class="o">*</span> <span class="n">q</span><span class="o">.</span><span class="n">AA</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_max</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave</span> <span class="o">=</span> <span class="p">(</span><span class="n">raw_wave</span><span class="p">[</span><span class="n">whr</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">throughput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">whr</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Bandpass trimmed to&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_max</span><span class="p">))</span>
+
+        <span class="c1"># Calculate the number of bins and channels</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pixels_per_bin</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span> <span class="o">=</span> <span class="n">pixels_per_bin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pts</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_bins</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="n">n_bins</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pts</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify &#39;n_bins&#39; OR &#39;pixels_per_bin&#39; as integers.&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> bins of </span><span class="si">{}</span><span class="s1"> pixels each.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">,</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span><span class="p">))</span>
+
+        <span class="c1"># Trim throughput edges so that there are an integer number of bins</span>
+        <span class="n">new_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="n">pts</span> <span class="o">-</span> <span class="n">new_len</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">new_len</span><span class="o">+</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">throughput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">throughput</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">new_len</span><span class="o">+</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A getter for the wavelength bin centers and average fluxes&quot;&quot;&quot;</span>
+        <span class="c1"># Get the bin centers</span>
+        <span class="n">w_cen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">f_cen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">throughput</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">w_cen</span><span class="p">,</span> <span class="n">f_cen</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flux_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A getter for the flux units&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_units</span>
+
+    <span class="nd">@flux_units</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">flux_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A setter for the flux units</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        units: str, astropy.units.core.PrefixUnit</span>
+<span class="sd">            The desired units of the zeropoint flux density</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check that the units are valid</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">PrefixUnit</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">CompositeUnit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">dtypes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="s2">&quot;units not understood.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check that the units changed</span>
+        <span class="k">if</span> <span class="n">units</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_units</span><span class="p">:</span>
+
+            <span class="c1"># Convert to new units</span>
+            <span class="n">sfd</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">spectral_density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_eff</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zp</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="n">equivalencies</span><span class="o">=</span><span class="n">sfd</span><span class="p">)</span>
+
+            <span class="c1"># Store new units</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_flux_units</span> <span class="o">=</span> <span class="n">units</span>
+
+<div class="viewcode-block" id="Filter.info"><a class="viewcode-back" href="../svo.html#svo.Filter.info">[docs]</a>    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fetch</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print a table of info about the current filter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the info from the class</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="p">[[</span><span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">tp</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rsr&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="s1">&#39;centers&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)]</span>
+
+        <span class="c1"># Make the table</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">info</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="p">),</span> <span class="mi">2</span><span class="p">),</span>
+                         <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Attributes&#39;</span><span class="p">,</span> <span class="s1">&#39;Values&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Sort and print</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s1">&#39;Attributes&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fetch</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">table</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">max_width</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_lines</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Filter.load_TopHat"><a class="viewcode-back" href="../svo.html#svo.Filter.load_TopHat">[docs]</a>    <span class="k">def</span> <span class="nf">load_TopHat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave_min</span><span class="p">,</span> <span class="n">wave_max</span><span class="p">,</span> <span class="n">pixels_per_bin</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a top hat filter given wavelength min and max values</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wave_min: astropy.units.quantity (optional)</span>
+<span class="sd">            The minimum wavelength to use</span>
+<span class="sd">        wave_max: astropy.units.quantity (optional)</span>
+<span class="sd">            The maximum wavelength to use</span>
+<span class="sd">        n_pixels: int</span>
+<span class="sd">            The number of pixels for the filter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get min, max, effective wavelengths and width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span> <span class="o">=</span> <span class="n">pixels_per_bin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave_units</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">AA</span>
+        <span class="n">wave_min</span> <span class="o">=</span> <span class="n">wave_min</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span>
+        <span class="n">wave_max</span> <span class="o">=</span> <span class="n">wave_max</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span>
+
+        <span class="c1"># Create the RSR curve</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">wave_min</span><span class="p">,</span> <span class="n">wave_max</span><span class="p">,</span> <span class="n">pixels_per_bin</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_throughput</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">throughput</span><span class="p">])</span>
+
+        <span class="c1"># Calculate the effective wavelength</span>
+        <span class="n">wave_eff</span> <span class="o">=</span> <span class="p">((</span><span class="n">wave_min</span> <span class="o">+</span> <span class="n">wave_max</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">wave_max</span> <span class="o">-</span> <span class="n">wave_min</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="c1"># Add the attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Band</span> <span class="o">=</span> <span class="s1">&#39;Top Hat&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CalibrationReference</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FWHM</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Facility</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FilterProfileService</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MagSys</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PhotCalID</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">PhotSystem</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ProfileReference</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMin</span> <span class="o">=</span> <span class="n">wave_min</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMax</span> <span class="o">=</span> <span class="n">wave_max</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthCen</span> <span class="o">=</span> <span class="n">wave_eff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthEff</span> <span class="o">=</span> <span class="n">wave_eff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMean</span> <span class="o">=</span> <span class="n">wave_eff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPeak</span> <span class="o">=</span> <span class="n">wave_eff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPhot</span> <span class="o">=</span> <span class="n">wave_eff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPivot</span> <span class="o">=</span> <span class="n">wave_eff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthUCD</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WidthEff</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPoint</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPointType</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPointUnit</span> <span class="o">=</span> <span class="s1">&#39;Jy&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterID</span> <span class="o">=</span> <span class="s1">&#39;Top Hat&#39;</span></div>
+
+<div class="viewcode-block" id="Filter.load_txt"><a class="viewcode-back" href="../svo.html#svo.Filter.load_txt">[docs]</a>    <span class="k">def</span> <span class="nf">load_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the filter from a txt file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file: str</span>
+<span class="sd">            The filepath</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Convert to Angstroms if microns</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10000</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthUnit</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPointUnit</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">erg</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">s</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
+
+        <span class="c1"># Get a spectrum of Vega</span>
+        <span class="n">vega_file</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;svo_filters&#39;</span><span class="p">,</span> <span class="s1">&#39;data/spectra/vega.txt&#39;</span><span class="p">)</span>
+        <span class="n">vega</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">vega_file</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">vega</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">vega</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10000</span>
+        <span class="n">vega</span> <span class="o">=</span> <span class="n">rebin_spec</span><span class="p">(</span><span class="n">vega</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">q</span><span class="o">.</span><span class="n">erg</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">s</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span>
+        <span class="n">flam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">((</span><span class="n">vega</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">erg</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">s</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">),</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">thru</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ZeroPoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">flam</span><span class="o">/</span><span class="n">thru</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">erg</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">s</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="c1"># Calculate the filter&#39;s properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filterID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filepath</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPeak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">f0</span> <span class="o">=</span> <span class="n">f</span><span class="p">[:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">/</span><span class="mf">100.</span><span class="p">,</span> <span class="n">f0</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+        <span class="n">f1</span> <span class="o">=</span> <span class="n">f</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">/</span><span class="mf">100.</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthEff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">vega</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">vega</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WidthEff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">piv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPivot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">piv</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">/</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">pht</span> <span class="o">=</span> <span class="n">f</span><span class="o">*</span><span class="n">vega</span><span class="o">*</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthPhot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">pht</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">f</span><span class="o">*</span><span class="n">vega</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Fix these two:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthCen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WavelengthMean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FWHM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">WidthEff</span>
+
+        <span class="c1"># Add missing attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Filter.load_xml"><a class="viewcode-back" href="../svo.html#svo.Filter.load_xml">[docs]</a>    <span class="k">def</span> <span class="nf">load_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the filter from a txt file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath: str</span>
+<span class="sd">            The filepath for the filter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Parse the XML file</span>
+        <span class="n">vot</span> <span class="o">=</span> <span class="n">vo</span><span class="o">.</span><span class="n">parse_single_table</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">vot</span><span class="o">.</span><span class="n">array</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># Parse the filter metadata</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">vot</span><span class="o">.</span><span class="n">params</span><span class="p">]:</span>
+
+            <span class="c1"># Extract the key/value pairs</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Do some formatting</span>
+            <span class="n">flt1</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;float&#39;</span>
+            <span class="n">flt2</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;float&#39;</span>
+            <span class="k">if</span> <span class="n">flt1</span> <span class="ow">or</span> <span class="n">flt2</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;b&amp;apos;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>\
+                         <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&amp;apos&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>\
+                         <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&amp;amp;&#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;&#39;</span><span class="p">)</span>\
+                         <span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Set the attribute</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;Description&#39;</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+        <span class="c1"># Create some attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixels_per_bin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Filter.overlap"><a class="viewcode-back" href="../svo.html#svo.Filter.overlap">[docs]</a>    <span class="k">def</span> <span class="nf">overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests for overlap of this filter with a spectrum</span>
+
+<span class="sd">        Example of full overlap:</span>
+
+<span class="sd">            |---------- spectrum ----------|</span>
+<span class="sd">               |------ self ------|</span>
+
+<span class="sd">        Examples of partial overlap: :</span>
+
+<span class="sd">            |---------- self ----------|</span>
+<span class="sd">               |------ spectrum ------|</span>
+
+<span class="sd">            |---- spectrum ----|</span>
+<span class="sd">               |----- self -----|</span>
+
+<span class="sd">            |---- self ----|</span>
+<span class="sd">               |---- spectrum ----|</span>
+
+<span class="sd">        Examples of no overlap: :</span>
+
+<span class="sd">            |---- spectrum ----|  |---- other ----|</span>
+
+<span class="sd">            |---- other ----|  |---- spectrum ----|</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spectrum: sequence</span>
+<span class="sd">            The [W, F] spectrum with astropy units</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ans : {&#39;full&#39;, &#39;partial&#39;, &#39;none&#39;}</span>
+<span class="sd">            Overlap status.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">swave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">throughput</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">swave</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">swave</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="n">owave</span> <span class="o">=</span> <span class="n">spectrum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span> <span class="o">=</span> <span class="n">owave</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">owave</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">s1</span> <span class="o">&gt;=</span> <span class="n">o1</span> <span class="ow">and</span> <span class="n">s2</span> <span class="o">&lt;=</span> <span class="n">o2</span><span class="p">):</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="s1">&#39;full&#39;</span>
+
+        <span class="k">elif</span> <span class="p">(</span><span class="n">s2</span> <span class="o">&lt;</span> <span class="n">o1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">o2</span> <span class="o">&lt;</span> <span class="n">s1</span><span class="p">):</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="s1">&#39;partial&#39;</span>
+
+        <span class="k">return</span> <span class="n">ans</span></div>
+
+<div class="viewcode-block" id="Filter.plot"><a class="viewcode-back" href="../svo.html#svo.Filter.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the filter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">COLORS</span> <span class="o">=</span> <span class="n">color_gen</span><span class="p">(</span><span class="s1">&#39;Category10&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Make the figure</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xlab</span> <span class="o">=</span> <span class="s1">&#39;Wavelength [</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span>
+            <span class="n">ylab</span> <span class="o">=</span> <span class="s1">&#39;Throughput&#39;</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filterID</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">figure</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">x_axis_label</span><span class="o">=</span><span class="n">xlab</span><span class="p">,</span> <span class="n">y_axis_label</span><span class="o">=</span><span class="n">ylab</span><span class="p">)</span>
+
+        <span class="c1"># Plot the raw curve</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">q</span><span class="o">.</span><span class="n">AA</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Plot each with bin centers</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsr</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">COLORS</span><span class="p">),</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+        <span class="n">show</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rsr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A getter for the relative spectral response (rsr) curve&quot;&quot;&quot;</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">throughput</span><span class="p">])</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">arr</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">throughput</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A getter for the throughput&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_throughput</span>
+
+    <span class="nd">@throughput</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">throughput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A setter for the throughput</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        throughput: sequence</span>
+<span class="sd">            The array of throughput points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Test shape</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Throughput and wavelength must be same shape.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_throughput</span> <span class="o">=</span> <span class="n">points</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A getter for the wavelength&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span>
+
+    <span class="nd">@wave</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A setter for the wavelength</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wavelength: astropy.units.quantity.Quantity</span>
+<span class="sd">            The array with units</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Test units</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wavelength</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Wavelength must be in length units.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="n">wavelength</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span> <span class="o">=</span> <span class="n">wavelength</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wave_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A getter for the wavelength units&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wave_units</span>
+
+    <span class="nd">@wave_units</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wave_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A setter for the wavelength units</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        units: str, astropy.units.core.PrefixUnit</span>
+<span class="sd">            The wavelength units</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure it&#39;s length units</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">units</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">m</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="s2">&quot;: New wavelength units must be a length.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Update the units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave_units</span> <span class="o">=</span> <span class="n">units</span>
+
+        <span class="c1"># Update all the wavelength values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wave</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_min</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_max</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_eff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_eff</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_center</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_mean</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_peak</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_peak</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_phot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_phot</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wave_pivot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_pivot</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width_eff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width_eff</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fwhm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fwhm</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_units</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="color_gen"><a class="viewcode-back" href="../svo.html#svo.color_gen">[docs]</a><span class="k">def</span> <span class="nf">color_gen</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">15</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Color generator for Bokeh plots</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    colormap: str, sequence</span>
+<span class="sd">        The name of the color map</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    generator</span>
+<span class="sd">        A generator for the color palette</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">colormap</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">bpal</span><span class="p">):</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">bpal</span><span class="p">,</span> <span class="n">colormap</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palette</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">palette</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="n">palette</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">palette</span><span class="p">):</span>
+            <span class="n">palette</span> <span class="o">=</span> <span class="n">palette</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;pallette must be a bokeh palette name or a sequence of color hex values.&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colormap</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="n">colormap</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;pallette must be a bokeh palette name or a sequence of color hex values.&quot;</span><span class="p">)</span>
+
+    <span class="k">yield from</span> <span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="filters"><a class="viewcode-back" href="../svo.html#svo.filters">[docs]</a><span class="k">def</span> <span class="nf">filters</span><span class="p">(</span><span class="n">filter_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a list of the available filters</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filter_directory: str</span>
+<span class="sd">        The directory containing the filter relative spectral response curves</span>
+<span class="sd">    update: bool</span>
+<span class="sd">        Check the filter directory for new filters and generate pickle of table</span>
+<span class="sd">    fmt: str</span>
+<span class="sd">        The format for the returned table</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        The list of band names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filter_directory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filter_directory</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;svo_filters&#39;</span><span class="p">,</span> <span class="s1">&#39;data/filters/&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get the pickle path and make sure file exists</span>
+    <span class="n">p_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_directory</span><span class="p">,</span> <span class="s1">&#39;filter_list.p&#39;</span><span class="p">)</span>
+    <span class="n">updated</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">p_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;touch </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p_path</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">update</span><span class="p">:</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading filters into table...&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Get all the filters (except the pickle)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">filter_directory</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.p&#39;</span><span class="p">)]</span>
+        <span class="n">bands</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">:</span>
+
+            <span class="c1"># Load the filter</span>
+            <span class="n">filt</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">filt</span><span class="o">.</span><span class="n">Band</span> <span class="o">=</span> <span class="n">band</span>
+
+            <span class="c1"># Put metadata into table with correct dtypes</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">filt</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()</span> <span class="k">else</span> <span class="n">i</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;Values&#39;</span><span class="p">]]</span>
+            <span class="n">dtypes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">])</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vals</span><span class="p">]),</span> <span class="n">names</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;Attributes&#39;</span><span class="p">],</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="p">)</span>
+
+            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+            <span class="k">del</span> <span class="n">filt</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="n">table</span>
+
+        <span class="c1"># Write to the pickle</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">p_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">tables</span><span class="p">),</span> <span class="n">file</span><span class="p">)</span>
+
+    <span class="c1"># Load the saved pickle</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">p_path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">p_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="c1"># Return the data</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;dict&#39;</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="s1">&#39;unit&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">r</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]}</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">data</span><span class="p">}</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># Add Band as index</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">add_index</span><span class="p">(</span><span class="s1">&#39;Band&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="c1"># Or try to generate it once</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">updated</span><span class="p">:</span>
+            <span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">filters</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No filters found in&#39;</span><span class="p">,</span> <span class="n">filter_directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rebin_spec"><a class="viewcode-back" href="../svo.html#svo.rebin_spec">[docs]</a><span class="k">def</span> <span class="nf">rebin_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">wavnew</span><span class="p">,</span> <span class="n">oversamp</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rebin a spectrum to a new wavelength array while preserving</span>
+<span class="sd">    the total flux</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec: array-like</span>
+<span class="sd">        The wavelength and flux to be binned</span>
+<span class="sd">    wavenew: array-like</span>
+<span class="sd">        The new wavelength array</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The rebinned flux</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="n">nlam</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nlam</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">x0int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">((</span><span class="n">nlam</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span> <span class="o">*</span> <span class="n">oversamp</span> <span class="o">+</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">/</span><span class="n">oversamp</span>
+    <span class="n">w0int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x0int</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">wave</span><span class="p">)</span>
+    <span class="n">spec0int</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">w0int</span><span class="p">,</span> <span class="n">wave</span><span class="p">,</span> <span class="n">flux</span><span class="p">)</span><span class="o">/</span><span class="n">oversamp</span>
+
+    <span class="c1"># Set up the bin edges for down-binning</span>
+    <span class="n">maxdiffw1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">wavnew</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">w1bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="n">wavnew</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">maxdiffw1</span><span class="p">],</span>
+                             <span class="o">.</span><span class="mi">5</span><span class="o">*</span><span class="p">(</span><span class="n">wavnew</span><span class="p">[</span><span class="mi">1</span><span class="p">::]</span><span class="o">+</span><span class="n">wavnew</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+                             <span class="p">[</span><span class="n">wavnew</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">maxdiffw1</span><span class="p">]))</span>
+
+    <span class="c1"># Bin down the interpolated spectrum:</span>
+    <span class="n">w1bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">w1bins</span><span class="p">)</span>
+    <span class="n">nbins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w1bins</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">specnew</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nbins</span><span class="p">)</span>
+    <span class="n">inds2</span> <span class="o">=</span> <span class="p">[[</span><span class="n">w0int</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">w1bins</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">),</span>
+              <span class="n">w0int</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">w1bins</span><span class="p">[</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)]</span>
+             <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+        <span class="n">specnew</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spec0int</span><span class="p">[</span><span class="n">inds2</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span> <span class="n">inds2</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">1</span><span class="p">]])</span>
+
+    <span class="k">return</span> <span class="n">specnew</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Joe Filippazzo
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

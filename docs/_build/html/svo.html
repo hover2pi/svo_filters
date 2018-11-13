@@ -150,16 +150,16 @@
   <div class="section" id="svo-module">
 <h1>svo module<a class="headerlink" href="#svo-module" title="Permalink to this headline">¶</a></h1>
 <p>This is the main module for <cite>svo_filters</cite>.</p>
-<span class="target" id="module-svo_filters.svo"></span><p>A Python wrapper for the SVO Filter Profile Service</p>
+<span class="target" id="module-svo"></span><p>A Python wrapper for the SVO Filter Profile Service</p>
 <dl class="class">
-<dt id="svo_filters.svo.Filter">
-<em class="property">class </em><code class="descclassname">svo_filters.svo.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>band</em>, <em>filter_directory=None</em>, <em>wave_units=Unit(&quot;um&quot;)</em>, <em>flux_units=Unit(&quot;erg / (Angstrom cm2 s)&quot;)</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter">
+<em class="property">class </em><code class="descclassname">svo.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>band</em>, <em>filter_directory=None</em>, <em>wave_units=Unit(&quot;um&quot;)</em>, <em>flux_units=Unit(&quot;erg / (Angstrom cm2 s)&quot;)</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Creates a Filter object to store a photometric filter profile
 and metadata</p>
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.path">
-<code class="descname">path</code><a class="headerlink" href="#svo_filters.svo.Filter.path" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.path">
+<code class="descname">path</code><a class="headerlink" href="#svo.Filter.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>The absolute filepath for the bandpass data, an ASCII file with
 a wavelength column in Angstroms and a response column of values
 ranging from 0 to 1</p>
@@ -174,8 +174,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.refs">
-<code class="descname">refs</code><a class="headerlink" href="#svo_filters.svo.Filter.refs" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.refs">
+<code class="descname">refs</code><a class="headerlink" href="#svo.Filter.refs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The references for the bandpass data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -188,8 +188,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.rsr">
-<code class="descname">rsr</code><a class="headerlink" href="#svo_filters.svo.Filter.rsr" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.rsr">
+<code class="descname">rsr</code><a class="headerlink" href="#svo.Filter.rsr" title="Permalink to this definition">¶</a></dt>
 <dd><p>The wavelength and relative spectral response (RSR) arrays</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -202,8 +202,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.Band">
-<code class="descname">Band</code><a class="headerlink" href="#svo_filters.svo.Filter.Band" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.Band">
+<code class="descname">Band</code><a class="headerlink" href="#svo.Filter.Band" title="Permalink to this definition">¶</a></dt>
 <dd><p>The band name</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -216,8 +216,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.CalibrationReference">
-<code class="descname">CalibrationReference</code><a class="headerlink" href="#svo_filters.svo.Filter.CalibrationReference" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.CalibrationReference">
+<code class="descname">CalibrationReference</code><a class="headerlink" href="#svo.Filter.CalibrationReference" title="Permalink to this definition">¶</a></dt>
 <dd><p>The paper detailing the calibration</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -230,8 +230,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.FWHM">
-<code class="descname">FWHM</code><a class="headerlink" href="#svo_filters.svo.Filter.FWHM" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.FWHM">
+<code class="descname">FWHM</code><a class="headerlink" href="#svo.Filter.FWHM" title="Permalink to this definition">¶</a></dt>
 <dd><p>The FWHM for the filter</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -244,8 +244,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.Facility">
-<code class="descname">Facility</code><a class="headerlink" href="#svo_filters.svo.Filter.Facility" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.Facility">
+<code class="descname">Facility</code><a class="headerlink" href="#svo.Filter.Facility" title="Permalink to this definition">¶</a></dt>
 <dd><p>The telescope facility</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -258,8 +258,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.FilterProfileService">
-<code class="descname">FilterProfileService</code><a class="headerlink" href="#svo_filters.svo.Filter.FilterProfileService" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.FilterProfileService">
+<code class="descname">FilterProfileService</code><a class="headerlink" href="#svo.Filter.FilterProfileService" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SVO source</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -272,8 +272,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.MagSys">
-<code class="descname">MagSys</code><a class="headerlink" href="#svo_filters.svo.Filter.MagSys" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.MagSys">
+<code class="descname">MagSys</code><a class="headerlink" href="#svo.Filter.MagSys" title="Permalink to this definition">¶</a></dt>
 <dd><p>The magnitude system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -286,8 +286,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.PhotCalID">
-<code class="descname">PhotCalID</code><a class="headerlink" href="#svo_filters.svo.Filter.PhotCalID" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.PhotCalID">
+<code class="descname">PhotCalID</code><a class="headerlink" href="#svo.Filter.PhotCalID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The calibration standard</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -300,8 +300,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.PhotSystem">
-<code class="descname">PhotSystem</code><a class="headerlink" href="#svo_filters.svo.Filter.PhotSystem" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.PhotSystem">
+<code class="descname">PhotSystem</code><a class="headerlink" href="#svo.Filter.PhotSystem" title="Permalink to this definition">¶</a></dt>
 <dd><p>The photometric system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -314,8 +314,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.ProfileReference">
-<code class="descname">ProfileReference</code><a class="headerlink" href="#svo_filters.svo.Filter.ProfileReference" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.ProfileReference">
+<code class="descname">ProfileReference</code><a class="headerlink" href="#svo.Filter.ProfileReference" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SVO reference</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -328,8 +328,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthCen">
-<code class="descname">WavelengthCen</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthCen" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthCen">
+<code class="descname">WavelengthCen</code><a class="headerlink" href="#svo.Filter.WavelengthCen" title="Permalink to this definition">¶</a></dt>
 <dd><p>The center wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -342,8 +342,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthEff">
-<code class="descname">WavelengthEff</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthEff" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthEff">
+<code class="descname">WavelengthEff</code><a class="headerlink" href="#svo.Filter.WavelengthEff" title="Permalink to this definition">¶</a></dt>
 <dd><p>The effective wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -356,8 +356,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthMax">
-<code class="descname">WavelengthMax</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthMax" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthMax">
+<code class="descname">WavelengthMax</code><a class="headerlink" href="#svo.Filter.WavelengthMax" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -370,8 +370,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthMean">
-<code class="descname">WavelengthMean</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthMean" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthMean">
+<code class="descname">WavelengthMean</code><a class="headerlink" href="#svo.Filter.WavelengthMean" title="Permalink to this definition">¶</a></dt>
 <dd><p>The mean wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -384,8 +384,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthMin">
-<code class="descname">WavelengthMin</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthMin" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthMin">
+<code class="descname">WavelengthMin</code><a class="headerlink" href="#svo.Filter.WavelengthMin" title="Permalink to this definition">¶</a></dt>
 <dd><p>The minimum wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -398,8 +398,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthPeak">
-<code class="descname">WavelengthPeak</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthPeak" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthPeak">
+<code class="descname">WavelengthPeak</code><a class="headerlink" href="#svo.Filter.WavelengthPeak" title="Permalink to this definition">¶</a></dt>
 <dd><p>The peak wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -412,8 +412,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthPhot">
-<code class="descname">WavelengthPhot</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthPhot" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthPhot">
+<code class="descname">WavelengthPhot</code><a class="headerlink" href="#svo.Filter.WavelengthPhot" title="Permalink to this definition">¶</a></dt>
 <dd><p>The photon distribution based effective wavelength</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -426,8 +426,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthPivot">
-<code class="descname">WavelengthPivot</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthPivot" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthPivot">
+<code class="descname">WavelengthPivot</code><a class="headerlink" href="#svo.Filter.WavelengthPivot" title="Permalink to this definition">¶</a></dt>
 <dd><p>The wavelength pivot</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -440,8 +440,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthUCD">
-<code class="descname">WavelengthUCD</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthUCD" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthUCD">
+<code class="descname">WavelengthUCD</code><a class="headerlink" href="#svo.Filter.WavelengthUCD" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SVO wavelength unit</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -454,8 +454,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WavelengthUnit">
-<code class="descname">WavelengthUnit</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthUnit" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WavelengthUnit">
+<code class="descname">WavelengthUnit</code><a class="headerlink" href="#svo.Filter.WavelengthUnit" title="Permalink to this definition">¶</a></dt>
 <dd><p>The wavelength unit</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -468,8 +468,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.WidthEff">
-<code class="descname">WidthEff</code><a class="headerlink" href="#svo_filters.svo.Filter.WidthEff" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.WidthEff">
+<code class="descname">WidthEff</code><a class="headerlink" href="#svo.Filter.WidthEff" title="Permalink to this definition">¶</a></dt>
 <dd><p>The effective width</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -482,8 +482,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.ZeroPoint">
-<code class="descname">ZeroPoint</code><a class="headerlink" href="#svo_filters.svo.Filter.ZeroPoint" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.ZeroPoint">
+<code class="descname">ZeroPoint</code><a class="headerlink" href="#svo.Filter.ZeroPoint" title="Permalink to this definition">¶</a></dt>
 <dd><p>The value of the zero point flux</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -496,8 +496,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.ZeroPointType">
-<code class="descname">ZeroPointType</code><a class="headerlink" href="#svo_filters.svo.Filter.ZeroPointType" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.ZeroPointType">
+<code class="descname">ZeroPointType</code><a class="headerlink" href="#svo.Filter.ZeroPointType" title="Permalink to this definition">¶</a></dt>
 <dd><p>The system of the zero point</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -510,8 +510,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.ZeroPointUnit">
-<code class="descname">ZeroPointUnit</code><a class="headerlink" href="#svo_filters.svo.Filter.ZeroPointUnit" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.ZeroPointUnit">
+<code class="descname">ZeroPointUnit</code><a class="headerlink" href="#svo.Filter.ZeroPointUnit" title="Permalink to this definition">¶</a></dt>
 <dd><p>The units of the zero point</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -524,8 +524,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.filterID">
-<code class="descname">filterID</code><a class="headerlink" href="#svo_filters.svo.Filter.filterID" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.filterID">
+<code class="descname">filterID</code><a class="headerlink" href="#svo.Filter.filterID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SVO filter ID</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -538,8 +538,8 @@ ranging from 0 to 1</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.apply">
-<code class="descname">apply</code><span class="sig-paren">(</span><em>spectrum</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.apply" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.apply">
+<code class="descname">apply</code><span class="sig-paren">(</span><em>spectrum</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the filter to the given spectrum</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -563,8 +563,8 @@ to apply the filter to</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.bin">
-<code class="descname">bin</code><span class="sig-paren">(</span><em>n_bins=1</em>, <em>pixels_per_bin=None</em>, <em>wave_min=None</em>, <em>wave_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.bin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.bin" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.bin">
+<code class="descname">bin</code><span class="sig-paren">(</span><em>n_bins=1</em>, <em>pixels_per_bin=None</em>, <em>wave_min=None</em>, <em>wave_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.bin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.bin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Break the filter up into bins and apply a throughput to each bin,
 useful for G141, G102, and other grisms</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -585,26 +585,26 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.centers">
-<code class="descname">centers</code><a class="headerlink" href="#svo_filters.svo.Filter.centers" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.centers">
+<code class="descname">centers</code><a class="headerlink" href="#svo.Filter.centers" title="Permalink to this definition">¶</a></dt>
 <dd><p>A getter for the wavelength bin centers and average fluxes</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.flux_units">
-<code class="descname">flux_units</code><a class="headerlink" href="#svo_filters.svo.Filter.flux_units" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.flux_units">
+<code class="descname">flux_units</code><a class="headerlink" href="#svo.Filter.flux_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>A getter for the flux units</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.info">
-<code class="descname">info</code><span class="sig-paren">(</span><em>fetch=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.info" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>fetch=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print a table of info about the current filter</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.load_TopHat">
-<code class="descname">load_TopHat</code><span class="sig-paren">(</span><em>wave_min</em>, <em>wave_max</em>, <em>pixels_per_bin=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_TopHat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_TopHat" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.load_TopHat">
+<code class="descname">load_TopHat</code><span class="sig-paren">(</span><em>wave_min</em>, <em>wave_max</em>, <em>pixels_per_bin=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.load_TopHat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.load_TopHat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a top hat filter given wavelength min and max values</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -622,8 +622,8 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.load_txt">
-<code class="descname">load_txt</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_txt" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.load_txt">
+<code class="descname">load_txt</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.load_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.load_txt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the filter from a txt file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -636,8 +636,8 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.load_xml">
-<code class="descname">load_xml</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_xml" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.load_xml">
+<code class="descname">load_xml</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.load_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.load_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the filter from a txt file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -650,8 +650,8 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.overlap">
-<code class="descname">overlap</code><span class="sig-paren">(</span><em>spectrum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.overlap" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.overlap">
+<code class="descname">overlap</code><span class="sig-paren">(</span><em>spectrum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.overlap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests for overlap of this filter with a spectrum</p>
 <p>Example of full overlap:</p>
 <blockquote>
@@ -691,8 +691,8 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="svo_filters.svo.Filter.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.plot" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#Filter.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.Filter.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the filter</p>
 </dd></dl>
 
@@ -703,28 +703,28 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.throughput">
-<code class="descname">throughput</code><a class="headerlink" href="#svo_filters.svo.Filter.throughput" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.throughput">
+<code class="descname">throughput</code><a class="headerlink" href="#svo.Filter.throughput" title="Permalink to this definition">¶</a></dt>
 <dd><p>A getter for the throughput</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.wave">
-<code class="descname">wave</code><a class="headerlink" href="#svo_filters.svo.Filter.wave" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.wave">
+<code class="descname">wave</code><a class="headerlink" href="#svo.Filter.wave" title="Permalink to this definition">¶</a></dt>
 <dd><p>A getter for the wavelength</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.wave_units">
-<code class="descname">wave_units</code><a class="headerlink" href="#svo_filters.svo.Filter.wave_units" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.Filter.wave_units">
+<code class="descname">wave_units</code><a class="headerlink" href="#svo.Filter.wave_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>A getter for the wavelength units</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="function">
-<dt id="svo_filters.svo.color_gen">
-<code class="descclassname">svo_filters.svo.</code><code class="descname">color_gen</code><span class="sig-paren">(</span><em>colormap='viridis'</em>, <em>key=None</em>, <em>n=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#color_gen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.color_gen" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.color_gen">
+<code class="descclassname">svo.</code><code class="descname">color_gen</code><span class="sig-paren">(</span><em>colormap='viridis'</em>, <em>key=None</em>, <em>n=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#color_gen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.color_gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Color generator for Bokeh plots</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -741,8 +741,8 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="svo_filters.svo.filters">
-<code class="descclassname">svo_filters.svo.</code><code class="descname">filters</code><span class="sig-paren">(</span><em>filter_directory=None</em>, <em>update=False</em>, <em>fmt='table'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.filters" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.filters">
+<code class="descclassname">svo.</code><code class="descname">filters</code><span class="sig-paren">(</span><em>filter_directory=None</em>, <em>update=False</em>, <em>fmt='table'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of the available filters</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -766,8 +766,8 @@ to calculate n_bins</li>
 </dd></dl>
 
 <dl class="function">
-<dt id="svo_filters.svo.rebin_spec">
-<code class="descclassname">svo_filters.svo.</code><code class="descname">rebin_spec</code><span class="sig-paren">(</span><em>spec</em>, <em>wavnew</em>, <em>oversamp=100</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#rebin_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.rebin_spec" title="Permalink to this definition">¶</a></dt>
+<dt id="svo.rebin_spec">
+<code class="descclassname">svo.</code><code class="descname">rebin_spec</code><span class="sig-paren">(</span><em>spec</em>, <em>wavnew</em>, <em>oversamp=100</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo.html#rebin_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo.rebin_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rebin a spectrum to a new wavelength array while preserving
 the total flux</p>
 <table class="docutils field-list" frame="void" rules="none">

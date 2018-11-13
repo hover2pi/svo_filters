@@ -27,7 +27,7 @@ To create a filter object, pass a bandpass name to the :py:class:`svo.Filter()` 
 
     H_band = svo.Filter('2MASS.H')
 
-You can see someinformation about the filter with::
+You can see some information about the filter with::
 
     H_band.info()
 
@@ -72,4 +72,4 @@ Contents
 
    svo
 
-.. automodule:: svo_filters/svo
+.. automodule:: svo
