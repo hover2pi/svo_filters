@@ -1,35 +1,151 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>svo module &#8212; svo_filters 0.2.16 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>svo module &mdash; svo_filters 0.2.16 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <div class="wy-grid-for-nav">
 
-  </head><body>
-  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
           
 
-          <div class="body" role="main">
+          
+            <a href="index.html" class="icon icon-home"> svo_filters
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">svo module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">svo_filters</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>svo module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/svo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
             
   <div class="section" id="svo-module">
 <h1>svo module<a class="headerlink" href="#svo-module" title="Permalink to this headline">¶</a></h1>
@@ -41,79 +157,409 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Creates a Filter object to store a photometric filter profile
 and metadata</p>
-<dl class="docutils">
-<dt>path: str</dt>
-<dd>The absolute filepath for the bandpass data, an ASCII file with
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.path">
+<code class="descname">path</code><a class="headerlink" href="#svo_filters.svo.Filter.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The absolute filepath for the bandpass data, an ASCII file with
 a wavelength column in Angstroms and a response column of values
-ranging from 0 to 1</dd>
-<dt>refs: list, str</dt>
-<dd>The references for the bandpass data</dd>
-<dt>rsr: np.ndarray</dt>
-<dd>The wavelength and relative spectral response (RSR) arrays</dd>
-<dt>Band: str</dt>
-<dd>The band name</dd>
-<dt>CalibrationReference: str</dt>
-<dd>The paper detailing the calibration</dd>
-<dt>FWHM: float</dt>
-<dd>The FWHM for the filter</dd>
-<dt>Facility: str</dt>
-<dd>The telescope facility</dd>
-<dt>FilterProfileService: str</dt>
-<dd>The SVO source</dd>
-<dt>MagSys: str</dt>
-<dd>The magnitude system</dd>
-<dt>PhotCalID: str</dt>
-<dd>The calibration standard</dd>
-<dt>PhotSystem: str</dt>
-<dd>The photometric system</dd>
-<dt>ProfileReference: str</dt>
-<dd>The SVO reference</dd>
-<dt>WavelengthCen: float</dt>
-<dd>The center wavelength</dd>
-<dt>WavelengthEff: float</dt>
-<dd>The effective wavelength</dd>
-<dt>WavelengthMax: float</dt>
-<dd>The maximum wavelength</dd>
-<dt>WavelengthMean: float</dt>
-<dd>The mean wavelength</dd>
-<dt>WavelengthMin: float</dt>
-<dd>The minimum wavelength</dd>
-<dt>WavelengthPeak: float</dt>
-<dd>The peak wavelength</dd>
-<dt>WavelengthPhot: float</dt>
-<dd>The photon distribution based effective wavelength</dd>
-<dt>WavelengthPivot: float</dt>
-<dd>The wavelength pivot</dd>
-<dt>WavelengthUCD: str</dt>
-<dd>The SVO wavelength unit</dd>
-<dt>WavelengthUnit: str</dt>
-<dd>The wavelength unit</dd>
-<dt>WidthEff: float</dt>
-<dd>The effective width</dd>
-<dt>ZeroPoint: float</dt>
-<dd>The value of the zero point flux</dd>
-<dt>ZeroPointType: str</dt>
-<dd>The system of the zero point</dd>
-<dt>ZeroPointUnit: str</dt>
-<dd>The units of the zero point</dd>
-<dt>filterID: str</dt>
-<dd>The SVO filter ID</dd>
-</dl>
+ranging from 0 to 1</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.refs">
+<code class="descname">refs</code><a class="headerlink" href="#svo_filters.svo.Filter.refs" title="Permalink to this definition">¶</a></dt>
+<dd><p>The references for the bandpass data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.rsr">
+<code class="descname">rsr</code><a class="headerlink" href="#svo_filters.svo.Filter.rsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>The wavelength and relative spectral response (RSR) arrays</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">np.ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.Band">
+<code class="descname">Band</code><a class="headerlink" href="#svo_filters.svo.Filter.Band" title="Permalink to this definition">¶</a></dt>
+<dd><p>The band name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.CalibrationReference">
+<code class="descname">CalibrationReference</code><a class="headerlink" href="#svo_filters.svo.Filter.CalibrationReference" title="Permalink to this definition">¶</a></dt>
+<dd><p>The paper detailing the calibration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.FWHM">
+<code class="descname">FWHM</code><a class="headerlink" href="#svo_filters.svo.Filter.FWHM" title="Permalink to this definition">¶</a></dt>
+<dd><p>The FWHM for the filter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.Facility">
+<code class="descname">Facility</code><a class="headerlink" href="#svo_filters.svo.Filter.Facility" title="Permalink to this definition">¶</a></dt>
+<dd><p>The telescope facility</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.FilterProfileService">
+<code class="descname">FilterProfileService</code><a class="headerlink" href="#svo_filters.svo.Filter.FilterProfileService" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SVO source</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.MagSys">
+<code class="descname">MagSys</code><a class="headerlink" href="#svo_filters.svo.Filter.MagSys" title="Permalink to this definition">¶</a></dt>
+<dd><p>The magnitude system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.PhotCalID">
+<code class="descname">PhotCalID</code><a class="headerlink" href="#svo_filters.svo.Filter.PhotCalID" title="Permalink to this definition">¶</a></dt>
+<dd><p>The calibration standard</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.PhotSystem">
+<code class="descname">PhotSystem</code><a class="headerlink" href="#svo_filters.svo.Filter.PhotSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>The photometric system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.ProfileReference">
+<code class="descname">ProfileReference</code><a class="headerlink" href="#svo_filters.svo.Filter.ProfileReference" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SVO reference</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthCen">
+<code class="descname">WavelengthCen</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthCen" title="Permalink to this definition">¶</a></dt>
+<dd><p>The center wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthEff">
+<code class="descname">WavelengthEff</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthEff" title="Permalink to this definition">¶</a></dt>
+<dd><p>The effective wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthMax">
+<code class="descname">WavelengthMax</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthMax" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthMean">
+<code class="descname">WavelengthMean</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthMean" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mean wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthMin">
+<code class="descname">WavelengthMin</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthMin" title="Permalink to this definition">¶</a></dt>
+<dd><p>The minimum wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthPeak">
+<code class="descname">WavelengthPeak</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthPeak" title="Permalink to this definition">¶</a></dt>
+<dd><p>The peak wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthPhot">
+<code class="descname">WavelengthPhot</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthPhot" title="Permalink to this definition">¶</a></dt>
+<dd><p>The photon distribution based effective wavelength</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthPivot">
+<code class="descname">WavelengthPivot</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthPivot" title="Permalink to this definition">¶</a></dt>
+<dd><p>The wavelength pivot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthUCD">
+<code class="descname">WavelengthUCD</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthUCD" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SVO wavelength unit</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WavelengthUnit">
+<code class="descname">WavelengthUnit</code><a class="headerlink" href="#svo_filters.svo.Filter.WavelengthUnit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The wavelength unit</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.WidthEff">
+<code class="descname">WidthEff</code><a class="headerlink" href="#svo_filters.svo.Filter.WidthEff" title="Permalink to this definition">¶</a></dt>
+<dd><p>The effective width</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.ZeroPoint">
+<code class="descname">ZeroPoint</code><a class="headerlink" href="#svo_filters.svo.Filter.ZeroPoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of the zero point flux</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.ZeroPointType">
+<code class="descname">ZeroPointType</code><a class="headerlink" href="#svo_filters.svo.Filter.ZeroPointType" title="Permalink to this definition">¶</a></dt>
+<dd><p>The system of the zero point</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.ZeroPointUnit">
+<code class="descname">ZeroPointUnit</code><a class="headerlink" href="#svo_filters.svo.Filter.ZeroPointUnit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The units of the zero point</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.filterID">
+<code class="descname">filterID</code><a class="headerlink" href="#svo_filters.svo.Filter.filterID" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SVO filter ID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="svo_filters.svo.Filter.apply">
 <code class="descname">apply</code><span class="sig-paren">(</span><em>spectrum</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the filter to the given spectrum</p>
-<dl class="docutils">
-<dt>spectrum: array-like</dt>
-<dd>The wavelength [um] and flux of the spectrum
-to apply the filter to</dd>
-<dt>plot: bool</dt>
-<dd>Plot the original and filtered spectrum</dd>
-</dl>
-<dl class="docutils">
-<dt>np.ndarray</dt>
-<dd>The filtered spectrum</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spectrum</strong> (<em>array-like</em>) – The wavelength [um] and flux of the spectrum
+to apply the filter to</li>
+<li><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Plot the original and filtered spectrum</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The filtered spectrum</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -121,17 +567,21 @@ to apply the filter to</dd>
 <code class="descname">bin</code><span class="sig-paren">(</span><em>n_bins=1</em>, <em>pixels_per_bin=None</em>, <em>wave_min=None</em>, <em>wave_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.bin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.bin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Break the filter up into bins and apply a throughput to each bin,
 useful for G141, G102, and other grisms</p>
-<dl class="docutils">
-<dt>n_bins: int</dt>
-<dd>The number of bins to dice the throughput curve into</dd>
-<dt>pixels_per_bin: int (optional)</dt>
-<dd>The number of channels per bin, which will be used
-to calculate n_bins</dd>
-<dt>wave_min: astropy.units.quantity (optional)</dt>
-<dd>The minimum wavelength to use</dd>
-<dt>wave_max: astropy.units.quantity (optional)</dt>
-<dd>The maximum wavelength to use</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n_bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of bins to dice the throughput curve into</li>
+<li><strong>pixels_per_bin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> (</em><em>optional</em><em>)</em>) – The number of channels per bin, which will be used
+to calculate n_bins</li>
+<li><strong>wave_min</strong> (<em>astropy.units.quantity</em><em> (</em><em>optional</em><em>)</em>) – The minimum wavelength to use</li>
+<li><strong>wave_max</strong> (<em>astropy.units.quantity</em><em> (</em><em>optional</em><em>)</em>) – The maximum wavelength to use</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -156,34 +606,47 @@ to calculate n_bins</dd>
 <dt id="svo_filters.svo.Filter.load_TopHat">
 <code class="descname">load_TopHat</code><span class="sig-paren">(</span><em>wave_min</em>, <em>wave_max</em>, <em>pixels_per_bin=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_TopHat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_TopHat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads a top hat filter given wavelength min and max values</p>
-<dl class="docutils">
-<dt>wave_min: astropy.units.quantity (optional)</dt>
-<dd>The minimum wavelength to use</dd>
-<dt>wave_max: astropy.units.quantity (optional)</dt>
-<dd>The maximum wavelength to use</dd>
-<dt>n_pixels: int</dt>
-<dd>The number of pixels for the filter</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wave_min</strong> (<em>astropy.units.quantity</em><em> (</em><em>optional</em><em>)</em>) – The minimum wavelength to use</li>
+<li><strong>wave_max</strong> (<em>astropy.units.quantity</em><em> (</em><em>optional</em><em>)</em>) – The maximum wavelength to use</li>
+<li><strong>n_pixels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of pixels for the filter</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="svo_filters.svo.Filter.load_txt">
 <code class="descname">load_txt</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_txt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the filter from a txt file</p>
-<dl class="docutils">
-<dt>file: str</dt>
-<dd>The filepath</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The filepath</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="svo_filters.svo.Filter.load_xml">
 <code class="descname">load_xml</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the filter from a txt file</p>
-<dl class="docutils">
-<dt>filepath: str</dt>
-<dd>The filepath for the filter</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filepath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The filepath for the filter</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -213,14 +676,18 @@ to calculate n_bins</dd>
 <div><p><a href="#id17"><span class="problematic" id="id18">|---- spectrum ----|</span></a>  <a href="#id19"><span class="problematic" id="id20">|---- other ----|</span></a></p>
 <p><a href="#id21"><span class="problematic" id="id22">|---- other ----|</span></a>  <a href="#id23"><span class="problematic" id="id24">|---- spectrum ----|</span></a></p>
 </div></blockquote>
-<dl class="docutils">
-<dt>spectrum: sequence</dt>
-<dd>The [W, F] spectrum with astropy units</dd>
-</dl>
-<dl class="docutils">
-<dt>ans <span class="classifier-delimiter">:</span> <span class="classifier">{‘full’, ‘partial’, ‘none’}</span></dt>
-<dd>Overlap status.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>spectrum</strong> (<em>sequence</em>) – The [W, F] spectrum with astropy units</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>ans</strong> – Overlap status.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">{‘full’, ‘partial’, ‘none’}</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -230,8 +697,8 @@ to calculate n_bins</dd>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="svo_filters.svo.Filter.rsr">
-<code class="descname">rsr</code><a class="headerlink" href="#svo_filters.svo.Filter.rsr" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">rsr</code></dt>
 <dd><p>A getter for the relative spectral response (rsr) curve</p>
 </dd></dl>
 
@@ -259,32 +726,43 @@ to calculate n_bins</dd>
 <dt id="svo_filters.svo.color_gen">
 <code class="descclassname">svo_filters.svo.</code><code class="descname">color_gen</code><span class="sig-paren">(</span><em>colormap='viridis'</em>, <em>key=None</em>, <em>n=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#color_gen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.color_gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Color generator for Bokeh plots</p>
-<dl class="docutils">
-<dt>colormap: str, sequence</dt>
-<dd>The name of the color map</dd>
-</dl>
-<dl class="docutils">
-<dt>generator</dt>
-<dd>A generator for the color palette</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colormap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>sequence</em>) – The name of the color map</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A generator for the color palette</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">generator</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="svo_filters.svo.filters">
 <code class="descclassname">svo_filters.svo.</code><code class="descname">filters</code><span class="sig-paren">(</span><em>filter_directory=None</em>, <em>update=False</em>, <em>fmt='table'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.filters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of the available filters</p>
-<dl class="docutils">
-<dt>filter_directory: str</dt>
-<dd>The directory containing the filter relative spectral response curves</dd>
-<dt>update: bool</dt>
-<dd>Check the filter directory for new filters and generate pickle of table</dd>
-<dt>fmt: str</dt>
-<dd>The format for the returned table</dd>
-</dl>
-<dl class="docutils">
-<dt>list</dt>
-<dd>The list of band names</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filter_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The directory containing the filter relative spectral response curves</li>
+<li><strong>update</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Check the filter directory for new filters and generate pickle of table</li>
+<li><strong>fmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The format for the returned table</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of band names</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -292,83 +770,75 @@ to calculate n_bins</dd>
 <code class="descclassname">svo_filters.svo.</code><code class="descname">rebin_spec</code><span class="sig-paren">(</span><em>spec</em>, <em>wavnew</em>, <em>oversamp=100</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#rebin_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.rebin_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rebin a spectrum to a new wavelength array while preserving
 the total flux</p>
-<dl class="docutils">
-<dt>spec: array-like</dt>
-<dd>The wavelength and flux to be binned</dd>
-<dt>wavenew: array-like</dt>
-<dd>The new wavelength array</dd>
-</dl>
-<dl class="docutils">
-<dt>np.ndarray</dt>
-<dd>The rebinned flux</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>spec</strong> (<em>array-like</em>) – The wavelength and flux to be binned</li>
+<li><strong>wavenew</strong> (<em>array-like</em>) – The new wavelength array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The rebinned flux</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">np.ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
 
 
+           </div>
+           
           </div>
-          
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">svo_filters</a></h1>
+          <footer>
+  
 
+  <hr/>
 
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Joe Filippazzo
 
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
-
-
-
-
-<h3>Navigation</h3>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
+</footer>
 
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2018, Joe Filippazzo.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/svo.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
 
     
-
     
-  </body>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>
