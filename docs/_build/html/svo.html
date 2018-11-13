@@ -1,0 +1,374 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svo module &#8212; svo_filters 0.2.16 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="svo-module">
+<h1>svo module<a class="headerlink" href="#svo-module" title="Permalink to this headline">¶</a></h1>
+<p>This is the main module.</p>
+<span class="target" id="module-svo_filters.svo"></span><p>A Python wrapper for the SVO Filter Profile Service</p>
+<dl class="class">
+<dt id="svo_filters.svo.Filter">
+<em class="property">class </em><code class="descclassname">svo_filters.svo.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>band</em>, <em>filter_directory=None</em>, <em>wave_units=Unit(&quot;um&quot;)</em>, <em>flux_units=Unit(&quot;erg / (Angstrom cm2 s)&quot;)</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Creates a Filter object to store a photometric filter profile
+and metadata</p>
+<dl class="docutils">
+<dt>path: str</dt>
+<dd>The absolute filepath for the bandpass data, an ASCII file with
+a wavelength column in Angstroms and a response column of values
+ranging from 0 to 1</dd>
+<dt>refs: list, str</dt>
+<dd>The references for the bandpass data</dd>
+<dt>rsr: np.ndarray</dt>
+<dd>The wavelength and relative spectral response (RSR) arrays</dd>
+<dt>Band: str</dt>
+<dd>The band name</dd>
+<dt>CalibrationReference: str</dt>
+<dd>The paper detailing the calibration</dd>
+<dt>FWHM: float</dt>
+<dd>The FWHM for the filter</dd>
+<dt>Facility: str</dt>
+<dd>The telescope facility</dd>
+<dt>FilterProfileService: str</dt>
+<dd>The SVO source</dd>
+<dt>MagSys: str</dt>
+<dd>The magnitude system</dd>
+<dt>PhotCalID: str</dt>
+<dd>The calibration standard</dd>
+<dt>PhotSystem: str</dt>
+<dd>The photometric system</dd>
+<dt>ProfileReference: str</dt>
+<dd>The SVO reference</dd>
+<dt>WavelengthCen: float</dt>
+<dd>The center wavelength</dd>
+<dt>WavelengthEff: float</dt>
+<dd>The effective wavelength</dd>
+<dt>WavelengthMax: float</dt>
+<dd>The maximum wavelength</dd>
+<dt>WavelengthMean: float</dt>
+<dd>The mean wavelength</dd>
+<dt>WavelengthMin: float</dt>
+<dd>The minimum wavelength</dd>
+<dt>WavelengthPeak: float</dt>
+<dd>The peak wavelength</dd>
+<dt>WavelengthPhot: float</dt>
+<dd>The photon distribution based effective wavelength</dd>
+<dt>WavelengthPivot: float</dt>
+<dd>The wavelength pivot</dd>
+<dt>WavelengthUCD: str</dt>
+<dd>The SVO wavelength unit</dd>
+<dt>WavelengthUnit: str</dt>
+<dd>The wavelength unit</dd>
+<dt>WidthEff: float</dt>
+<dd>The effective width</dd>
+<dt>ZeroPoint: float</dt>
+<dd>The value of the zero point flux</dd>
+<dt>ZeroPointType: str</dt>
+<dd>The system of the zero point</dd>
+<dt>ZeroPointUnit: str</dt>
+<dd>The units of the zero point</dd>
+<dt>filterID: str</dt>
+<dd>The SVO filter ID</dd>
+</dl>
+<dl class="method">
+<dt id="svo_filters.svo.Filter.apply">
+<code class="descname">apply</code><span class="sig-paren">(</span><em>spectrum</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the filter to the given spectrum</p>
+<dl class="docutils">
+<dt>spectrum: array-like</dt>
+<dd>The wavelength [um] and flux of the spectrum
+to apply the filter to</dd>
+<dt>plot: bool</dt>
+<dd>Plot the original and filtered spectrum</dd>
+</dl>
+<dl class="docutils">
+<dt>np.ndarray</dt>
+<dd>The filtered spectrum</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.bin">
+<code class="descname">bin</code><span class="sig-paren">(</span><em>n_bins=1</em>, <em>pixels_per_bin=None</em>, <em>wave_min=None</em>, <em>wave_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.bin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Break the filter up into bins and apply a throughput to each bin,
+useful for G141, G102, and other grisms</p>
+<dl class="docutils">
+<dt>n_bins: int</dt>
+<dd>The number of bins to dice the throughput curve into</dd>
+<dt>pixels_per_bin: int (optional)</dt>
+<dd>The number of channels per bin, which will be used
+to calculate n_bins</dd>
+<dt>wave_min: astropy.units.quantity (optional)</dt>
+<dd>The minimum wavelength to use</dd>
+<dt>wave_max: astropy.units.quantity (optional)</dt>
+<dd>The maximum wavelength to use</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.centers">
+<code class="descname">centers</code><a class="headerlink" href="#svo_filters.svo.Filter.centers" title="Permalink to this definition">¶</a></dt>
+<dd><p>A getter for the wavelength bin centers and average fluxes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.flux_units">
+<code class="descname">flux_units</code><a class="headerlink" href="#svo_filters.svo.Filter.flux_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>A getter for the flux units</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.info">
+<code class="descname">info</code><span class="sig-paren">(</span><em>fetch=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print a table of info about the current filter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.load_TopHat">
+<code class="descname">load_TopHat</code><span class="sig-paren">(</span><em>wave_min</em>, <em>wave_max</em>, <em>pixels_per_bin=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_TopHat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_TopHat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a top hat filter given wavelength min and max values</p>
+<dl class="docutils">
+<dt>wave_min: astropy.units.quantity (optional)</dt>
+<dd>The minimum wavelength to use</dd>
+<dt>wave_max: astropy.units.quantity (optional)</dt>
+<dd>The maximum wavelength to use</dd>
+<dt>n_pixels: int</dt>
+<dd>The number of pixels for the filter</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.load_txt">
+<code class="descname">load_txt</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_txt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_txt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the filter from a txt file</p>
+<dl class="docutils">
+<dt>file: str</dt>
+<dd>The filepath</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.load_xml">
+<code class="descname">load_xml</code><span class="sig-paren">(</span><em>filepath</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.load_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.load_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the filter from a txt file</p>
+<dl class="docutils">
+<dt>filepath: str</dt>
+<dd>The filepath for the filter</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.overlap">
+<code class="descname">overlap</code><span class="sig-paren">(</span><em>spectrum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests for overlap of this filter with a spectrum</p>
+<p>Example of full overlap:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">|---------- spectrum ----------|</span></a></dt>
+<dd><a href="#id3"><span class="problematic" id="id4">|------ self ------|</span></a></dd>
+</dl>
+</div></blockquote>
+<p>Examples of partial overlap: :</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><a href="#id5"><span class="problematic" id="id6">|---------- self ----------|</span></a></dt>
+<dd><a href="#id7"><span class="problematic" id="id8">|------ spectrum ------|</span></a></dd>
+<dt><a href="#id9"><span class="problematic" id="id10">|---- spectrum ----|</span></a></dt>
+<dd><a href="#id11"><span class="problematic" id="id12">|----- self -----|</span></a></dd>
+<dt><a href="#id13"><span class="problematic" id="id14">|---- self ----|</span></a></dt>
+<dd><a href="#id15"><span class="problematic" id="id16">|---- spectrum ----|</span></a></dd>
+</dl>
+</div></blockquote>
+<p>Examples of no overlap: :</p>
+<blockquote>
+<div><p><a href="#id17"><span class="problematic" id="id18">|---- spectrum ----|</span></a>  <a href="#id19"><span class="problematic" id="id20">|---- other ----|</span></a></p>
+<p><a href="#id21"><span class="problematic" id="id22">|---- other ----|</span></a>  <a href="#id23"><span class="problematic" id="id24">|---- spectrum ----|</span></a></p>
+</div></blockquote>
+<dl class="docutils">
+<dt>spectrum: sequence</dt>
+<dd>The [W, F] spectrum with astropy units</dd>
+</dl>
+<dl class="docutils">
+<dt>ans <span class="classifier-delimiter">:</span> <span class="classifier">{‘full’, ‘partial’, ‘none’}</span></dt>
+<dd>Overlap status.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="svo_filters.svo.Filter.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>fig=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#Filter.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.Filter.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the filter</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.rsr">
+<code class="descname">rsr</code><a class="headerlink" href="#svo_filters.svo.Filter.rsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>A getter for the relative spectral response (rsr) curve</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.throughput">
+<code class="descname">throughput</code><a class="headerlink" href="#svo_filters.svo.Filter.throughput" title="Permalink to this definition">¶</a></dt>
+<dd><p>A getter for the throughput</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.wave">
+<code class="descname">wave</code><a class="headerlink" href="#svo_filters.svo.Filter.wave" title="Permalink to this definition">¶</a></dt>
+<dd><p>A getter for the wavelength</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="svo_filters.svo.Filter.wave_units">
+<code class="descname">wave_units</code><a class="headerlink" href="#svo_filters.svo.Filter.wave_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>A getter for the wavelength units</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="svo_filters.svo.color_gen">
+<code class="descclassname">svo_filters.svo.</code><code class="descname">color_gen</code><span class="sig-paren">(</span><em>colormap='viridis'</em>, <em>key=None</em>, <em>n=15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#color_gen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.color_gen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color generator for Bokeh plots</p>
+<dl class="docutils">
+<dt>colormap: str, sequence</dt>
+<dd>The name of the color map</dd>
+</dl>
+<dl class="docutils">
+<dt>generator</dt>
+<dd>A generator for the color palette</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="svo_filters.svo.filters">
+<code class="descclassname">svo_filters.svo.</code><code class="descname">filters</code><span class="sig-paren">(</span><em>filter_directory=None</em>, <em>update=False</em>, <em>fmt='table'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#filters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of the available filters</p>
+<dl class="docutils">
+<dt>filter_directory: str</dt>
+<dd>The directory containing the filter relative spectral response curves</dd>
+<dt>update: bool</dt>
+<dd>Check the filter directory for new filters and generate pickle of table</dd>
+<dt>fmt: str</dt>
+<dd>The format for the returned table</dd>
+</dl>
+<dl class="docutils">
+<dt>list</dt>
+<dd>The list of band names</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="svo_filters.svo.rebin_spec">
+<code class="descclassname">svo_filters.svo.</code><code class="descname">rebin_spec</code><span class="sig-paren">(</span><em>spec</em>, <em>wavnew</em>, <em>oversamp=100</em>, <em>plot=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/svo_filters/svo.html#rebin_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#svo_filters.svo.rebin_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rebin a spectrum to a new wavelength array while preserving
+the total flux</p>
+<dl class="docutils">
+<dt>spec: array-like</dt>
+<dd>The wavelength and flux to be binned</dd>
+<dt>wavenew: array-like</dt>
+<dd>The new wavelength array</dd>
+</dl>
+<dl class="docutils">
+<dt>np.ndarray</dt>
+<dd>The rebinned flux</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">svo_filters</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Joe Filippazzo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/svo.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
