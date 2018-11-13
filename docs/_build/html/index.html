@@ -169,11 +169,11 @@
 <span class="n">svo</span><span class="o">.</span><span class="n">filters</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>To create a filter object, pass a bandpass name to the <code class="xref py py-class docutils literal notranslate"><span class="pre">svo.Filter()</span></code> class:</p>
+<p>To create a filter object, pass a bandpass name to the <a class="reference internal" href="svo.html#svo.Filter" title="svo.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">svo.Filter()</span></code></a> class:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H_band</span> <span class="o">=</span> <span class="n">svo</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span><span class="s1">&#39;2MASS.H&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>You can see someinformation about the filter with:</p>
+<p>You can see some information about the filter with:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">H_band</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -193,7 +193,7 @@
 </div>
 <div class="section" id="apply-a-filter-to-a-spectrum">
 <h2>Apply a Filter to a Spectrum<a class="headerlink" href="#apply-a-filter-to-a-spectrum" title="Permalink to this headline">¶</a></h2>
-<p>Filters can be applied to a spectrum by passing a sequence of [W, F] or [W, F, E] with astropy units to the <code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code> method:</p>
+<p>Filters can be applied to a spectrum by passing a sequence of [W, F] or [W, F, E] with astropy units to the <a class="reference internal" href="svo.html#svo.Filter.apply" title="svo.Filter.apply"><code class="xref py py-meth docutils literal notranslate"><span class="pre">apply()</span></code></a> method:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filtered</span> <span class="o">=</span> <span class="n">G141</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -207,7 +207,7 @@
 <li class="toctree-l1"><a class="reference internal" href="svo.html">svo module</a></li>
 </ul>
 </div>
-<span class="target" id="module-svo_filters.svo"></span><p>A Python wrapper for the SVO Filter Profile Service</p>
+<span class="target" id="module-svo"></span><p>A Python wrapper for the SVO Filter Profile Service</p>
 </div>
 
 
