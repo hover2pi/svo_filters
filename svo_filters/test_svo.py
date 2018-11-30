@@ -3,6 +3,7 @@ import unittest
 
 import astropy.units as q
 import astropy.table as at
+from bokeh.plotting.figure import Figure
 import numpy as np
 
 from svo_filters import svo
@@ -98,6 +99,13 @@ class TestFilter(unittest.TestCase):
         filtered = filt.apply(spec)
         self.assertEqual(filtered.shape, filt.wave.squeeze().shape)
 
+    def test_plot(self):
+        """Test that the plots are produced properly"""
+        filt = svo.Filter('2MASS.J')
+        filt.plot()
+        plt = filt.plot(draw=False)
+
+        self.assertTrue(type(plt) == Figure)
 
 class TestFilterList(unittest.TestCase):
     """Tests for filter function"""
