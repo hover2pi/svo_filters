@@ -595,9 +595,21 @@ class Filter:
 
         return ans
 
-    def plot(self, fig=None):
+    def plot(self, fig=None, show=True):
         """
         Plot the filter
+
+        Parameters
+        ----------
+        fig: bokeh.plotting.figure (optional)
+            A figure to plot on
+        show: bool
+            Draw the figure, else return it
+
+        Returns
+        -------
+        bokeh.plotting.figure
+            The filter figure
         """
         COLORS = color_gen('Category10')
 
@@ -617,7 +629,10 @@ class Filter:
             fig.line(x, y, color=next(COLORS), line_width=2)
         fig.circle(*self.centers, size=8, color='black')
 
-        show(fig)
+        if show:
+            show(fig)
+        else:
+            return fig
 
     @property
     def rsr(self):
