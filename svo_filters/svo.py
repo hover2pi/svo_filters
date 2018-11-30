@@ -595,7 +595,7 @@ class Filter:
 
         return ans
 
-    def plot(self, fig=None, show=True):
+    def plot(self, fig=None, draw=True):
         """
         Plot the filter
 
@@ -603,7 +603,7 @@ class Filter:
         ----------
         fig: bokeh.plotting.figure (optional)
             A figure to plot on
-        show: bool
+        draw: bool
             Draw the figure, else return it
 
         Returns
@@ -629,7 +629,7 @@ class Filter:
             fig.line(x, y, color=next(COLORS), line_width=2)
         fig.circle(*self.centers, size=8, color='black')
 
-        if show:
+        if draw:
             show(fig)
         else:
             return fig
