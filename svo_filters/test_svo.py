@@ -96,8 +96,19 @@ class TestFilter(unittest.TestCase):
                 np.ones(1000)*q.erg/q.s/q.cm**2/q.AA]
 
         # Apply the filter to the spectrum
-        filtered = filt.apply(spec)
+        filtered = filt.apply(spec, plot=True)
         self.assertEqual(filtered.shape, filt.wave.squeeze().shape)
+
+    def test_filter_apply_binned_err(self):
+        """Test that the filter gets applied to a spectrum with errors properly"""
+        filt = svo.Filter('2MASS.J', n_bins=4)
+        spec = [np.linspace(0.9, 2, 1000)*q.um,
+                np.ones(1000)*q.erg/q.s/q.cm**2/q.AA,
+                np.ones(1000)*0.05*q.erg/q.s/q.cm**2/q.AA]
+
+        # Apply the filter to the spectrum
+        filtered, err_filtered = filt.apply(spec)
+        self.assertEqual(err_filtered.shape, filt.wave.squeeze().shape)
 
     def test_plot(self):
         """Test that the plots are produced properly"""

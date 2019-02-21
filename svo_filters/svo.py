@@ -22,9 +22,12 @@ import numpy as np
 
 
 warnings.simplefilter('ignore', category=AstropyWarning)
-EXTINCTION = {'PS1.g': 3.384, 'PS1.r': 2.483, 'PS1.i': 1.838, 'PS1.z': 1.414, 'PS1.y': 1.126,
-              'SDSS.u': 4.0, 'SDSS.g': 3.384, 'SDSS.r': 2.483, 'SDSS.i': 1.838, 'SDSS.z': 1.414,
-              '2MASS.J': 0.650, '2MASS.H': 0.327, '2MASS.Ks': 0.161}
+EXTINCTION = {'PS1.g': 3.384, 'PS1.r': 2.483, 'PS1.i': 1.838, 'PS1.z': 1.414,
+              'PS1.y': 1.126, 'SDSS.u': 4.0, 'SDSS.g': 3.384, 'SDSS.r': 2.483,
+              'SDSS.i': 1.838, 'SDSS.z': 1.414, '2MASS.J': 0.650,
+              '2MASS.H': 0.327, '2MASS.Ks': 0.161}
+
+SYSTEMATICS = {}
 
 
 class Filter:
@@ -217,6 +220,9 @@ class Filter:
         # Try to get the extinction vector R from Green et al. (2018)
         self.ext_vector = EXTINCTION.get(self.name, 0)
 
+        # Set the systematic uncertainty (default 2 percent)
+        self.systematics = SYSTEMATICS.get(self.name, 0.02)
+
         # Bin
         if kwargs:
             bwargs = {k: v for k, v in kwargs.items() if k in
@@ -225,7 +231,7 @@ class Filter:
 
     def apply(self, spectrum, plot=False):
         """
-        Apply the filter to the given spectrum
+        Apply the filter to the given [W, F], or [W, F, E] spectrum
 
         Parameters
         ----------
@@ -243,22 +249,34 @@ class Filter:
         """
         # Make into iterable arrays
         wav, flx, *err = [np.asarray(i) for i in spectrum]
+        if len(err) == 0:
+            err = np.zeros_like(flx)
+            unc = False
+        else:
+            err = err[0]
+            unc = True
 
         # Make flux 2D
         if len(flx.shape) == 1:
             flx = np.expand_dims(flx, axis=0)
+            err = np.expand_dims(err, axis=0)
 
         # Make throughput 3D
         rsr = np.copy(self.rsr)
 
-        # Make empty filtered array
-        filtered = np.zeros((rsr.shape[0], flx.shape[0], rsr.shape[2]))
+        # Make empty filtered arrays
+        filtered_flx = np.zeros((rsr.shape[0], flx.shape[0], rsr.shape[2]))
+        filtered_err = np.zeros_like(filtered_flx)
 
         # Rebin the input spectra to the filter wavelength array
         # and apply the RSR curve to the spectrum
         for i, bn in enumerate(rsr):
-            for j, f in enumerate(flx):
-                filtered[i][j] = np.interp(bn[0], wav, f)*bn[1]
+            for j, (f, e) in enumerate(zip(flx, err)):
+                filtered_flx[i][j] = np.interp(bn[0], wav, f)*bn[1]
+                filtered_err[i][j] = np.interp(bn[0], wav, e)*bn[1]
+
+                # Propagate the filter systematic uncertainties
+                filtered_err[i][j] += self.systematics*filtered_flx[i][j]
 
         if plot:
 
@@ -271,16 +289,32 @@ class Filter:
 
             # Plot the unfiltered spectrum
             fig.line(wav, flx[0], legend='Input spectrum', color='black')
+ 
+            # Plot the uncertainties
+            if unc:
+                band_x = np.append(wav, wav[::-1])
+                band_y = np.append(flx-err, (flx+err)[::-1])
+                fig.patch(band_x, band_y, color='black', fill_alpha=0.1, line_alpha=0)
 
             # Plot each spectrum bin
-            for wav, bn in zip(self.wave, filtered):
-                fig.line(wav, bn[0], color=next(COLORS))
+            for wav, bn, bne in zip(self.wave, filtered_flx, filtered_err):
+                color = next(COLORS)
+                fig.line(wav, bn[0], color=color)
+
+                # Plot the uncertainties
+                if unc:
+                    band_x = np.append(wav, wav[::-1])
+                    band_y = np.append(bn[0]-bne[0], (bn[0]+bne[0])[::-1])
+                    fig.patch(band_x, band_y, color=color, fill_alpha=0.1, line_alpha=0)
 
             show(fig)
 
-        del rsr, wav, flx
+        del rsr, wav, flx, err
 
-        return filtered.squeeze()
+        if unc:
+            return filtered_flx.squeeze(), filtered_err.squeeze()
+        else:
+            return filtered_flx.squeeze()
 
     def bin(self, n_bins=1, pixels_per_bin=None, wave_min=None, wave_max=None):
         """
