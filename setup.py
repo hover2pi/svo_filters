@@ -13,7 +13,7 @@ from os import path
 
 setup(
     name='svo_filters',
-    version='0.2.17',
+    version='0.2.18',
     description='A Python wrapper for the SVO Filter Profile Service',
     long_description='A Python wrapper for the SVO Filter Profile Service',
     url='https://github.com/hover2pi/svo_filters',
