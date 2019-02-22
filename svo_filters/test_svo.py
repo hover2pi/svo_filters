@@ -81,8 +81,11 @@ class TestFilter(unittest.TestCase):
                 np.ones(1000)*q.erg/q.s/q.cm**2/q.AA]
 
         # Apply the filter to the spectrum
-        filtered = filt.apply(spec)
+        filtered, err_filtered = filt.apply(spec)
         self.assertEqual(filtered.shape, filt.wave.squeeze().shape)
+
+        # Check that the propagated errors are all nans since none were given
+        self.assertTrue(np.all([np.isnan(i) for i in err_filtered]))
 
         # Check overlap
         self.assertEqual(svo.Filter('2MASS.J').overlap(spec), 'full')
@@ -96,19 +99,34 @@ class TestFilter(unittest.TestCase):
                 np.ones(1000)*q.erg/q.s/q.cm**2/q.AA]
 
         # Apply the filter to the spectrum
-        filtered = filt.apply(spec, plot=True)
+        filtered, err_filtered = filt.apply(spec, plot=True)
         self.assertEqual(filtered.shape, filt.wave.squeeze().shape)
 
     def test_filter_apply_binned_err(self):
         """Test that the filter gets applied to a spectrum with errors properly"""
         filt = svo.Filter('2MASS.J', n_bins=4)
+        funit = q.erg/q.s/q.cm**2/q.AA
         spec = [np.linspace(0.9, 2, 1000)*q.um,
-                np.ones(1000)*q.erg/q.s/q.cm**2/q.AA,
-                np.ones(1000)*0.05*q.erg/q.s/q.cm**2/q.AA]
+                np.ones(1000)*funit,
+                np.ones(1000)*0.05*funit]
 
         # Apply the filter to the spectrum
         filtered, err_filtered = filt.apply(spec)
+
+        # Check that the units are still there
+        self.assertEqual(filtered.unit,funit)
         self.assertEqual(err_filtered.shape, filt.wave.squeeze().shape)
+
+    def test_filter_apply_no_units(self):
+        """Test that the apply method works with and without units"""
+        filt = svo.Filter('2MASS.J')
+        spec = [np.linspace(0.9, 2, 1000),
+                np.ones(1000)]
+
+        # Apply the filter to the spectrum
+        filtered, err_filtered = filt.apply(spec)
+        self.assertFalse(hasattr(filtered, 'unit'))
+        self.assertTrue(np.all([np.isnan(i) for i in err_filtered]))
 
     def test_plot(self):
         """Test that the plots are produced properly"""
