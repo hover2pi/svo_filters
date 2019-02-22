@@ -522,15 +522,16 @@ class Filter:
         self.WavelengthMax = np.interp(max(f)/100., f1, x1)
         self.WavelengthEff = np.trapz(f*x*vega, x=x)/np.trapz(f*vega, x=x)
         self.WavelengthMean = np.trapz(f*x, x=x)/np.trapz(f, x=x)
-        self.WidthEff = np.trapz(f*x, x=x)
-        piv = np.trapz(f*x, x=x)
-        self.WavelengthPivot = np.sqrt(piv/np.trapz(f/x, x=x))
-        pht = f*vega*x**2
-        self.WavelengthPhot = np.trapz(pht, x=x)/np.trapz(f*vega*x, x=x)
+        self.WidthEff = np.trapz(f, x=x)/f.max()
+        self.WavelengthPivot = np.sqrt(np.trapz(f, x=x)/np.trapz(f/x**2, x=x))
+        self.WavelengthPhot = np.trapz(f*vega*x**2, x=x)/np.trapz(f*vega*x, x=x)
 
-        # Fix these two:
-        self.WavelengthCen = self.WavelengthMean
-        self.FWHM = self.WidthEff
+        # Half max stuff
+        halfmax = f.max()/2.
+        hm_x1 = x[f > halfmax][0]
+        hm_x2 = x[f > halfmax][-1]
+        self.FWHM = hm_x2 - hm_x1
+        self.WavelengthCen = (hm_x1 + hm_x2)/2.
 
         # Add missing attributes
         self.path = ''
@@ -828,6 +829,7 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
         for band in bands:
 
             # Load the filter
+            band = band.replace('.txt', '')
             filt = Filter(band, **kwargs)
             filt.Band = band
 

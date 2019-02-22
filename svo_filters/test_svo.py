@@ -126,11 +126,11 @@ class TestFilterList(unittest.TestCase):
 
     def test_dir(self):
         """Test new directory"""
-        self.assertRaises(IOError, svo.filters, filter_directory='foobar')
+        svo.filters(filter_directory='foobar')
 
     def test_update(self):
         """Test that the update works"""
-        self.assertRaises(IOError, svo.filters, update=True)
+        svo.filters(update=True)
 
     def test_filter_dtypes(self):
         """Test if a table of filters is returned"""
