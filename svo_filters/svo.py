@@ -244,13 +244,25 @@ class Filter:
         Returns
         -------
         np.ndarray
-            The filtered spectrum
+            The filtered spectrum and error
 
         """
+        # Convert to filter units if possible
+        f_units = 1.
+        if hasattr(spectrum[0], 'unit'):
+            spectrum[0] = spectrum[0].to(self.wave_units)
+        if hasattr(spectrum[1], 'unit'):
+            spectrum[1] = spectrum[1].to(self.flux_units)
+            f_units = self.flux_units
+        if len(spectrum) >= 3 and hasattr(spectrum[2], 'unit'):
+            spectrum[2] = spectrum[2].to(self.flux_units)
+
         # Make into iterable arrays
         wav, flx, *err = [np.asarray(i) for i in spectrum]
+
+        # Check for error array
         if len(err) == 0:
-            err = np.zeros_like(flx)
+            err = np.ones_like(flx)*np.nan
             unc = False
         else:
             err = err[0]
@@ -272,11 +284,12 @@ class Filter:
         # and apply the RSR curve to the spectrum
         for i, bn in enumerate(rsr):
             for j, (f, e) in enumerate(zip(flx, err)):
-                filtered_flx[i][j] = np.interp(bn[0], wav, f)*bn[1]
-                filtered_err[i][j] = np.interp(bn[0], wav, e)*bn[1]
+                filtered_flx[i][j] = np.interp(bn[0], wav, f, left=np.nan, right=np.nan)*bn[1]
+                filtered_err[i][j] = np.interp(bn[0], wav, e, left=np.nan, right=np.nan)*bn[1]
 
-                # Propagate the filter systematic uncertainties
-                filtered_err[i][j] += self.systematics*filtered_flx[i][j]
+        # Propagate the filter systematic uncertainties
+        if unc:
+            filtered_err += filtered_flx*self.systematics
 
         if plot:
 
@@ -284,8 +297,7 @@ class Filter:
             COLORS = color_gen('Category10')
             xlab = 'Wavelength [{}]'.format(self.wave_units)
             ylab = 'Flux Density [{}]'.format(self.flux_units)
-            title = self.filterID
-            fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
+            fig = figure(title=self.filterID, x_axis_label=xlab, y_axis_label=ylab)
 
             # Plot the unfiltered spectrum
             fig.line(wav, flx[0], legend='Input spectrum', color='black')
@@ -309,12 +321,7 @@ class Filter:
 
             show(fig)
 
-        del rsr, wav, flx, err
-
-        if unc:
-            return filtered_flx.squeeze(), filtered_err.squeeze()
-        else:
-            return filtered_flx.squeeze()
+        return filtered_flx.squeeze()*f_units, filtered_err.squeeze()*f_units
 
     def bin(self, n_bins=1, pixels_per_bin=None, wave_min=None, wave_max=None):
         """
