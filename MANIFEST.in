@@ -5,3 +5,4 @@ graft svo_filters/data/plots *
 graft svo_filters/data/spectra *
 
 global-exclude *.pyc
+global-exclude *.idea

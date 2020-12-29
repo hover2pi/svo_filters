@@ -22,11 +22,6 @@ class TestFilter(unittest.TestCase):
         self.assertRaises(ValueError, setattr, filt, 'wave', np.arange(10))
         self.assertRaises(ValueError, setattr, filt, 'throughput', np.arange(1))
 
-    def test_centers(self):
-        """Test that the centers are returned"""
-        filt = svo.Filter('2MASS.J')
-        self.assertEqual(filt.centers.shape, (2, 1))
-
     def test_no_filter(self):
         """Test if exception is raised for bogus filter"""
         self.assertRaises(IOError, svo.Filter, 'BAD_FILTER')
@@ -131,7 +126,7 @@ class TestFilter(unittest.TestCase):
     def test_plot(self):
         """Test that the plots are produced properly"""
         filt = svo.Filter('2MASS.J')
-        filt.plot()
+        filt.plot(details=True)
         plt = filt.plot(draw=False)
 
         self.assertTrue(type(plt) == Figure)

@@ -17,6 +17,7 @@ import astropy.units as q
 import astropy.constants as ac
 from astropy.utils.exceptions import AstropyWarning
 from bokeh.plotting import figure, show
+from bokeh.models import Label
 import bokeh.palettes as bpal
 import numpy as np
 
@@ -95,9 +96,7 @@ class Filter:
         The SVO filter ID
 
     """
-    def __init__(self, band, filter_directory=None,
-                 wave_units=q.um, flux_units=q.erg/q.s/q.cm**2/q.AA,
-                 **kwargs):
+    def __init__(self, band, filter_directory=None, wave_units=q.um, flux_units=q.erg/q.s/q.cm**2/q.AA, **kwargs):
         """
         Loads the bandpass data into the Filter object
 
@@ -181,10 +180,13 @@ class Filter:
         self.wave_center = self.WavelengthCen * self.wave_units
         self.wave_mean = self.WavelengthMean * self.wave_units
         self.wave_peak = self.WavelengthPeak * self.wave_units
+        self.thru_peak = self.raw[1].max()
         self.wave_phot = self.WavelengthPhot * self.wave_units
         self.wave_pivot = self.WavelengthPivot * self.wave_units
         self.width_eff = self.WidthEff * self.wave_units
         self.fwhm = self.FWHM * self.wave_units
+        self.hm_x1 *= self.wave_units
+        self.hm_x2 *= self.wave_units
         self.zp = self.ZeroPoint * q.Unit(self.ZeroPointUnit)
 
         # Delete redundant attributes
@@ -262,7 +264,7 @@ class Filter:
 
         # Check for error array
         if len(err) == 0:
-            err = np.ones_like(flx)*np.nan
+            err = np.ones_like(flx) * np.nan
             unc = False
         else:
             err = err[0]
@@ -284,8 +286,8 @@ class Filter:
         # and apply the RSR curve to the spectrum
         for i, bn in enumerate(rsr):
             for j, (f, e) in enumerate(zip(flx, err)):
-                filtered_flx[i][j] = np.interp(bn[0], wav, f, left=np.nan, right=np.nan)*bn[1]
-                filtered_err[i][j] = np.interp(bn[0], wav, e, left=np.nan, right=np.nan)*bn[1]
+                filtered_flx[i][j] = np.interp(bn[0], wav, f, left=np.nan, right=np.nan) * bn[1]
+                filtered_err[i][j] = np.interp(bn[0], wav, e, left=np.nan, right=np.nan) * bn[1]
 
         # Propagate the filter systematic uncertainties
         if unc:
@@ -305,7 +307,7 @@ class Filter:
             # Plot the uncertainties
             if unc:
                 band_x = np.append(wav, wav[::-1])
-                band_y = np.append(flx-err, (flx+err)[::-1])
+                band_y = np.append(flx - err, (flx + err)[::-1])
                 fig.patch(band_x, band_y, color='black', fill_alpha=0.1, line_alpha=0)
 
             # Plot each spectrum bin
@@ -316,7 +318,7 @@ class Filter:
                 # Plot the uncertainties
                 if unc:
                     band_x = np.append(wav, wav[::-1])
-                    band_y = np.append(bn[0]-bne[0], (bn[0]+bne[0])[::-1])
+                    band_y = np.append(bn[0] - bne[0], (bn[0] + bne[0])[::-1])
                     fig.patch(band_x, band_y, color=color, fill_alpha=0.1, line_alpha=0)
 
             show(fig)
@@ -348,12 +350,10 @@ class Filter:
 
         # Trim the wavelength by the given min and max
         raw_wave = self.raw[0]
-        whr = np.logical_and(raw_wave * q.AA >= self.wave_min,
-                             raw_wave * q.AA <= self.wave_max)
+        whr = np.logical_and(raw_wave * q.AA >= self.wave_min, raw_wave * q.AA <= self.wave_max)
         self.wave = (raw_wave[whr] * q.AA).to(self.wave_units)
         self.throughput = self.raw[1][whr]
-        print('Bandpass trimmed to',
-              '{} - {}'.format(self.wave_min, self.wave_max))
+        print('Bandpass trimmed to {} - {}'.format(self.wave_min, self.wave_max))
 
         # Calculate the number of bins and channels
         pts = len(self.wave)
@@ -374,15 +374,6 @@ class Filter:
         start = (pts - new_len) // 2
         self.wave = self.wave[start:new_len+start].reshape(self.n_bins, self.pixels_per_bin)
         self.throughput = self.throughput[start:new_len+start].reshape(self.n_bins, self.pixels_per_bin)
-
-    @property
-    def centers(self):
-        """A getter for the wavelength bin centers and average fluxes"""
-        # Get the bin centers
-        w_cen = np.nanmean(self.wave.value, axis=1)
-        f_cen = np.nanmean(self.throughput, axis=1)
-
-        return np.asarray([w_cen, f_cen])
 
     @property
     def flux_units(self):
@@ -420,12 +411,10 @@ class Filter:
         """
         # Get the info from the class
         tp = (int, bytes, bool, str, float, tuple, list, np.ndarray)
-        info = [[k, str(v)] for k, v in vars(self).items() if isinstance(v, tp)
-                and k not in ['rsr', 'raw', 'centers'] and not k.startswith('_')]
+        info = [[k, str(v)] for k, v in vars(self).items() if isinstance(v, tp) and k not in ['rsr', 'raw'] and not k.startswith('_')]
 
         # Make the table
-        table = at.Table(np.asarray(info).reshape(len(info), 2),
-                         names=['Attributes', 'Values'])
+        table = at.Table(np.asarray(info).reshape(len(info), 2), names=['Attributes', 'Values'])
 
         # Sort and print
         table.sort('Attributes')
@@ -470,6 +459,8 @@ class Filter:
         self.Band = 'Top Hat'
         self.CalibrationReference = ''
         self.FWHM = width
+        self.hm_x1 = wave_min.value
+        self.hm_x2 = wave_max.value
         self.Facility = '-'
         self.FilterProfileService = '-'
         self.MagSys = '-'
@@ -505,40 +496,35 @@ class Filter:
         if self.raw[0][-1] < 100:
             self.raw[0] = self.raw[0] * 10000
 
+        funit = q.erg / q.s / q.cm**2 / q.AA
         self.WavelengthUnit = str(q.AA)
-        self.ZeroPointUnit = str(q.erg/q.s/q.cm**2/q.AA)
+        self.ZeroPointUnit = str(funit)
         x, f = self.raw
 
-        # Get a spectrum of Vega
+        # Rebin Vega to filter
         vega_file = resource_filename('svo_filters', 'data/spectra/vega.txt')
-        vega = np.genfromtxt(vega_file, unpack=True)[: 2]
-        vega[0] = vega[0] * 10000
-        vega = rebin_spec(vega, x)*q.erg/q.s/q.cm**2/q.AA
-        flam = np.trapz((vega[1]*f).to(q.erg/q.s/q.cm**2/q.AA), x=x)
-        thru = np.trapz(f, x=x)
-        self.ZeroPoint = (flam/thru).to(q.erg/q.s/q.cm**2/q.AA).value
+        vega_data = np.genfromtxt(vega_file, unpack=True)[: 2]
+        vega_data[0] *= 10000
+        vega = rebin_spec(vega_data, x)
 
         # Calculate the filter's properties
+        self.ZeroPoint = np.trapz(f * x * vega, x=x) / np.trapz(f * x, x=x)
         self.filterID = os.path.splitext(os.path.basename(filepath))[0]
-        self.WavelengthPeak = np.max(self.raw[0])
-        f0 = f[: np.where(np.diff(f) > 0)[0][-1]]
-        x0 = x[: np.where(np.diff(f) > 0)[0][-1]]
-        self.WavelengthMin = np.interp(max(f)/100., f0, x0)
-        f1 = f[::-1][: np.where(np.diff(f[::-1]) > 0)[0][-1]]
-        x1 = x[::-1][: np.where(np.diff(f[::-1]) > 0)[0][-1]]
-        self.WavelengthMax = np.interp(max(f)/100., f1, x1)
-        self.WavelengthEff = np.trapz(f*x*vega, x=x)/np.trapz(f*vega, x=x)
-        self.WavelengthMean = np.trapz(f*x, x=x)/np.trapz(f, x=x)
-        self.WidthEff = np.trapz(f, x=x)/f.max()
-        self.WavelengthPivot = np.sqrt(np.trapz(f, x=x)/np.trapz(f/x**2, x=x))
-        self.WavelengthPhot = np.trapz(f*vega*x**2, x=x)/np.trapz(f*vega*x, x=x)
+        self.WavelengthPeak = x[np.argmax(f)]
+        self.WavelengthMin = x[np.where(f > f.max() / 100.)][0]
+        self.WavelengthMax = x[np.where(f > f.max() / 100.)][-1]
+        self.WavelengthEff = np.trapz(f * x**2 * vega, x=x) / np.trapz(f * x * vega, x=x)
+        self.WavelengthMean = np.trapz(f * x, x=x) / np.trapz(f, x=x)
+        self.WidthEff = np.trapz(f, x=x) / f.max()
+        self.WavelengthPivot = np.sqrt(np.trapz(f, x=x) / np.trapz(f / x**2, x=x))
+        self.WavelengthPhot = np.trapz(f * vega * x**3, x=x) / np.trapz(f * vega * x**2, x=x)
 
         # Half max stuff
-        halfmax = f.max()/2.
-        hm_x1 = x[f > halfmax][0]
-        hm_x2 = x[f > halfmax][-1]
-        self.FWHM = hm_x2 - hm_x1
-        self.WavelengthCen = (hm_x1 + hm_x2)/2.
+        halfmax = f.max() / 2.
+        self.hm_x1 = x[f > halfmax][0]
+        self.hm_x2 = x[f > halfmax][-1]
+        self.FWHM = self.hm_x2 - self.hm_x1
+        self.WavelengthCen = (self.hm_x1 + self.hm_x2) / 2.
 
         # Add missing attributes
         self.path = ''
@@ -571,14 +557,15 @@ class Filter:
                 val = float(val)
 
             else:
-                val = val.replace('b&apos;', '')\
-                         .replace('&apos', '')\
-                         .replace('&amp;', '&')\
-                         .strip(';')
+                val = val.replace('b&apos;', '').replace('&apos', '').replace('&amp;', '&').strip(';')
 
             # Set the attribute
             if key != 'Description':
                 setattr(self, key, val)
+
+        halfmax = self.raw[1].max() / 2.
+        self.hm_x1 = self.raw[0][self.raw[1] > halfmax][0]
+        self.hm_x2 = self.raw[0][self.raw[1] > halfmax][-1]
 
         # Create some attributes
         self.path = filepath
@@ -637,12 +624,14 @@ class Filter:
 
         return ans
 
-    def plot(self, fig=None, draw=True):
+    def plot(self, details=False, fig=None, draw=True):
         """
         Plot the filter
 
         Parameters
         ----------
+        details: bool
+            Plot the filter details
         fig: bokeh.plotting.figure (optional)
             A figure to plot on
         draw: bool
@@ -663,13 +652,32 @@ class Filter:
             fig = figure(title=title, x_axis_label=xlab, y_axis_label=ylab)
 
         # Plot the raw curve
-        fig.line((self.raw[0]*q.AA).to(self.wave_units), self.raw[1],
-                 alpha=0.1, line_width=8, color='black')
+        fig.line((self.raw[0] * q.AA).to(self.wave_units), self.raw[1], alpha=0.1, line_width=8, color='black')
 
-        # Plot each with bin centers
+        # Plot each bin
         for x, y in self.rsr:
             fig.line(x, y, color=next(COLORS), line_width=2)
-        fig.circle(*self.centers, size=8, color='black')
+
+        # Plot details
+        if details:
+
+            dcolor = 'red'
+
+            # Min and Max
+            fig.line([self.wave_min] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_min')
+            fig.line([self.wave_max] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_max')
+
+            # FWHM
+            fig.line([self.hm_x1, self.hm_x2], [self.thru_peak / 2.] * 2, color=dcolor, line_dash='dotted', legend_label='fwhm')
+
+            # Max throughput
+            fig.circle([self.wave_peak.value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
+
+            # Effective wavelength
+            fig.line([self.wave_eff] * 2, [0, self.thru_peak], color=dcolor, line_dash='solid', legend_label='wave_eff')
+
+            # Click policy
+            fig.legend.click_policy = 'hide'
 
         if draw:
             show(fig)
@@ -758,6 +766,8 @@ class Filter:
         self.wave_pivot = self.wave_pivot.to(self.wave_units).round(5)
         self.width_eff = self.width_eff.to(self.wave_units).round(5)
         self.fwhm = self.fwhm.to(self.wave_units).round(5)
+        self.hm_x1 = self.hm_x1.to(self.wave_units).round(5)
+        self.hm_x2 = self.hm_x2.to(self.wave_units).round(5)
 
 
 def color_gen(colormap='viridis', key=None, n=15):
