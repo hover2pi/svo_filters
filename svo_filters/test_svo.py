@@ -26,6 +26,12 @@ class TestFilter(unittest.TestCase):
         """Test if exception is raised for bogus filter"""
         self.assertRaises(IOError, svo.Filter, 'BAD_FILTER')
 
+    def test_filter_web(self):
+        """Test if Filter object is created from web query"""
+        filt = svo.Filter('Generic/Johnson.B')
+
+        self.assertTrue(isinstance(filt, svo.Filter))
+
     def test_filter_xml(self):
         """Test if Filter object is created properly"""
         filt = svo.Filter('2MASS.J')
