@@ -8,6 +8,7 @@ echo "Installing packages..."
 conda install numpy
 conda install -c astropy astropy-helpers
 conda install -c conda-forge extension-helpers
+conda install -c conda-forge pytest-astropy-header
 conda install flake8 beautifulsoup4 lxml astropy
 git clone https://github.com/astropy/astroquery.git
 cd astroquery
