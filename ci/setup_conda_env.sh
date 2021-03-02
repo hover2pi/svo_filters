@@ -9,7 +9,7 @@ conda install numpy
 conda install -c astropy astropy-helpers
 conda install -c conda-forge extension-helpers
 conda install -c conda-forge pytest-astropy-header
-conda install flake8 beautifulsoup4 lxml astropy
+conda install flake8 beautifulsoup4 lxml astropy matplotlib
 git clone https://github.com/astropy/astroquery.git
 cd astroquery
 pip install -e .
