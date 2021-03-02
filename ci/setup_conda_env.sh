@@ -5,6 +5,6 @@ conda create -n svo python=$PYTHON_VERSION || exit 1
 source activate svo
 
 echo "Installing packages..."
-conda install flake8 beautifulsoup4 lxml numpy astropy
+conda install flake8 beautifulsoup4 lxml numpy astropy astropy_helpers
 pip install https://github.com/astropy/astroquery/archive/master.zip
 pip install pytest pytest-cov coveralls
