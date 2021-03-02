@@ -31,6 +31,6 @@ setup(
     package_data={'svo_filters': ['data/filters/*', 'data/plots/*', 'data/spectra/*']},
     include_package_data=True,
     zip_safe=False,
-    install_requires=['numpy', 'astropy', 'bokeh'],
+    install_requires=['numpy', 'astropy', 'bokeh', 'astroquery', 'astropy-helpers'],
 
 )

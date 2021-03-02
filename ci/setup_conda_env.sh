@@ -6,8 +6,9 @@ source activate svo
 
 echo "Installing packages..."
 conda install numpy
-conda install flake8 beautifulsoup4 lxml astropy astropy_helpers
+conda install -c astropy astropy-helpers
 conda install -c conda-forge extension-helpers
+conda install flake8 beautifulsoup4 lxml astropy
 git clone https://github.com/astropy/astroquery.git
 cd astroquery
 python setup.py install
