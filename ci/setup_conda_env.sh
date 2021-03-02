@@ -12,5 +12,5 @@ conda install -c conda-forge pytest-astropy-header
 conda install flake8 beautifulsoup4 lxml astropy
 git clone https://github.com/astropy/astroquery.git
 cd astroquery
-python setup.py install
+pip install -e .
 pip install pytest pytest-cov coveralls
