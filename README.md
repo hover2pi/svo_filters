@@ -1,6 +1,6 @@
 # Introduction
 
-[![Build Status](https://travis-ci.org/hover2pi/svo_filters.svg?branch=master)](https://travis-ci.org/hover2pi/svo_filters)
+[![Build Status](https://github.com/hover2pi/svo_filters/actions/workflows/svo_filters_workflow/badge.svg)](https://github.com/hover2pi/svo_filters/actions)
 [![Coverage Status](https://coveralls.io/repos/github/hover2pi/svo_filters/badge.svg?branch=master&service=github)](https://coveralls.io/github/hover2pi/svo_filters?branch=master&service=github)
 [![Documentation Status](https://readthedocs.org/projects/svo_filters/badge/?version=latest)](https://svo_filters.readthedocs.io/en/latest/?badge=latest)
 
