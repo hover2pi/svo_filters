@@ -21,7 +21,7 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        conda create --file env/environment-${{ matrix.python-version }}.yml --name svo_filters-${{ matrix.python-version }}
+        conda env create --file env/environment-${{ matrix.python-version }}.yml --name svo_filters-${{ matrix.python-version }}
     - name: Lint with flake8
       run: |
         conda install flake8
