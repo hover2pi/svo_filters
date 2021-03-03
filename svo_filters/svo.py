@@ -14,10 +14,9 @@ import itertools
 import astropy.table as at
 import astropy.io.votable as vo
 import astropy.units as q
-import astropy.constants as ac
 from astropy.utils.exceptions import AstropyWarning
+from astroquery.svo_fps import SvoFps
 from bokeh.plotting import figure, show
-from bokeh.models import Label
 import bokeh.palettes as bpal
 import numpy as np
 
@@ -132,37 +131,48 @@ class Filter:
 
         else:
 
-            # Get list of filters
-            files = glob(filter_directory+'*')
-            no_ext = {f.replace('.txt', ''): f for f in files}
-            bands = [os.path.basename(b) for b in no_ext]
-            fp = os.path.join(filter_directory, band)
-            filepath = no_ext.get(fp, fp)
+            # List of all bands on file
+            bands = filters()['Band']
 
-            # If the filter is missing, ask what to do
-            if band not in bands:
+            # Read file if the band is in the filter directory
+            if band in bands:
 
-                err = """No filters match {}\n\nCurrent filters: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nPlace the desired filter XML file in your\nfilter directory and try again.""".format(filepath, ', '.join(bands))
+                # Get list of filters
+                files = glob(filter_directory+'*')
+                no_ext = {f.replace('.txt', ''): f for f in files}
+                bands = [os.path.basename(b) for b in no_ext]
+                fp = os.path.join(filter_directory, band)
+                filepath = no_ext.get(fp, fp)
 
-                raise IOError(err)
+                # Get the first line to determine format
+                with open(filepath) as f:
+                    top = f.readline()
 
-            # Get the first line to determine format
-            with open(filepath) as f:
-                top = f.readline()
+                # Read in XML file
+                if top.startswith('<?xml'):
 
-            # Read in XML file
-            if top.startswith('<?xml'):
+                    self.load_xml(filepath)
 
-                self.load_xml(filepath)
+                # Read in txt file
+                elif filepath.endswith('.txt'):
 
-            # Read in txt file
-            elif filepath.endswith('.txt'):
+                    self.load_txt(filepath)
 
-                self.load_txt(filepath)
+                else:
 
+                    raise TypeError("File must be XML or ascii format.")
+
+            # Otherwise try a Web query or throw an error
             else:
 
-                raise TypeError("File must be XML or ascii format.")
+                # Try a web query
+                try:
+                    self.load_web(band)
+
+                # Or throw an error
+                except IOError:
+                    err = """No filters match {}\n\nFILTERS ON FILE: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as '<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'""".format(band, ', '.join(bands))
+                    raise IOError(err)
 
         # Set the wavelength and throughput
         self._wave_units = q.AA
@@ -490,14 +500,28 @@ class Filter:
         file: str
             The filepath
         """
+        # Get the transmission data from the file
         self.raw = np.genfromtxt(filepath, unpack=True)
 
         # Convert to Angstroms if microns
         if self.raw[0][-1] < 100:
             self.raw[0] = self.raw[0] * 10000
 
+        # Load it into the object
+        self.filterID = os.path.splitext(os.path.basename(filepath))[0]
+        self.load_raw()
+
+    def load_raw(self, wave_units='AA'):
+        """
+        The raw data to calculate the filter properties from
+
+        Parameters
+        ----------
+        data: sequence
+            The wavelength and throughput for the filter
+        """
         funit = q.erg / q.s / q.cm**2 / q.AA
-        self.WavelengthUnit = str(q.AA)
+        self.WavelengthUnit = wave_units
         self.ZeroPointUnit = str(funit)
         x, f = self.raw
 
@@ -509,7 +533,6 @@ class Filter:
 
         # Calculate the filter's properties
         self.ZeroPoint = np.trapz(f * x * vega, x=x) / np.trapz(f * x, x=x)
-        self.filterID = os.path.splitext(os.path.basename(filepath))[0]
         self.WavelengthPeak = x[np.argmax(f)]
         self.WavelengthMin = x[np.where(f > f.max() / 100.)][0]
         self.WavelengthMax = x[np.where(f > f.max() / 100.)][-1]
@@ -530,6 +553,24 @@ class Filter:
         self.path = ''
         self.pixels_per_bin = self.raw.shape[-1]
         self.n_bins = 1
+
+    def load_web(self, filt):
+        """Load the filter from a Web query
+
+        Parameters
+        ----------
+        filt: str
+            The '<facility>/<instrument>.<filter_name>' of the filter, e.g. '2MASS/2MASS.J'
+        """
+        # Get the transmission data for the filter
+        data = SvoFps.get_transmission_data(filt)
+
+        # Make into arrays
+        self.raw = np.array([np.array(data['Wavelength']), np.array(data['Transmission'])])
+
+        # Load it into the object
+        self.filterID = filt
+        self.load_raw(wave_units=str(data['Wavelength'].unit))
 
     def load_xml(self, filepath):
         """Load the filter from a txt file

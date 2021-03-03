@@ -1,9 +1,6 @@
 #!/bin/bash
-
-echo "Creating a Python $PYTHON_VERSION environment"
-conda create -n svo python=$PYTHON_VERSION || exit 1
-source activate svo
-
-echo "Installing packages..."
-conda install flake8 beautifulsoup4 lxml numpy astropy
+echo "Creating conda environment for Python $PYTHON_VERSION"
+conda env create -f "env/environment-${PYTHON_VERSION}.yml" || exit 1
+export CONDA_ENV=svo-filters-$PYTHON_VERSION
+source activate $CONDA_ENV
 pip install pytest pytest-cov coveralls

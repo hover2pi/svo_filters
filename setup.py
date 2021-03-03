@@ -1,36 +1,41 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+import os
+from setuptools import setup, find_packages
 
-try:
-    from setuptools import setup, find_packages
-    setup
-except ImportError:
-    from distutils.core import setup
-    setup
+REQUIRES = ['astropy',
+            'astroquery',
+            'bokeh',
+            'ipython',
+            'matplotlib',
+            'numpy',
+            'numpydoc',
+            'pysynphot',
+            'pytest',
+            'pyyaml']
 
-from codecs import open
-from os import path
+DEPENDENCY_LINKS = [
+    'git+https://github.com/astropy/astroquery.git@ccc96185beeff86f3a12a31a00a801afcebe1dbe']
+
+FILES = []
+for root, _, files in os.walk("svo_filters"):
+    FILES += [os.path.join(root.replace("svo_filters/", ""), fname)
+              for fname in files if not fname.endswith(".py") and not fname.endswith(".pyc")]
 
 setup(
     name='svo_filters',
-    version='0.3.0',
+    version='0.4.0',
     description='A Python wrapper for the SVO Filter Profile Service',
-    long_description='A Python wrapper for the SVO Filter Profile Service',
-    url='https://github.com/hover2pi/svo_filters',
+    packages=find_packages(
+        ".",
+        exclude=["*.tests"]),
+    package_data={
+        'svo_filters': FILES},
+    install_requires=REQUIRES,
+    dependency_links=DEPENDENCY_LINKS,
     author='Joe Filippazzo',
     author_email='jfilippazzo@stsci.edu',
     license='MIT',
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-    ],
-    keywords='astrophysics',
-    packages=find_packages(exclude=['contrib', 'docs']),
-    package_data={'svo_filters': ['data/filters/*', 'data/plots/*', 'data/spectra/*']},
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=['numpy', 'astropy', 'bokeh'],
-
-)
+    url='https://github.com/hover2pi/svo_filters',
+    long_description='',
+    zip_safe=True,
+    use_2to3=False)
