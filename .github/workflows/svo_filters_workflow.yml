@@ -19,6 +19,7 @@ jobs:
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
+        sudo chmod 777 -R $CONDA/bin
     - name: Install dependencies
       run: |
         conda env create --file env/environment-${{ matrix.python-version }}.yml --name svo_filters-${{ matrix.python-version }} python=${{ matrix.python-version }}
