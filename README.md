@@ -1,6 +1,6 @@
 # Introduction
 
-[![Build Status](https://github.com/hover2pi/svo_filters/actions/workflows/svo_filters_workflow.yml/badge.svg)]
+[![Build Status](https://github.com/hover2pi/svo_filters/actions/workflows/svo_filters_workflow.yml/badge.svg)](https://github.com/hover2pi/svo_filters/actions/workflows/svo_filters_workflow.yml)
 [![Coverage Status](https://coveralls.io/repos/github/hover2pi/svo_filters/badge.svg?branch=master&service=github)](https://coveralls.io/github/hover2pi/svo_filters?branch=master&service=github)
 [![Documentation Status](https://readthedocs.org/projects/svo_filters/badge/?version=latest)](https://svo_filters.readthedocs.io/en/latest/?badge=latest)
 
