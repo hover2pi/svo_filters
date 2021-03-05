@@ -145,7 +145,7 @@ class TestFilterList(unittest.TestCase):
 
     def test_dir(self):
         """Test new directory"""
-        svo.filters(filter_directory='foobar')
+        svo.filters(filter_directory='.')
 
     def test_update(self):
         """Test that the update works"""
