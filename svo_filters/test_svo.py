@@ -24,7 +24,7 @@ class TestFilter(unittest.TestCase):
 
     def test_no_filter(self):
         """Test if exception is raised for bogus filter"""
-        self.assertRaises(IOError, svo.Filter, 'BAD_FILTER')
+        self.assertRaises(IndexError, svo.Filter, 'BAD_FILTER')
 
     def test_filter_web(self):
         """Test if Filter object is created from web query"""
