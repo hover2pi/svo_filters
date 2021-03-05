@@ -149,7 +149,7 @@ class TestFilterList(unittest.TestCase):
 
     def test_update(self):
         """Test that the update works"""
-        svo.filters(update=True)
+        svo.filters(filter_directory=None, update=True)
 
     def test_filter_dtypes(self):
         """Test if a table of filters is returned"""
