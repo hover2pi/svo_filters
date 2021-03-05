@@ -164,15 +164,20 @@ class Filter:
 
             # Otherwise try a Web query or throw an error
             else:
+              
+                err = """No filters match {}\n\nFILTERS ON FILE: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as '<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'""".format(band, ', '.join(bands))
 
                 # Try a web query
-                try:
-                    self.load_web(band)
-
-                # Or throw an error
-                except IOError:
-                    err = """No filters match {}\n\nFILTERS ON FILE: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as '<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'""".format(band, ', '.join(bands))
-                    raise IOError(err)
+                if '/' in band:
+                    try:
+                        self.load_web(band)
+                    except:
+                        raise IndexError(err)
+                
+                else:
+                    
+                    # Or throw an error
+                    raise IndexError(err)
 
         # Set the wavelength and throughput
         self._wave_units = q.AA
