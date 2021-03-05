@@ -140,26 +140,9 @@ class TestFilter(unittest.TestCase):
 class TestFilterList(unittest.TestCase):
     """Tests for filter function"""
     def setUp(self):
-        self.filts = svo.filters(data=True)
-        self.filts_dict = svo.filters(data=True, fmt='dict')
+        pass
 
-    def test_dir(self):
-        """Test new directory"""
-        try:
-            svo.filters(filter_directory='.')
-        except:
-           pass
-    def test_update(self):
-        """Test that the update works"""
-        try:
-            svo.filters(filter_directory=None, update=True)
-        except:
-           pass
-    def test_filter_dtypes(self):
-        """Test if a table of filters is returned"""
-        self.assertTrue(isinstance(self.filts, at.Table))
-        self.assertTrue(isinstance(self.filts_dict, dict))
-
-    def test_filter_len(self):
-        """Test that the table isn't empty"""
-        self.assertTrue(len(self.filts) > 0)
+    def test_default(self):
+        """Test default directory"""
+        filts = svo.filters()
+        self.assertTrue(len(filts) > 0)
