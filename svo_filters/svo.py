@@ -6,7 +6,6 @@ A Python wrapper for the SVO Filter Profile Service
 from glob import glob
 import inspect
 import os
-import pickle
 from pkg_resources import resource_filename
 import warnings
 import itertools
@@ -132,17 +131,13 @@ class Filter:
         else:
 
             # List of all bands on file
-            bands = filters()['Band']
+            bands = filters(filter_directory)
 
             # Read file if the band is in the filter directory
             if band in bands:
 
-                # Get list of filters
-                files = glob(filter_directory+'*')
-                no_ext = {f.replace('.txt', ''): f for f in files}
-                bands = [os.path.basename(b) for b in no_ext]
-                fp = os.path.join(filter_directory, band)
-                filepath = no_ext.get(fp, fp)
+                # Get the file
+                filepath = glob(os.path.join(filter_directory, band + '*'))[0]
 
                 # Get the first line to determine format
                 with open(filepath) as f:
@@ -852,7 +847,7 @@ def color_gen(colormap='viridis', key=None, n=15):
     yield from itertools.cycle(palette)
 
 
-def filters(filter_directory=None, update=False, fmt='table', **kwargs):
+def filters(filter_directory=None):
     """
     Get a list of the available filters
 
@@ -873,73 +868,13 @@ def filters(filter_directory=None, update=False, fmt='table', **kwargs):
     if filter_directory is None:
         filter_directory = resource_filename('svo_filters', 'data/filters/')
 
-    # Get the pickle path and make sure file exists
-    p_path = os.path.join(filter_directory, 'filter_list.p')
-    updated = False
-    if not os.path.isfile(p_path):
-        os.system('touch {}'.format(p_path))
+    # Get list of files from dir
+    files = glob(os.path.join(filter_directory, '*'))
 
-    if update:
+    # Grab the basename as the filter name
+    bands = [b.replace(filter_directory, '').replace('.txt', '').replace('.xml', '') for b in files]
 
-        print('Loading filters into table...')
-
-        # Get all the filters (except the pickle)
-        files = glob(filter_directory+'*')
-        files = [f for f in files if not f.endswith('.p')]
-        bands = [os.path.basename(b) for b in files]
-        tables = []
-
-        for band in bands:
-
-            # Load the filter
-            band = band.replace('.txt', '')
-            filt = Filter(band, **kwargs)
-            filt.Band = band
-
-            # Put metadata into table with correct dtypes
-            info = filt.info(True)
-            vals = [float(i) if i.replace('.', '').replace('-', '')
-                    .replace('+', '').isnumeric() else i
-                    for i in info['Values']]
-            dtypes = np.array([type(i) for i in vals])
-            table = at.Table(np.array([vals]), names=info['Attributes'],
-                             dtype=dtypes)
-
-            tables.append(table)
-
-            del filt, info, table
-
-        # Write to the pickle
-        with open(p_path, 'wb') as file:
-            pickle.dump(at.vstack(tables), file)
-
-    # Load the saved pickle
-    data = {}
-    if os.path.isfile(p_path):
-        with open(p_path, 'rb') as file:
-            data = pickle.load(file)
-
-    # Return the data
-    if data:
-
-        if fmt == 'dict':
-            data = {r[0]: {k: r[k].value if hasattr(r[k], 'unit') else r[k]
-                    for k in data.keys()[1:]} for r in data}
-
-        else:
-
-            # Add Band as index
-            data.add_index('Band')
-
-        return data
-
-    # Or try to generate it once
-    else:
-        if not updated:
-            updated = True
-            filters(update=True)
-        else:
-            print('No filters found in', filter_directory)
+    return bands
 
 
 def rebin_spec(spec, wavnew, oversamp=100, plot=False):
