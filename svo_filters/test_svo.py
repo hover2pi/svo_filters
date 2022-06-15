@@ -137,6 +137,12 @@ class TestFilter(unittest.TestCase):
 
         self.assertTrue(type(plt) == Figure)
 
+    def test_filter_monotonic(self):
+        """Test that non-monotonic filters are treated correctly"""
+        filt = svo.Filter('Palomar/ZTF.g')
+        self.assertFalse(np.any(np.diff(filt.wave)<=0))
+
+
 class TestFilterList(unittest.TestCase):
     """Tests for filter function"""
     def setUp(self):
