@@ -160,19 +160,21 @@ class Filter:
             # Otherwise try a Web query or throw an error
             else:
               
-                err = """No filters match {}\n\nFILTERS ON FILE: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as '<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'""".format(band, ', '.join(bands))
+                err = f"No filters match {band}\n\nFILTERS ON FILE: \n\nFILTERS ON FILE: {', '.join(bands)}\n\n" 
+                "A full list of available filters from the\nSVO Filter Profile Service can be found at\n"
+                "http: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as " 
+                "'<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'"
+
+                # Valid SVO filter names have backslash
+                if '/' not in band:
+                    raise IndexError(err)
 
                 # Try a web query
-                if '/' in band:
-                    try:
-                        self.load_web(band)
-                    except:
-                        raise IndexError(err)
-                
-                else:
-                    
-                    # Or throw an error
+                try:
+                    self.load_web(band)
+                except IndexError:
                     raise IndexError(err)
+                # Make sure we return e.g. Connection Error, but are not catching e.g. SysExit calls.
 
         # Set the wavelength and throughput
         self._wave_units = q.AA
