@@ -18,6 +18,7 @@ from astroquery.svo_fps import SvoFps
 from bokeh.plotting import figure, show
 import bokeh.palettes as bpal
 import numpy as np
+from .utils import incremented_monotonic
 
 
 warnings.simplefilter('ignore', category=AstropyWarning)
@@ -94,7 +95,8 @@ class Filter:
         The SVO filter ID
 
     """
-    def __init__(self, band, filter_directory=None, wave_units=q.um, flux_units=q.erg/q.s/q.cm**2/q.AA, **kwargs):
+    def __init__(self, band, filter_directory=None, wave_units=q.um, flux_units=q.erg/q.s/q.cm**2/q.AA, 
+        monotonic=True, **kwargs):
         """
         Loads the bandpass data into the Filter object
 
@@ -108,10 +110,16 @@ class Filter:
             The wavelength units
         flux_units: str, astropy.units.core.PrefixUnit  (optional)
             The zeropoint flux units
+        monotonic: bool
+            Default = True. Whether to add a small offset to repeated elements in wavelength array 
+            to ensure montonically increasing wavelengths.
         """
         if filter_directory is None:
             filter_directory = resource_filename('svo_filters', 'data/filters/')
 
+        # Whether to ensure wavelengths returned should be strictly monotonically increasing.
+        self.monotonic = monotonic 
+        
         # Check if TopHat
         if band.lower().replace('-', '').replace(' ', '') == 'tophat':
 
@@ -126,6 +134,7 @@ class Filter:
             else:
                 # Load the filter
                 n_pix = kwargs.get('n_pixels', 100)
+                self.monotonic = False #  Never ensure monotonic for tophat as that can mess up a tophat profile?
                 self.load_TopHat(wave_min, wave_max, n_pix)
 
         else:
@@ -160,19 +169,21 @@ class Filter:
             # Otherwise try a Web query or throw an error
             else:
               
-                err = """No filters match {}\n\nFILTERS ON FILE: {}\n\nA full list of available filters from the\nSVO Filter Profile Service can be found at\nhttp: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as '<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'""".format(band, ', '.join(bands))
+                err = f"No filters match {band}\n\nFILTERS ON FILE: \n\nFILTERS ON FILE: {', '.join(bands)}\n\n" 
+                "A full list of available filters from the\nSVO Filter Profile Service can be found at\n"
+                "http: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as " 
+                "'<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'"
+
+                # Valid SVO filter names have backslash
+                if '/' not in band:
+                    raise IndexError(err)
 
                 # Try a web query
-                if '/' in band:
-                    try:
-                        self.load_web(band)
-                    except:
-                        raise IndexError(err)
-                
-                else:
-                    
-                    # Or throw an error
+                try:
+                    self.load_web(band)
+                except IndexError:
                     raise IndexError(err)
+                # Make sure we return e.g. Connection Error, but are not catching e.g. SysExit calls.
 
         # Set the wavelength and throughput
         self._wave_units = q.AA
@@ -725,6 +736,9 @@ class Filter:
         else:
             return fig
 
+
+    
+
     @property
     def rsr(self):
         """A getter for the relative spectral response (rsr) curve"""
@@ -755,6 +769,10 @@ class Filter:
     @property
     def wave(self):
         """A getter for the wavelength"""
+        # Check wavelength is monotonically increasing
+        
+        if self.monotonic:
+            self._wave = incremented_monotonic(self._wave, increment_step=1000)
         return self._wave
 
     @wave.setter
