@@ -3,7 +3,6 @@ import os
 from setuptools import setup, find_packages
 
 REQUIRES = ['astropy',
-            'astroquery',
             'bokeh',
             'ipython',
             'matplotlib',
@@ -23,7 +22,7 @@ for root, _, files in os.walk("svo_filters"):
 
 setup(
     name='svo_filters',
-    version='0.4.3',
+    version='0.4.4',
     description='A Python wrapper for the SVO Filter Profile Service',
     packages=find_packages(
         ".",
