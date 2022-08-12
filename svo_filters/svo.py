@@ -8,13 +8,13 @@ import inspect
 import os
 from pkg_resources import resource_filename
 import warnings
+import urllib.request
 import itertools
 
 import astropy.table as at
 import astropy.io.votable as vo
 import astropy.units as q
 from astropy.utils.exceptions import AstropyWarning
-from astroquery.svo_fps import SvoFps
 from bokeh.plotting import figure, show
 import bokeh.palettes as bpal
 import numpy as np
@@ -195,20 +195,20 @@ class Filter:
         self.pixels_per_bin = self.raw.shape[-1]
 
         # Rename some values and apply units
-        self.wave_min = self.WavelengthMin * self.wave_units
-        self.wave_max = self.WavelengthMax * self.wave_units
-        self.wave_eff = self.WavelengthEff * self.wave_units
-        self.wave_center = self.WavelengthCen * self.wave_units
-        self.wave_mean = self.WavelengthMean * self.wave_units
-        self.wave_peak = self.WavelengthPeak * self.wave_units
+        self.wave_min = float(self.WavelengthMin) * self.wave_units
+        self.wave_max = float(self.WavelengthMax) * self.wave_units
+        self.wave_eff = float(self.WavelengthEff) * self.wave_units
+        self.wave_center = float(self.WavelengthCen) * self.wave_units
+        self.wave_mean = float(self.WavelengthMean) * self.wave_units
+        self.wave_peak = float(self.WavelengthPeak) * self.wave_units
         self.thru_peak = self.raw[1].max()
-        self.wave_phot = self.WavelengthPhot * self.wave_units
-        self.wave_pivot = self.WavelengthPivot * self.wave_units
-        self.width_eff = self.WidthEff * self.wave_units
-        self.fwhm = self.FWHM * self.wave_units
-        self.hm_x1 *= self.wave_units
-        self.hm_x2 *= self.wave_units
-        self.zp = self.ZeroPoint * q.Unit(self.ZeroPointUnit)
+        self.wave_phot = float(self.WavelengthPhot) * self.wave_units
+        self.wave_pivot = float(self.WavelengthPivot) * self.wave_units
+        self.width_eff = float(self.WidthEff) * self.wave_units
+        self.fwhm = float(self.FWHM) * self.wave_units
+        self.hm_x1 = float(self.hm_x1) * self.wave_units
+        self.hm_x2 = float(self.hm_x2) * self.wave_units
+        self.zp = float(self.ZeroPoint) * q.Unit(self.ZeroPointUnit)
 
         # Delete redundant attributes
         del self.WavelengthMin, self.WavelengthMax, self.WavelengthEff
@@ -573,15 +573,20 @@ class Filter:
         filt: str
             The '<facility>/<instrument>.<filter_name>' of the filter, e.g. '2MASS/2MASS.J'
         """
-        # Get the transmission data for the filter
-        data = SvoFps.get_transmission_data(filt)
+        # Download XML file
+        url = 'http://svo2.cab.inta-csic.es/theory/fps/fps.php?ID={}'.format(filt)
 
-        # Make into arrays
-        self.raw = np.array([np.array(data['Wavelength']), np.array(data['Transmission'])])
+        # Temp filename
+        filename = filt.replace('/', '_')
 
-        # Load it into the object
-        self.filterID = filt
-        self.load_raw(wave_units=str(data['Wavelength'].unit))
+        # Download the XML file from SVO Filter Profile Service
+        urllib.request.urlretrieve(url, filename)
+
+        # Load the XML file
+        self.load_xml(filename)
+
+        # Delete the temp file
+        os.remove(filename)
 
     def load_xml(self, filepath):
         """Load the filter from a txt file
