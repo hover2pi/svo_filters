@@ -721,17 +721,17 @@ class Filter:
             dcolor = 'red'
 
             # Min and Max
-            fig.line([self.wave_min] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_min')
-            fig.line([self.wave_max] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_max')
+            fig.line([self.wave_min.to(self.wave_units).value] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_min')
+            fig.line([self.wave_max.to(self.wave_units).value] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_max')
 
             # FWHM
-            fig.line([self.hm_x1, self.hm_x2], [self.thru_peak / 2.] * 2, color=dcolor, line_dash='dotted', legend_label='fwhm')
+            fig.line([self.hm_x1.to(self.wave_units).value, self.hm_x2.to(self.wave_units).value], [self.thru_peak / 2.] * 2, color=dcolor, line_dash='dotted', legend_label='fwhm')
 
             # Max throughput
-            fig.scatter([self.wave_peak.value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
+            fig.scatter([self.wave_peak.to(self.wave_units).value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
 
             # Effective wavelength
-            fig.line([self.wave_eff] * 2, [0, self.thru_peak], color=dcolor, line_dash='solid', legend_label='wave_eff')
+            fig.line([self.wave_eff.to(self.wave_units).value] * 2, [0, self.thru_peak], color=dcolor, line_dash='solid', legend_label='wave_eff')
 
             # Click policy
             fig.legend.click_policy = 'hide'
