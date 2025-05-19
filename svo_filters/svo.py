@@ -543,15 +543,15 @@ class Filter:
         vega = rebin_spec(vega_data, x)
 
         # Calculate the filter's properties
-        self.ZeroPoint = np.trapz(f * x * vega, x=x) / np.trapz(f * x, x=x)
+        self.ZeroPoint = np.trapezoid(f * x * vega, x=x) / np.trapezoid(f * x, x=x)
         self.WavelengthPeak = x[np.argmax(f)]
         self.WavelengthMin = x[np.where(f > f.max() / 100.)][0]
         self.WavelengthMax = x[np.where(f > f.max() / 100.)][-1]
-        self.WavelengthEff = np.trapz(f * x**2 * vega, x=x) / np.trapz(f * x * vega, x=x)
-        self.WavelengthMean = np.trapz(f * x, x=x) / np.trapz(f, x=x)
-        self.WidthEff = np.trapz(f, x=x) / f.max()
-        self.WavelengthPivot = np.sqrt(np.trapz(f, x=x) / np.trapz(f / x**2, x=x))
-        self.WavelengthPhot = np.trapz(f * vega * x**3, x=x) / np.trapz(f * vega * x**2, x=x)
+        self.WavelengthEff = np.trapezoid(f * x**2 * vega, x=x) / np.trapezoid(f * x * vega, x=x)
+        self.WavelengthMean = np.trapezoid(f * x, x=x) / np.trapezoid(f, x=x)
+        self.WidthEff = np.trapezoid(f, x=x) / f.max()
+        self.WavelengthPivot = np.sqrt(np.trapezoid(f, x=x) / np.trapezoid(f / x**2, x=x))
+        self.WavelengthPhot = np.trapezoid(f * vega * x**3, x=x) / np.trapezoid(f * vega * x**2, x=x)
 
         # Half max stuff
         halfmax = f.max() / 2.
@@ -740,9 +740,6 @@ class Filter:
             show(fig)
         else:
             return fig
-
-
-    
 
     @property
     def rsr(self):
