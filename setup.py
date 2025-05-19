@@ -8,7 +8,6 @@ REQUIRES = ['astropy',
             'matplotlib',
             'numpy',
             'numpydoc',
-            'pysynphot',
             'pytest',
             'pyyaml']
 
@@ -22,7 +21,7 @@ for root, _, files in os.walk("svo_filters"):
 
 setup(
     name='svo_filters',
-    version='0.5.0',
+    version='0.5.1',
     description='A Python wrapper for the SVO Filter Profile Service',
     packages=find_packages(
         ".",
