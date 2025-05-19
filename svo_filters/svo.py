@@ -323,7 +323,7 @@ class Filter:
             fig = figure(title=self.filterID, x_axis_label=xlab, y_axis_label=ylab)
 
             # Plot the unfiltered spectrum
-            fig.line(wav, flx[0], legend='Input spectrum', color='black')
+            fig.line(wav, flx[0], legend_label='Input spectrum', color='black')
  
             # Plot the uncertainties
             if unc:
@@ -543,15 +543,15 @@ class Filter:
         vega = rebin_spec(vega_data, x)
 
         # Calculate the filter's properties
-        self.ZeroPoint = np.trapz(f * x * vega, x=x) / np.trapz(f * x, x=x)
+        self.ZeroPoint = np.trapezoid(f * x * vega, x=x) / np.trapezoid(f * x, x=x)
         self.WavelengthPeak = x[np.argmax(f)]
         self.WavelengthMin = x[np.where(f > f.max() / 100.)][0]
         self.WavelengthMax = x[np.where(f > f.max() / 100.)][-1]
-        self.WavelengthEff = np.trapz(f * x**2 * vega, x=x) / np.trapz(f * x * vega, x=x)
-        self.WavelengthMean = np.trapz(f * x, x=x) / np.trapz(f, x=x)
-        self.WidthEff = np.trapz(f, x=x) / f.max()
-        self.WavelengthPivot = np.sqrt(np.trapz(f, x=x) / np.trapz(f / x**2, x=x))
-        self.WavelengthPhot = np.trapz(f * vega * x**3, x=x) / np.trapz(f * vega * x**2, x=x)
+        self.WavelengthEff = np.trapezoid(f * x**2 * vega, x=x) / np.trapezoid(f * x * vega, x=x)
+        self.WavelengthMean = np.trapezoid(f * x, x=x) / np.trapezoid(f, x=x)
+        self.WidthEff = np.trapezoid(f, x=x) / f.max()
+        self.WavelengthPivot = np.sqrt(np.trapezoid(f, x=x) / np.trapezoid(f / x**2, x=x))
+        self.WavelengthPhot = np.trapezoid(f * vega * x**3, x=x) / np.trapezoid(f * vega * x**2, x=x)
 
         # Half max stuff
         halfmax = f.max() / 2.
@@ -721,17 +721,17 @@ class Filter:
             dcolor = 'red'
 
             # Min and Max
-            fig.line([self.wave_min] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_min')
-            fig.line([self.wave_max] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_max')
+            fig.line([self.wave_min.to(self.wave_units).value] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_min')
+            fig.line([self.wave_max.to(self.wave_units).value] * 2, [0, self.thru_peak], color=dcolor, line_dash='dashed', legend_label='wave_max')
 
             # FWHM
-            fig.line([self.hm_x1, self.hm_x2], [self.thru_peak / 2.] * 2, color=dcolor, line_dash='dotted', legend_label='fwhm')
+            fig.line([self.hm_x1.to(self.wave_units).value, self.hm_x2.to(self.wave_units).value], [self.thru_peak / 2.] * 2, color=dcolor, line_dash='dotted', legend_label='fwhm')
 
             # Max throughput
-            fig.circle([self.wave_peak.value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
+            fig.scatter([self.wave_peak.to(self.wave_units).value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
 
             # Effective wavelength
-            fig.line([self.wave_eff] * 2, [0, self.thru_peak], color=dcolor, line_dash='solid', legend_label='wave_eff')
+            fig.line([self.wave_eff.to(self.wave_units).value] * 2, [0, self.thru_peak], color=dcolor, line_dash='solid', legend_label='wave_eff')
 
             # Click policy
             fig.legend.click_policy = 'hide'
@@ -740,9 +740,6 @@ class Filter:
             show(fig)
         else:
             return fig
-
-
-    
 
     @property
     def rsr(self):
