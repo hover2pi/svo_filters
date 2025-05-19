@@ -3,8 +3,8 @@ import unittest
 
 import astropy.units as q
 import astropy.table as at
-from bokeh.plotting.figure import Figure
 import numpy as np
+from bokeh.plotting import figure
 
 from svo_filters import svo
 
@@ -135,7 +135,7 @@ class TestFilter(unittest.TestCase):
         filt.plot(details=True)
         plt = filt.plot(draw=False)
 
-        self.assertTrue(type(plt) == Figure)
+        self.assertTrue(type(plt) == figure)
 
     def test_filter_monotonic(self):
         """Test that non-monotonic filters are treated correctly"""
