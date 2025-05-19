@@ -323,7 +323,7 @@ class Filter:
             fig = figure(title=self.filterID, x_axis_label=xlab, y_axis_label=ylab)
 
             # Plot the unfiltered spectrum
-            fig.line(wav, flx[0], legend='Input spectrum', color='black')
+            fig.line(wav, flx[0], legend_label='Input spectrum', color='black')
  
             # Plot the uncertainties
             if unc:
@@ -728,7 +728,7 @@ class Filter:
             fig.line([self.hm_x1, self.hm_x2], [self.thru_peak / 2.] * 2, color=dcolor, line_dash='dotted', legend_label='fwhm')
 
             # Max throughput
-            fig.circle([self.wave_peak.value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
+            fig.scatter([self.wave_peak.value], [self.thru_peak], fill_color=dcolor, line_color=dcolor, size=8, legend_label='max_thru')
 
             # Effective wavelength
             fig.line([self.wave_eff] * 2, [0, self.thru_peak], color=dcolor, line_dash='solid', legend_label='wave_eff')
