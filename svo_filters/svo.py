@@ -169,7 +169,7 @@ class Filter:
             # Otherwise try a Web query or throw an error
             else:
               
-                err = f"No filters match {band}\n\nFILTERS ON FILE: \n\nFILTERS ON FILE: {', '.join(bands)}\n\n" 
+                err = f"No filters match {band}\n\nFILTERS ON FILE: {', '.join(bands)}\n\n"
                 "A full list of available filters from the\nSVO Filter Profile Service can be found at\n"
                 "http: //svo2.cab.inta-csic.es/theory/fps3/\n\nTry again with the desired filter as " 
                 "'<facility>/<instrument>.<filter_name>', e.g. '2MASS/2MASS.J'"

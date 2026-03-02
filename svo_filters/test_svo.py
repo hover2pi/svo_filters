@@ -16,7 +16,7 @@ class TestFilter(unittest.TestCase):
 
     def test_info(self):
         """Test that the info attr works"""
-        filt = svo.Filter('2MASS.J')
+        filt = svo.Filter('2MASS/2MASS.J')
         self.assertTrue(filt.info() == None)
         self.assertTrue(isinstance(filt.info(fetch=True), at.Table))
         self.assertRaises(ValueError, setattr, filt, 'wave', np.arange(10))
@@ -34,7 +34,7 @@ class TestFilter(unittest.TestCase):
 
     def test_filter_xml(self):
         """Test if Filter object is created properly"""
-        filt = svo.Filter('2MASS.J')
+        filt = svo.Filter('2MASS/2MASS.J')
 
         self.assertTrue(isinstance(filt, svo.Filter))
 
