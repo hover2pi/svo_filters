@@ -115,7 +115,7 @@ class Filter:
             to ensure montonically increasing wavelengths.
         """
         if filter_directory is None:
-            filter_directory = str(resources.files(__package__).joinpath('data/filters/'))
+            filter_directory = resources.files("svo_filters").joinpath("data", "filters")
 
         # Whether to ensure wavelengths returned should be strictly monotonically increasing.
         self.monotonic = monotonic 
@@ -830,6 +830,9 @@ class Filter:
         self.hm_x1 = self.hm_x1.to(self.wave_units).round(5)
         self.hm_x2 = self.hm_x2.to(self.wave_units).round(5)
 
+    def __repr__(self):
+        return f"<Filter {self.name!r} from {self.path!r}>"
+
 
 def color_gen(colormap='viridis', key=None, n=15):
     """Color generator for Bokeh plots
@@ -886,13 +889,16 @@ def filters(filter_directory=None):
         The list of band names
     """
     if filter_directory is None:
-        filter_directory = str(resources.files(__package__).joinpath('data/filters/'))
+        filter_directory = resources.files("svo_filters").joinpath("data", "filters")
 
-    # Get list of files from dir
-    files = glob(os.path.join(filter_directory, '*'))
+    with resources.as_file(filter_directory) as p:
 
-    # Grab the basename as the filter name
-    bands = [b.replace(filter_directory, '').replace('.txt', '').replace('.xml', '') for b in files]
+        # Get list of files from dir
+        filter_directory = os.path.abspath(str(p))
+        files = glob(os.path.join(filter_directory, "*"))
+
+        # Grab the basename as the filter name
+        bands = [os.path.basename(f).replace('.txt', '').replace('.xml', '') for f in files]
 
     return bands
 
