@@ -6,7 +6,7 @@ A Python wrapper for the SVO Filter Profile Service
 from glob import glob
 import inspect
 import os
-from pkg_resources import resource_filename
+from importlib import resources
 import warnings
 import urllib.request
 import itertools
@@ -115,7 +115,7 @@ class Filter:
             to ensure montonically increasing wavelengths.
         """
         if filter_directory is None:
-            filter_directory = resource_filename('svo_filters', 'data/filters/')
+            filter_directory = str(resources.files(__package__).joinpath('data/filters/'))
 
         # Whether to ensure wavelengths returned should be strictly monotonically increasing.
         self.monotonic = monotonic 
@@ -537,7 +537,7 @@ class Filter:
         x, f = self.raw
 
         # Rebin Vega to filter
-        vega_file = resource_filename('svo_filters', 'data/spectra/vega.txt')
+        vega_file = str(resources.files(__package__).joinpath('data/spectra/vega.txt'))
         vega_data = np.genfromtxt(vega_file, unpack=True)[: 2]
         vega_data[0] *= 10000
         vega = rebin_spec(vega_data, x)
@@ -886,7 +886,7 @@ def filters(filter_directory=None):
         The list of band names
     """
     if filter_directory is None:
-        filter_directory = resource_filename('svo_filters', 'data/filters/')
+        filter_directory = str(resources.files(__package__).joinpath('data/filters/'))
 
     # Get list of files from dir
     files = glob(os.path.join(filter_directory, '*'))
